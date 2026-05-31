@@ -39,4 +39,4 @@ def detect_peaks(
             (freq, power)
         )
 
-    return results
+    return results, threshold

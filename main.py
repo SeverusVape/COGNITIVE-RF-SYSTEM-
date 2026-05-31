@@ -289,8 +289,8 @@ def update():
         ):
             fft_plot.removeItem(item)
 
-    # Detect peaks
-    peaks = detect_peaks(
+    # Detect peaks and thresholds
+    peaks, threshold = detect_peaks(
         power_db,
         freqs_mhz
     )
@@ -331,7 +331,8 @@ def update():
         "RTL-SDR Connected\n"
         f"Center: {freq_input.text()} MHz\n"
         f"Sample Rate: {SAMPLE_RATE / 1e6:.3f} MSPS\n"
-        f"Signals Found: {len(peaks)}"
+        f"Signals Found: {len(peaks)}\n"
+        f"Thresholds: {threshold:.1f} dB"
     )
 
     status_label.setText(
