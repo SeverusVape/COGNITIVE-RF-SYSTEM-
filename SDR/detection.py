@@ -7,10 +7,11 @@ def detect_peaks(
     power_db,
     freqs_mhz
 ):
+    threshold = np.mean(power_db) + 10
 
     peaks, properties = find_peaks(
         power_db,
-        height=45,
+        height=threshold,
         distance=300
     )
 

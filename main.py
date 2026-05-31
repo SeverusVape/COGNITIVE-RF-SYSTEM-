@@ -13,13 +13,10 @@ from PyQt6.QtWidgets import (
 )
 
 from PyQt6.QtCore import QTimer
-
 import pyqtgraph as pg
-
 from SDR.sdr_manager import SDRManager
 from SDR.fft_processing import compute_fft
 from SDR.detection import detect_peaks
-
 from UTILS.config import *
 
 
@@ -63,13 +60,14 @@ freq_label = QLabel(
     "Frequency (MHz)"
 )
 
+# Tune window
 freq_input = QLineEdit()
 freq_input.setText("100")
 tune_button = QPushButton(
     "Tune"
 )
 
-# Signals label
+# Signals window
 signals_label = QTextEdit()
 signals_label.setReadOnly(True)
 signals_label.setText(
@@ -77,7 +75,7 @@ signals_label.setText(
 )
 signals_label.setFixedHeight(100)
 
-# Status label
+# Status window
 status_label = QTextEdit()
 status_label.setReadOnly(True)
 status_label.setText(
@@ -102,6 +100,7 @@ control_layout.addWidget(
     QLabel("----------------")
 )
 control_layout.addWidget(status_label)
+
 # Push controls to top
 control_layout.addStretch()
 
@@ -163,8 +162,8 @@ curve = fft_plot.plot(
 
 
 # ---------------- NEXT ROW ----------------
-win.nextRow()
 
+win.nextRow()
 
 # ---------------- WATERFALL ----------------
 waterfall_plot = win.addPlot(
@@ -326,6 +325,7 @@ def update():
     signals_label.setText(
         signal_text
     )
+    # SDR status
     status_text = (
         "Status\n\n"
         "RTL-SDR Connected\n"
