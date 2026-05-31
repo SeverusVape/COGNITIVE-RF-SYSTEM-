@@ -8,7 +8,8 @@ from PyQt6.QtWidgets import (
     QHBoxLayout,
     QPushButton,
     QLineEdit,
-    QLabel
+    QLabel,
+    QTextEdit
 )
 
 from PyQt6.QtCore import QTimer
@@ -63,36 +64,48 @@ freq_label = QLabel(
 )
 
 freq_input = QLineEdit()
-
 freq_input.setText("100")
-
 tune_button = QPushButton(
     "Tune"
 )
 
+# Signals label
+signals_label = QTextEdit()
+signals_label.setReadOnly(True)
+signals_label.setText(
+    "Detected Signals\n\nNone"
+)
+signals_label.setFixedHeight(100)
+
+# Status label
+status_label = QTextEdit()
+status_label.setReadOnly(True)
+status_label.setText(
+    "Status\n\nStarting..."
+)
+status_label.setFixedHeight(150)
+
+# Control layout all
 control_layout.addWidget(
     freq_label
 )
-
 control_layout.addWidget(
     freq_input
 )
+control_layout.addWidget(tune_button)
 
 control_layout.addWidget(
-    tune_button
+    QLabel("----------------")
 )
-
+control_layout.addWidget(signals_label)
+control_layout.addWidget(
+    QLabel("----------------")
+)
+control_layout.addWidget(status_label)
 # Push controls to top
 control_layout.addStretch()
 
 # Add control panel to main layout
-main_layout.addLayout(
-    control_layout,
-    1
-)
-
-# THEN add right-side controls
-
 main_layout.addLayout(
     control_layout,
     1
@@ -281,6 +294,48 @@ def update():
     peaks = detect_peaks(
         power_db,
         freqs_mhz
+    )
+
+    signal_text = "Detected Signals\n\n"
+
+    if len(peaks) == 0:
+
+        signal_text += "None"
+
+    else:
+
+        for freq, power in peaks:
+
+            if power > 60:
+
+                strength = "Strong"
+
+            elif power > 45:
+
+                strength = "Medium"
+
+            else:
+
+                strength = "Weak"
+
+            signal_text += (
+                f"{freq:.2f} MHz  "
+                f"{strength}\n"
+            )
+
+    signals_label.setText(
+        signal_text
+    )
+    status_text = (
+        "Status\n\n"
+        "RTL-SDR Connected\n"
+        f"Center: {freq_input.text()} MHz\n"
+        f"Sample Rate: {SAMPLE_RATE / 1e6:.3f} MSPS\n"
+        f"Signals Found: {len(peaks)}"
+    )
+
+    status_label.setText(
+        status_text
     )
 
     # Draw peaks
