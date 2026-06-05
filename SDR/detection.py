@@ -24,7 +24,7 @@ def detect_peaks(
     )[::-1]
 
     top_peaks = peaks[
-        sorted_indices[:2]
+        sorted_indices[:3]
     ]
 
     results = []

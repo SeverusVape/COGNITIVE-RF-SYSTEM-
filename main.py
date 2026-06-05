@@ -12,7 +12,7 @@ from PyQt6.QtWidgets import (
     QTextEdit
 )
 
-from datetime import datetime
+
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import QRectF
 import pyqtgraph as pg
@@ -20,7 +20,7 @@ from SDR.sdr_manager import SDRManager
 from SDR.fft_processing import compute_fft
 from SDR.detection import detect_peaks
 from UTILS.config import *
-
+from LOGGING.signal_logger import log_signals
 
 # ---------------- SDR MANAGER ----------------
 sdr_manager = SDRManager(
@@ -28,12 +28,6 @@ sdr_manager = SDRManager(
     CENTER_FREQ,
     GAIN
 )
-
-
-LOG_FILE = "signal_log.txt"
-last_logged_signals = set()
-
-LOGGING_ENABLED = False
 
 # ---------------- QT APPLICATION ----------------
 app = QApplication(sys.argv)
@@ -287,7 +281,6 @@ def tune_frequency():
 def update():
 
     global waterfall
-    global last_logged_signals
     # SDR samples
     samples = sdr_manager.read_samples(
         NUM_SAMPLES
@@ -323,6 +316,10 @@ def update():
     peaks, threshold = detect_peaks(
         power_db,
         freqs_mhz
+    )
+
+    log_signals(
+        peaks
     )
 
     current_signals = set()
@@ -387,21 +384,6 @@ def update():
 
     # Draw peaks
     for freq, power in peaks:
-
-        signal_id = round(freq * 2) / 2
-        current_signals.add(signal_id)
-
-        if LOGGING_ENABLED and signal_id not in last_logged_signals:
-            timestamp = datetime.now().strftime(
-                "%H:%M:%S"
-            )
-
-            with open(LOG_FILE, "a") as file:
-                file.write(
-                    f"{timestamp}, "
-                    f"{freq:.2f} MHz, "
-                    f"{power:.1f} dB\n"
-                )
 
         peak_marker = pg.ScatterPlotItem(
             [freq],
