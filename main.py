@@ -13,6 +13,7 @@ from PyQt6.QtWidgets import (
 )
 
 from PyQt6.QtCore import QTimer
+from PyQt6.QtCore import QRectF
 import pyqtgraph as pg
 from SDR.sdr_manager import SDRManager
 from SDR.fft_processing import compute_fft
@@ -180,7 +181,9 @@ waterfall_plot.setLabel(
     units='MHz'
 )
 
-waterfall_img = pg.ImageItem()
+waterfall_img = pg.ImageItem(
+    axisOrder='row-major'
+)
 
 waterfall_plot.addItem(
     waterfall_img
@@ -207,6 +210,11 @@ freqs = freqs + CENTER_FREQ
 
 freqs_mhz = freqs / 1e6
 
+waterfall_plot.setXRange(
+    freqs_mhz[0],
+    freqs_mhz[-1],
+    padding=0
+)
 
 # ---------------- WATERFALL BUFFER ----------------
 waterfall = np.zeros(
@@ -215,7 +223,6 @@ waterfall = np.zeros(
         NUM_SAMPLES
     )
 )
-
 
 # ---------------- TUNE FUNCTION ----------------
 def tune_frequency():
@@ -245,6 +252,21 @@ def tune_frequency():
         freqs = freqs + new_freq
 
         freqs_mhz = freqs / 1e6
+
+        waterfall_plot.setXRange(
+            freqs_mhz[0],
+            freqs_mhz[-1],
+            padding=0
+        )
+
+        waterfall_img.setRect(
+            QRectF(
+                freqs_mhz[0],
+                0,
+                freqs_mhz[-1] - freqs_mhz[0],
+                WATERFALL_HISTORY
+            )
+        )
 
     except:
 
@@ -381,6 +403,15 @@ def update():
     waterfall_img.setImage(
         waterfall,
         autoLevels=False
+    )
+
+    waterfall_img.setRect(
+        QRectF(
+            freqs_mhz[0],
+            0,
+            freqs_mhz[-1] - freqs_mhz[0],
+            WATERFALL_HISTORY
+        )
     )
 
     waterfall_img.setLevels(
