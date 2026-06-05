@@ -21,6 +21,7 @@ from SDR.fft_processing import compute_fft
 from SDR.detection import detect_peaks
 from UTILS.config import *
 from LOGGING.signal_logger import log_signals
+from SURVEY.survey_manager import add_survey_result
 
 # ---------------- SDR MANAGER ----------------
 sdr_manager = SDRManager(
@@ -67,7 +68,9 @@ freq_input.setText("100")
 tune_button = QPushButton(
     "Tune"
 )
-
+survey_button = QPushButton(
+    "Add Survey Point"
+)
 # Signals window
 signals_label = QTextEdit()
 signals_label.setReadOnly(True)
@@ -84,31 +87,58 @@ status_label.setText(
 )
 status_label.setFixedHeight(200)
 
+# Survey window
+survey_label = QTextEdit()
+
+survey_label.setReadOnly(
+    True
+)
+
+survey_label.setText(
+    "Survey Results\n"
+)
+
+survey_label.setFixedHeight(
+    150
+)
+
 # Control layout all
 control_layout.addWidget(
     freq_label
 )
+
 control_layout.addWidget(
     freq_input
 )
+
 control_layout.addWidget(tune_button)
+control_layout.addWidget(survey_button)
 
 control_layout.addWidget(
     QLabel("----------------")
 )
+
 control_layout.addWidget(signals_label)
 control_layout.addWidget(
     QLabel("----------------")
 )
+
 control_layout.addWidget(status_label)
 
+control_layout.addWidget(
+    QLabel("----------------")
+)
+
+control_layout.addWidget(
+    survey_label
+)
 # Push controls to top
 control_layout.addStretch()
 
 # Add control panel to main layout
 main_layout.addLayout(
     control_layout,
-    1
+    2
 )
 
 # ---------------- GRAPH WINDOW ----------------
@@ -130,6 +160,11 @@ main_window.resize(
 
 main_window.show()
 
+add_survey_result(
+    survey_label,
+    100,
+    13
+)
 
 # ---------------- FFT PLOT ----------------
 fft_plot = win.addPlot(
@@ -226,6 +261,14 @@ waterfall = np.zeros(
     )
 )
 
+# ---------------- SURVEY FUNCTION --------------
+def add_current_survey_point():
+
+    add_survey_result(
+        survey_label,
+        float(freq_input.text()),
+        occupancy_percent
+    )
 # ---------------- TUNE FUNCTION ----------------
 def tune_frequency():
 
@@ -279,7 +322,7 @@ def tune_frequency():
 
 # ---------------- UPDATE FUNCTION ----------------
 def update():
-
+    global occupancy_percent
     global waterfall
     # SDR samples
     samples = sdr_manager.read_samples(
@@ -390,8 +433,8 @@ def update():
             [power + 2],
             symbol='t',
             size=14,
-            brush='red',
-            pen='white'
+            brush=pg.mkBrush(0, 220, 140, 255),
+            pen=pg.mkPen(color=(0, 220, 140, 100), width=3)
         )
 
         fft_plot.addItem(
@@ -455,7 +498,9 @@ timer.start(100)
 tune_button.clicked.connect(
     tune_frequency
 )
-
+survey_button.clicked.connect(
+    add_current_survey_point
+)
 
 # ---------------- START APPLICATION ----------------
 app.exec()
