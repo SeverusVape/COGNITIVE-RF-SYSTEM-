@@ -12,6 +12,7 @@ from PyQt6.QtWidgets import (
     QTextEdit
 )
 
+from datetime import datetime
 from PyQt6.QtCore import QTimer
 from PyQt6.QtCore import QRectF
 import pyqtgraph as pg
@@ -28,6 +29,9 @@ sdr_manager = SDRManager(
     GAIN
 )
 
+
+LOG_FILE = "signal_log.txt"
+last_logged_signals = set()
 
 # ---------------- QT APPLICATION ----------------
 app = QApplication(sys.argv)
@@ -82,7 +86,7 @@ status_label.setReadOnly(True)
 status_label.setText(
     "Status\n\nStarting..."
 )
-status_label.setFixedHeight(150)
+status_label.setFixedHeight(200)
 
 # Control layout all
 control_layout.addWidget(
@@ -171,7 +175,7 @@ waterfall_plot = win.addPlot(
     title="Waterfall"
 )
 
-waterfall_plot.setMaximumHeight(250)
+waterfall_plot.setMaximumHeight(200)
 
 waterfall_plot.hideAxis(
     'left'
@@ -281,7 +285,7 @@ def tune_frequency():
 def update():
 
     global waterfall
-
+    global last_logged_signals
     # SDR samples
     samples = sdr_manager.read_samples(
         NUM_SAMPLES
@@ -318,6 +322,20 @@ def update():
         power_db,
         freqs_mhz
     )
+
+    current_signals = set()
+
+    occupied_bins = np.sum(
+        power_db > threshold
+    )
+
+    occupancy_percent = (
+        occupied_bins / len(power_db)
+        ) * 100
+# Occupancy bar
+    bars = int(occupancy_percent / 10)
+
+    meter = "[" + "■" * bars + "□" * (10 - bars) + "]"
 
     signal_text = "Detected Signals\n\n"
 
@@ -357,7 +375,8 @@ def update():
         f"Sample Rate: {SAMPLE_RATE / 1e6:.3f} MSPS\n"
         f"Range: {freqs_mhz[0]:.3f} - {freqs_mhz[-1]:.3f} MHz\n"
         f"Signals Found: {len(peaks)}\n"
-        f"Thresholds: {threshold:.1f} dB"
+        f"Thresholds: {threshold:.1f} dB\n"
+        f"Occupancy: {meter} {occupancy_percent:.0f}%\n"
     )
 
     status_label.setText(
@@ -366,6 +385,21 @@ def update():
 
     # Draw peaks
     for freq, power in peaks:
+
+        signal_id = round(freq * 2) / 2
+        current_signals.add(signal_id)
+
+        if signal_id not in last_logged_signals:
+            timestamp = datetime.now().strftime(
+                "%H:%M:%S"
+            )
+
+            with open(LOG_FILE, "a") as file:
+                file.write(
+                    f"{timestamp}, "
+                    f"{freq:.2f} MHz, "
+                    f"{power:.1f} dB\n"
+                )
 
         peak_marker = pg.ScatterPlotItem(
             [freq],
@@ -394,6 +428,7 @@ def update():
             label
         )
 
+    last_logged_signals = current_signals.copy()
     # Update waterfall
     waterfall = np.roll(
         waterfall,
