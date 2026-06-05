@@ -116,7 +116,7 @@ win = pg.GraphicsLayoutWidget()
 
 main_layout.addWidget(
     win,
-    8
+    6
 )
 
 main_window.setLayout(
@@ -170,6 +170,8 @@ win.nextRow()
 waterfall_plot = win.addPlot(
     title="Waterfall"
 )
+
+waterfall_plot.setMaximumHeight(250)
 
 waterfall_plot.hideAxis(
     'left'
@@ -353,6 +355,7 @@ def update():
         "RTL-SDR Connected\n"
         f"Center: {freq_input.text()} MHz\n"
         f"Sample Rate: {SAMPLE_RATE / 1e6:.3f} MSPS\n"
+        f"Range: {freqs_mhz[0]:.3f} - {freqs_mhz[-1]:.3f} MHz\n"
         f"Signals Found: {len(peaks)}\n"
         f"Thresholds: {threshold:.1f} dB"
     )
