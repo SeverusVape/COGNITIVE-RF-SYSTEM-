@@ -33,6 +33,8 @@ sdr_manager = SDRManager(
 LOG_FILE = "signal_log.txt"
 last_logged_signals = set()
 
+LOGGING_ENABLED = False
+
 # ---------------- QT APPLICATION ----------------
 app = QApplication(sys.argv)
 
@@ -389,7 +391,7 @@ def update():
         signal_id = round(freq * 2) / 2
         current_signals.add(signal_id)
 
-        if signal_id not in last_logged_signals:
+        if LOGGING_ENABLED and signal_id not in last_logged_signals:
             timestamp = datetime.now().strftime(
                 "%H:%M:%S"
             )
