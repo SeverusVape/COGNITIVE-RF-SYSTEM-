@@ -25,6 +25,22 @@ from SURVEY.survey_manager import (
     clear_survey
 )
 
+from UI.survey_controls import (
+    create_survey_controls
+)
+
+from UI.signal_panel import (
+    create_signal_panel
+)
+
+from UI.status_panel import (
+    create_status_panel
+)
+
+from UI.survey_panel import (
+    create_survey_panel
+)
+
 # ---------------- SDR MANAGER ----------------
 sdr_manager = SDRManager(
     SAMPLE_RATE,
@@ -78,36 +94,21 @@ clear_survey_button = QPushButton(
     "Clear Survey"
 )
 
+(
+    start_freq_input,
+    stop_freq_input,
+    step_freq_input,
+    start_survey_button
+) = create_survey_controls()
+
 # Signals window
-signals_label = QTextEdit()
-signals_label.setReadOnly(True)
-signals_label.setText(
-    "Detected Signals\n\nNone"
-)
-signals_label.setFixedHeight(100)
+signals_label = create_signal_panel()
 
 # Status window
-status_label = QTextEdit()
-status_label.setReadOnly(True)
-status_label.setText(
-    "Status\n\nStarting..."
-)
-status_label.setFixedHeight(200)
+status_label = create_status_panel()
 
 # Survey window
-survey_label = QTextEdit()
-
-survey_label.setReadOnly(
-    True
-)
-
-survey_label.setText(
-    "Survey Results\n"
-)
-
-survey_label.setFixedHeight(
-    150
-)
+survey_label = create_survey_panel()
 
 # Control layout all
 control_layout.addWidget(
@@ -137,9 +138,39 @@ control_layout.addWidget(
     QLabel("----------------")
 )
 
+# SURVEY RESULTS
+control_layout.addWidget(
+    QLabel("Start MHz")
+)
+
+control_layout.addWidget(
+    start_freq_input
+)
+
+control_layout.addWidget(
+    QLabel("Stop MHz")
+)
+
+control_layout.addWidget(
+    stop_freq_input
+)
+
+control_layout.addWidget(
+    QLabel("Step MHz")
+)
+
+control_layout.addWidget(
+    step_freq_input
+)
+
+control_layout.addWidget(
+    start_survey_button
+)
+
 control_layout.addWidget(
     survey_label
 )
+
 # Push controls to top
 control_layout.addStretch()
 
