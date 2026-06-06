@@ -327,10 +327,10 @@ def tune_frequency():
             )
         )
 
-    finally:
+    except Exception as e:
 
         print(
-            "Invalid frequency"
+            f"Invalid frequency: {e}"
         )
 
 
