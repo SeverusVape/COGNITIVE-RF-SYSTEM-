@@ -13,11 +13,13 @@ def add_survey_result(
 
     text = "Survey Results\n\n"
 
-    for freq, occ in survey_results.items():
+    for freq in sorted(
+            survey_results.keys()
+    ):
 
         text += (
             f"{freq:.1f} MHz | "
-            f"{occ}%\n"
+            f"{survey_results[freq]}%\n"
         )
 
     survey_label.setText(
