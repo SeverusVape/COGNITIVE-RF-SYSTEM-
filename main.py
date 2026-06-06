@@ -78,6 +78,8 @@ main_layout = QHBoxLayout()
 # ==================================================
 control_layout = QVBoxLayout()
 
+info_layout = QVBoxLayout()
+
 (
     freq_label,
     freq_input,
@@ -121,25 +123,19 @@ control_layout.addWidget(
     clear_survey_button
 )
 
-control_layout.addWidget(
-    QLabel("----------------")
-)
-
-control_layout.addWidget(
+info_layout.addWidget(
     signals_label
 )
 
-control_layout.addWidget(
-    QLabel("----------------")
+info_layout.addWidget(
+    survey_label
 )
 
-control_layout.addWidget(
+info_layout.addWidget(
     status_label
 )
 
-control_layout.addWidget(
-    QLabel("----------------")
-)
+info_layout.addStretch()
 
 control_layout.addWidget(
     QLabel("Start MHz")
@@ -169,10 +165,6 @@ control_layout.addWidget(
     start_survey_button
 )
 
-control_layout.addWidget(
-    survey_label
-)
-
 control_layout.addStretch()
 
 main_layout.addLayout(
@@ -188,7 +180,12 @@ win = pg.GraphicsLayoutWidget()
 
 main_layout.addWidget(
     win,
-    6
+    8
+)
+
+main_layout.addLayout(
+    info_layout,
+    2
 )
 
 main_window.setLayout(
