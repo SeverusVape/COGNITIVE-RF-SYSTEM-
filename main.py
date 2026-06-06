@@ -628,6 +628,14 @@ def update():
         power_db
     )
 
+# ==================================================
+# SURVEY AUTOMATION
+# ==================================================
+def start_survey():
+
+    print(
+        "Survey Started"
+    )
 
 # ==================================================
 # TIMER SETUP
@@ -658,6 +666,9 @@ clear_survey_button.clicked.connect(
     clear_current_survey
 )
 
+start_survey_button.clicked.connect(
+    start_survey
+)
 
 # ==================================================
 # START APPLICATION
