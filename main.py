@@ -13,15 +13,17 @@ from PyQt6.QtWidgets import (
 )
 
 
-from PyQt6.QtCore import QTimer
-from PyQt6.QtCore import QRectF
+from PyQt6.QtCore import (QTimer, QRectF)
 import pyqtgraph as pg
 from SDR.sdr_manager import SDRManager
 from SDR.fft_processing import compute_fft
 from SDR.detection import detect_peaks
 from UTILS.config import *
 from LOGGING.signal_logger import log_signals
-from SURVEY.survey_manager import add_survey_result
+from SURVEY.survey_manager import (
+    add_survey_result,
+    clear_survey
+)
 
 # ---------------- SDR MANAGER ----------------
 sdr_manager = SDRManager(
@@ -71,6 +73,11 @@ tune_button = QPushButton(
 survey_button = QPushButton(
     "Add Survey Point"
 )
+
+clear_survey_button = QPushButton(
+    "Clear Survey"
+)
+
 # Signals window
 signals_label = QTextEdit()
 signals_label.setReadOnly(True)
@@ -113,6 +120,7 @@ control_layout.addWidget(
 
 control_layout.addWidget(tune_button)
 control_layout.addWidget(survey_button)
+control_layout.addWidget(clear_survey_button)
 
 control_layout.addWidget(
     QLabel("----------------")
@@ -269,6 +277,12 @@ def add_current_survey_point():
         float(freq_input.text()),
         occupancy_percent
     )
+
+def clear_current_survey():
+
+    clear_survey(
+        survey_label
+    )
 # ---------------- TUNE FUNCTION ----------------
 def tune_frequency():
 
@@ -313,7 +327,7 @@ def tune_frequency():
             )
         )
 
-    except:
+    finally:
 
         print(
             "Invalid frequency"
@@ -322,8 +336,10 @@ def tune_frequency():
 
 # ---------------- UPDATE FUNCTION ----------------
 def update():
+
     global occupancy_percent
     global waterfall
+
     # SDR samples
     samples = sdr_manager.read_samples(
         NUM_SAMPLES
@@ -494,12 +510,16 @@ timer.timeout.connect(
 timer.start(100)
 
 
-# ---------------- BUTTONS ----------------
+# ---------------- BUTTONS CONNECTION ----------------
 tune_button.clicked.connect(
     tune_frequency
 )
 survey_button.clicked.connect(
     add_current_survey_point
+)
+
+clear_survey_button.clicked.connect(
+    clear_current_survey
 )
 
 # ---------------- START APPLICATION ----------------

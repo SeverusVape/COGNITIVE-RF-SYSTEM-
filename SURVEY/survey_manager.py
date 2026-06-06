@@ -1,16 +1,36 @@
+survey_results = {}
+
+
 def add_survey_result(
     survey_label,
     frequency,
     occupancy
 ):
 
-    current_text = survey_label.toPlainText()
+    survey_results[
+        round(frequency, 1)
+    ] = round(occupancy)
 
-    new_line = (
-        f"{frequency:.1f} MHz | "
-        f"{occupancy:.0f}%\n"
-    )
+    text = "Survey Results\n\n"
+
+    for freq, occ in survey_results.items():
+
+        text += (
+            f"{freq:.1f} MHz | "
+            f"{occ}%\n"
+        )
 
     survey_label.setText(
-        current_text + "\n" + new_line
+        text
+    )
+
+
+def clear_survey(
+    survey_label
+):
+
+    survey_results.clear()
+
+    survey_label.setText(
+        "Survey Results"
     )
