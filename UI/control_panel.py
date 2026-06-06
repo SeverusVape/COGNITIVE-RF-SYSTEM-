@@ -1,0 +1,34 @@
+from PyQt6.QtWidgets import (
+    QLabel,
+    QLineEdit,
+    QPushButton
+)
+
+def create_control_widgets():
+
+    freq_label = QLabel(
+        "Frequency (MHz)"
+    )
+
+    freq_input = QLineEdit()
+    freq_input.setText("100")
+
+    tune_button = QPushButton(
+        "Tune"
+    )
+
+    survey_button = QPushButton(
+        "Add Survey Point"
+    )
+
+    clear_survey_button = QPushButton(
+        "Clear Survey"
+    )
+
+    return (
+        freq_label,
+        freq_input,
+        tune_button,
+        survey_button,
+        clear_survey_button
+    )
