@@ -399,16 +399,59 @@ def calculate_occupancy(
         occupancy / 10
     )
 
+    COLOR_BLUE = "#2ab7ca"
+    COLOR_GREEN = "#24b755"
+    COLOR_YELLOW = "#f4b400"
+    COLOR_RED = "#fe4a49"
+    COLOR_EMPTY = "#333333"
+
+    colored_bars = ""
+
+    for i in range(1, 11):
+
+        if i <= bars:
+
+            if i <= 4:
+
+                color = COLOR_BLUE
+
+            elif i <= 7:
+
+                color = COLOR_GREEN
+
+            elif i <= 9:
+
+                color = COLOR_YELLOW
+
+            else:
+
+                color = COLOR_RED
+
+            colored_bars += (
+                f'<span style="color:{color};">'
+                '■'
+                '</span>'
+            )
+
+        else:
+
+            colored_bars += (
+                f'<span style="color:{COLOR_EMPTY};">'
+                '░'
+                '</span>'
+            )
+
     meter = (
-        "[" +
-        "■" * bars +
-        "□" * (10 - bars) +
-        "]"
+
+        f'<span style="font-family: Courier New; color: #ffffff;">'
+
+        f'[{colored_bars}]'
+
+        f'</span>'
+
     )
 
     return occupancy, meter
-
-
 # ==================================================
 # SIGNAL PANEL UPDATE
 # ==================================================
@@ -457,19 +500,18 @@ def update_status_panel(
     meter,
     occupancy
 ):
-
     status_text = (
-        "Status\n\n"
-        "RTL-SDR Connected\n"
-        f"Center: {freq_input.text()} MHz\n"
-        f"Sample Rate: {SAMPLE_RATE / 1e6:.3f} MSPS\n"
-        f"Range: {freqs_mhz[0]:.3f} - {freqs_mhz[-1]:.3f} MHz\n"
-        f"Signals Found: {len(peaks)}\n"
-        f"Thresholds: {threshold:.1f} dB\n"
-        f"Occupancy: {meter} {occupancy:.0f}%\n"
+        "<b>Status</b><br><br>"
+        "RTL-SDR Connected<br>"
+        f"Center: {freq_input.text()} MHz<br>"
+        f"Sample Rate: {SAMPLE_RATE / 1e6:.3f} MSPS<br>"
+        f"Range: {freqs_mhz[0]:.3f} - {freqs_mhz[-1]:.3f} MHz<br>"
+        f"Signals Found: {len(peaks)}<br>"
+        f"Thresholds: {threshold:.1f} dB<br>"
+        f"Occupancy: {meter}&nbsp;&nbsp;{occupancy:.0f}%<br>"
     )
 
-    status_label.setText(
+    status_label.setHtml(
         status_text
     )
 
