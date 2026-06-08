@@ -304,6 +304,8 @@ waterfall = np.zeros(
     )
 )
 
+smoothed_fft = None
+
 occupancy_percent = 0
 
 
@@ -632,9 +634,22 @@ def update():
         samples
     )
 
+    global smoothed_fft
+
+    if smoothed_fft is None:
+
+        smoothed_fft = power_db.copy()
+
+    else:
+
+        smoothed_fft = (
+                0.9 * smoothed_fft +
+                0.1 * power_db
+        )
+
     curve.setData(
         freqs_mhz,
-        power_db
+        smoothed_fft
     )
 
     peaks, threshold = detect_peaks(
