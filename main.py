@@ -692,6 +692,8 @@ def update():
 survey_timer = QTimer()
 survey_frequencies = []
 current_survey_index = 0
+survey_results = {}
+occupancy_percent = 0
 
 def start_survey():
 
@@ -739,7 +741,7 @@ def start_survey():
     )
 
     survey_timer.start(
-        1000
+        5000
     )
 # ==================================================
 # SURVEY TIMER SETUP
@@ -750,6 +752,8 @@ def survey_step():
     global current_survey_index
     global survey_frequencies
     global survey_timer
+    global occupancy_percent
+    global survey_results
 
     if current_survey_index >= len(
             survey_frequencies
@@ -771,6 +775,15 @@ def survey_step():
     )
 
     tune_frequency()
+
+    survey_results[frequency] = round(
+        float(occupancy_percent), 1
+    )
+
+    print(
+        f"{frequency:.1f} MHz -> "
+        f"{occupancy_percent:.1f}%"
+    )
 
     current_survey_index += 1
 
