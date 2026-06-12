@@ -227,8 +227,8 @@ fft_plot.showGrid(
 
 curve = fft_plot.plot(
     pen=pg.mkPen(
-        color=(148, 0, 211),
-        width=2
+        color=(180, 0, 255),
+        width=1
     )
 )
 
@@ -690,10 +690,60 @@ def update():
 # ==================================================
 def start_survey():
 
-    print(
-        "Survey Started"
+    start_mhz = float(
+        start_freq_input.text()
     )
 
+    stop_mhz = float(
+        stop_freq_input.text()
+    )
+
+    step_mhz = float(
+        step_freq_input.text()
+    )
+
+    survey_frequencies = []
+
+    frequency = start_mhz
+
+    while frequency <= stop_mhz:
+        survey_frequencies.append(
+            frequency
+        )
+
+        frequency += step_mhz
+
+    first_frequency = survey_frequencies[0]
+
+    freq_input.setText(
+        str(first_frequency)
+    )
+
+    tune_frequency()
+
+    new_freq = first_frequency * 1e6
+
+    sdr_manager.tune(
+        new_freq
+    )
+
+    print(
+        f"Tuned to {first_frequency} MHz"
+    )
+
+    survey_text = (
+        "Survey Results\n\n"
+        f"Points: {len(survey_frequencies)}\n\n"
+    )
+
+    for freq in survey_frequencies:
+        survey_text += (
+            f"{freq:.1f} MHz\n"
+        )
+
+    survey_label.setText(
+        survey_text
+    )
 # ==================================================
 # TIMER SETUP
 # ==================================================
