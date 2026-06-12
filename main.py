@@ -688,7 +688,16 @@ def update():
 # ==================================================
 # SURVEY AUTOMATION
 # ==================================================
+
+survey_timer = QTimer()
+survey_frequencies = []
+current_survey_index = 0
+
 def start_survey():
+
+    global survey_frequencies
+    global current_survey_index
+    #global survey_timer
 
     start_mhz = float(
         start_freq_input.text()
@@ -702,8 +711,6 @@ def start_survey():
         step_freq_input.text()
     )
 
-    survey_frequencies = []
-
     frequency = start_mhz
 
     while frequency <= stop_mhz:
@@ -712,24 +719,6 @@ def start_survey():
         )
 
         frequency += step_mhz
-
-    first_frequency = survey_frequencies[0]
-
-    freq_input.setText(
-        str(first_frequency)
-    )
-
-    tune_frequency()
-
-    new_freq = first_frequency * 1e6
-
-    sdr_manager.tune(
-        new_freq
-    )
-
-    print(
-        f"Tuned to {first_frequency} MHz"
-    )
 
     survey_text = (
         "Survey Results\n\n"
@@ -744,8 +733,49 @@ def start_survey():
     survey_label.setText(
         survey_text
     )
+
+    survey_timer.timeout.connect(
+        survey_step
+    )
+
+    survey_timer.start(
+        1000
+    )
 # ==================================================
-# TIMER SETUP
+# SURVEY TIMER SETUP
+# ==================================================
+
+def survey_step():
+
+    global current_survey_index
+    global survey_frequencies
+    global survey_timer
+
+    if current_survey_index >= len(
+            survey_frequencies
+    ):
+        survey_timer.stop()
+
+        print(
+            "Survey Complete"
+        )
+
+        return
+
+    frequency = survey_frequencies[
+        current_survey_index
+    ]
+
+    freq_input.setText(
+        str(frequency)
+    )
+
+    tune_frequency()
+
+    current_survey_index += 1
+
+# ==================================================
+# TIMER SETUP MAIN
 # ==================================================
 timer = QTimer()
 
