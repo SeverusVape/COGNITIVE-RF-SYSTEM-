@@ -119,10 +119,6 @@ control_layout.addWidget(
     survey_button
 )
 
-control_layout.addWidget(
-    clear_survey_button
-)
-
 info_layout.addWidget(
     signals_label
 )
@@ -163,6 +159,10 @@ control_layout.addWidget(
 
 control_layout.addWidget(
     start_survey_button
+)
+
+control_layout.addWidget(
+    clear_survey_button
 )
 
 control_layout.addStretch()
@@ -323,10 +323,20 @@ def add_current_survey_point():
 
 def clear_current_survey():
 
-    clear_survey(
-        survey_label
-    )
+    global survey_timer
+    global survey_frequencies
+    global survey_results
+    global current_survey_index
 
+    survey_timer.stop()
+
+    survey_frequencies = []
+    survey_results = {}
+    current_survey_index = 0
+
+    survey_label.setText(
+        "Survey Cleared"
+    )
 
 # ==================================================
 # FREQUENCY TUNING FUNCTION
@@ -689,17 +699,18 @@ def update():
 # SURVEY AUTOMATION
 # ==================================================
 
-survey_timer = QTimer()
-survey_frequencies = []
-current_survey_index = 0
-survey_results = {}
+
 occupancy_percent = 0
 
 def start_survey():
 
     global survey_frequencies
     global current_survey_index
-    #global survey_timer
+    global survey_results
+    # clean the array
+    survey_frequencies = []
+    survey_results = {}
+    current_survey_index = 0
 
     start_mhz = float(
         start_freq_input.text()
@@ -722,30 +733,28 @@ def start_survey():
 
         frequency += step_mhz
 
-    survey_text = (
-        "Survey Results\n\n"
-        f"Points: {len(survey_frequencies)}\n\n"
-    )
-
-    for freq in survey_frequencies:
-        survey_text += (
-            f"{freq:.1f} MHz\n"
-        )
-
     survey_label.setText(
-        survey_text
+        f"SURVEY STATUS\n\n"
+        f"Frequency:\n"
+        f"{survey_frequencies[0]:.1f} MHz\n\n"
+        f"Point:\n"
+        f"0 / {len(survey_frequencies)}\n\n"
+        f"Progress:\n"
+        f"0%"
     )
 
-    survey_timer.timeout.connect(
-        survey_step
-    )
+
 
     survey_timer.start(
-        5000
+        3000
     )
+
+
 # ==================================================
 # SURVEY TIMER SETUP
 # ==================================================
+survey_timer = QTimer()
+
 
 def survey_step():
 
@@ -764,11 +773,66 @@ def survey_step():
             "Survey Complete"
         )
 
+        sorted_results = sorted(
+            survey_results.items(),
+            key=lambda x: x[1],
+            reverse=True
+        )
+
+        results_text = (
+            "Survey Complete\n\n"
+            "Top Frequencies\n\n"
+        )
+
+        for freq, occupancy in sorted_results[:10]:
+            results_text += (
+                f"{freq:.1f} MHz"
+                f" -> "
+                f"{occupancy:.1f}%\n"
+            )
+
+        survey_label.setText(
+            results_text
+        )
+
         return
 
     frequency = survey_frequencies[
         current_survey_index
     ]
+
+    progress_percent = int(
+        (current_survey_index + 1)
+        / len(survey_frequencies)
+        * 100
+    )
+
+    bar_length = 20
+    bars = int(
+        progress_percent / 100 * bar_length
+    )
+
+    progress_bar = (
+            "▮" * bars +
+            "▯" * (20 - bars)
+    )
+
+    survey_text = (
+        "SURVEY STATUS\n\n"
+        f"Frequency:\n"
+        f"{frequency:.1f} MHz\n\n"
+        f"Point:\n"
+        f"{current_survey_index + 1}"
+        f" / "
+        f"{len(survey_frequencies)}\n\n"
+        f"Progress:\n"
+        f"{progress_bar}\n"
+        f"{progress_percent}%"
+    )
+
+    survey_label.setText(
+        survey_text
+    )
 
     freq_input.setText(
         str(frequency)
@@ -787,6 +851,13 @@ def survey_step():
 
     current_survey_index += 1
 
+# =========================================
+# CONNECT SURVEY TIMER
+# =========================================
+
+survey_timer.timeout.connect(
+        survey_step
+    )
 # ==================================================
 # TIMER SETUP MAIN
 # ==================================================
