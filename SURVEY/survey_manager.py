@@ -1,5 +1,11 @@
-survey_results = {}
+# ==================================================
+# SURVEY STATE
+# ==================================================
 
+survey_frequencies = []
+survey_results = {}
+current_survey_index = 0
+occupancy_percent = 0
 
 def add_survey_result(
     survey_label,
@@ -36,3 +42,130 @@ def clear_survey(
     survey_label.setText(
         "Survey Results"
     )
+
+# ==================================================
+# SURVEY HELPERS
+# ==================================================
+
+def build_progress_bar(
+        progress_percent
+):
+
+    bar_length = 20
+
+    bars = int(
+        progress_percent
+        / 100
+        * bar_length
+    )
+
+    progress_bar = (
+        "▮" * bars +
+        "▯" * (bar_length - bars)
+    )
+
+    return progress_bar
+
+# ==================================================
+# FREQUENCY GENERATION
+# ==================================================
+
+def generate_frequencies(
+        start_mhz,
+        stop_mhz,
+        step_mhz
+):
+
+    frequencies = []
+
+    frequency = start_mhz
+
+    while frequency <= stop_mhz:
+        frequencies.append(
+            round(frequency, 6)
+        )
+
+        frequency = round(
+            frequency + step_mhz,
+            6
+        )
+
+    if (
+            len(frequencies) > 0
+            and frequencies[-1] != round(
+                stop_mhz, 6
+        )
+    ):
+        frequencies.append(
+            round(
+                stop_mhz,6
+            )
+        )
+
+    return frequencies
+
+# ==================================================
+# RESULT RANKING
+# ==================================================
+
+def rank_frequencies(
+        survey_results
+):
+
+    sorted_results = sorted(
+        survey_results.items(),
+        key=lambda x: x[1],
+        reverse=True
+    )
+
+    return sorted_results
+
+# ==================================================
+# RESULTS TEXT
+# ==================================================
+
+def build_results_text(
+        sorted_results
+):
+
+    results_text = (
+        "Survey Complete\n\n"
+        "Top Frequencies\n\n"
+    )
+
+    for freq, occupancy in sorted_results[:10]:
+
+        results_text += (
+            f"{freq:.3f} MHz"
+            f" -> "
+            f"{occupancy:.1f}%\n"
+        )
+
+    return results_text
+
+# ==================================================
+# STATUS TEXT
+# ==================================================
+
+def build_status_text(
+        frequency,
+        current_point,
+        total_points,
+        progress_percent,
+        progress_bar
+):
+
+    survey_text = (
+        "SURVEY STATUS\n\n"
+        f"Frequency:\n"
+        f"{frequency:.3f} MHz\n\n"
+        f"Point:\n"
+        f"{current_point}"
+        f" / "
+        f"{total_points}\n\n"
+        f"Progress:\n"
+        f"{progress_bar}\n"
+        f"{progress_percent}%"
+    )
+
+    return survey_text

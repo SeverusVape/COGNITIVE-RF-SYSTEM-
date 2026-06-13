@@ -16,6 +16,7 @@ from PyQt6.QtCore import (
 
 import pyqtgraph as pg
 
+import SURVEY.survey_manager as survey
 from SDR.sdr_manager import SDRManager
 from SDR.fft_processing import compute_fft
 from SDR.detection import detect_peaks
@@ -25,7 +26,12 @@ from LOGGING.signal_logger import log_signals
 
 from SURVEY.survey_manager import (
     add_survey_result,
-    clear_survey
+    clear_survey,
+    build_progress_bar,
+    generate_frequencies,
+    rank_frequencies,
+    build_status_text,
+    build_results_text
 )
 
 from UI.control_panel import create_control_widgets
@@ -321,21 +327,19 @@ def add_current_survey_point():
     )
 
 
+
+
 def clear_current_survey():
 
     global survey_timer
-    global survey_frequencies
-    global survey_results
-    global current_survey_index
 
     survey_timer.stop()
+    survey.survey_frequencies = []
+    survey.survey_results = {}
+    survey.current_survey_index = 0
 
-    survey_frequencies = []
-    survey_results = {}
-    current_survey_index = 0
-
-    survey_label.setText(
-        "Survey Cleared"
+    clear_survey(
+        survey_label
     )
 
 # ==================================================
@@ -699,9 +703,6 @@ def update():
 # SURVEY AUTOMATION
 # ==================================================
 
-
-occupancy_percent = 0
-
 def start_survey():
 
     global survey_frequencies
@@ -724,14 +725,13 @@ def start_survey():
         step_freq_input.text()
     )
 
-    frequency = start_mhz
-
-    while frequency <= stop_mhz:
-        survey_frequencies.append(
-            frequency
+    survey_frequencies = (
+        generate_frequencies(
+            start_mhz,
+            stop_mhz,
+            step_mhz
         )
-
-        frequency += step_mhz
+    )
 
     survey_label.setText(
         f"SURVEY STATUS\n\n"
@@ -773,15 +773,12 @@ def survey_step():
             "Survey Complete"
         )
 
-        sorted_results = sorted(
-            survey_results.items(),
-            key=lambda x: x[1],
-            reverse=True
+        sorted_results = rank_frequencies(
+            survey_results
         )
 
-        results_text = (
-            "Survey Complete\n\n"
-            "Top Frequencies\n\n"
+        results_text = build_results_text(
+            sorted_results
         )
 
         for freq, occupancy in sorted_results[:10]:
@@ -807,27 +804,16 @@ def survey_step():
         * 100
     )
 
-    bar_length = 20
-    bars = int(
-        progress_percent / 100 * bar_length
+    progress_bar = build_progress_bar(
+        progress_percent
     )
 
-    progress_bar = (
-            "▮" * bars +
-            "▯" * (20 - bars)
-    )
-
-    survey_text = (
-        "SURVEY STATUS\n\n"
-        f"Frequency:\n"
-        f"{frequency:.1f} MHz\n\n"
-        f"Point:\n"
-        f"{current_survey_index + 1}"
-        f" / "
-        f"{len(survey_frequencies)}\n\n"
-        f"Progress:\n"
-        f"{progress_bar}\n"
-        f"{progress_percent}%"
+    survey_text = build_status_text(
+        frequency,
+        current_survey_index + 1,
+        len(survey_frequencies),
+        progress_percent,
+        progress_bar
     )
 
     survey_label.setText(
