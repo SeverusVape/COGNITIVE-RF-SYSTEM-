@@ -14,6 +14,8 @@ from PyQt6.QtCore import (
     QRectF
 )
 
+from PyQt6.QtTest import QTest
+
 import pyqtgraph as pg
 
 import SURVEY.survey_manager as survey
@@ -249,7 +251,7 @@ waterfall_plot = win.addPlot(
 )
 
 waterfall_plot.setMaximumHeight(
-    200
+    180
 )
 
 waterfall_plot.hideAxis(
@@ -279,10 +281,6 @@ waterfall_img.setColorMap(
 )
 
 # ==================================================
-# HEAT MAP PLOT SETUP
-# ==================================================
-
-# ==================================================
 # HEAT MAP SETUP
 # ==================================================
 
@@ -293,7 +291,7 @@ heatmap_plot = win.addPlot(
 )
 
 heatmap_plot.setMaximumHeight(
-    180
+    100
 )
 
 heatmap_img = pg.ImageItem(
@@ -306,6 +304,14 @@ heatmap_plot.addItem(
 
 heatmap_img.setColorMap(
     colormap
+)
+
+heatmap_plot.hideAxis(
+    "left"
+)
+
+heatmap_plot.hideAxis(
+    "bottom"
 )
 
 # ==================================================
@@ -813,16 +819,8 @@ def survey_step():
                 occupancy
             )
 
-        heatmap_data = np.array(
-            [occupancies]
-        )
-
-        print(
-            heatmap_data
-        )
-
-        print(
-            heatmap_data.shape
+        heatmap_data = np.tile(
+            occupancies, (20, 1)
         )
 
         heatmap_img.setImage(
@@ -832,23 +830,24 @@ def survey_step():
         best_frequency = sorted_results[0][0]
         best_occupancy = sorted_results[0][1]
 
-        results_text = (
-            "Survey Complete\n\n"
-            "Best Frequency\n\n"
-            f"{best_frequency:.3f} MHz\n"
-            f"{best_occupancy:.1f}%\n\n"
+        average_occupancy = round(
+            sum(survey_results.values())
+            / len(survey_results),
+            1
         )
 
-        results_text += build_results_text(
-            sorted_results
+        points_scanned = len(
+            survey_results
         )
 
-        for freq, occupancy in sorted_results[:5]:
-            results_text += (
-                f"{freq:.1f} MHz"
-                f" -> "
-                f"{occupancy:.1f}%\n"
-            )
+        results_text = build_results_text(
+            sorted_results,
+            points_scanned,
+            average_occupancy,
+            best_frequency,
+            best_occupancy
+        )
+
 
         survey_label.setText(
             results_text
@@ -887,6 +886,10 @@ def survey_step():
     )
 
     tune_frequency()
+
+    QTest.qWait(
+        500
+    )
 
     survey_results[frequency] = round(
         float(occupancy_percent), 1
