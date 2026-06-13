@@ -33,7 +33,8 @@ from SURVEY.survey_manager import (
     generate_frequencies,
     rank_frequencies,
     build_status_text,
-    build_results_text
+    build_results_text,
+    heatmap_history
 )
 
 from UI.heatmap_panel import (
@@ -677,10 +678,14 @@ def start_survey():
     global survey_frequencies
     global current_survey_index
     global survey_results
+    global heatmap_history
+    global heatmap_history
     # clean the array
     survey_frequencies = []
     survey_results = {}
     current_survey_index = 0
+
+    heatmap_history.clear()
 
     start_mhz = float(
         start_freq_input.text()
@@ -753,8 +758,12 @@ def survey_step():
                 occupancy
             )
 
+        heatmap_history.append(
+            occupancies
+        )
+
         heatmap_data = np.array(
-            [occupancies]
+            heatmap_history
         )
 
         heatmap_img.setImage(
@@ -769,6 +778,12 @@ def survey_step():
                 - survey_frequencies[0],
                 1
             )
+        )
+
+        heatmap_plot.setLabel(
+            "bottom",
+            "Frequency",
+            units="MHz"
         )
 
         best_frequency = sorted_results[0][0]

@@ -6,6 +6,7 @@ survey_frequencies = []
 survey_results = {}
 current_survey_index = 0
 occupancy_percent = 0
+heatmap_history = []
 
 best_frequency = None
 best_occupancy = 0
