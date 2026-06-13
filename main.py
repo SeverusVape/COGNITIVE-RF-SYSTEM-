@@ -773,12 +773,22 @@ def survey_step():
                 occupancy
             )
 
-        heatmap_data = np.tile(
-            occupancies, (20, 1)
+        heatmap_data = np.array(
+            [occupancies]
         )
 
         heatmap_img.setImage(
             heatmap_data
+        )
+
+        heatmap_img.setRect(
+            QRectF(
+                survey_frequencies[0],
+                0,
+                survey_frequencies[-1]
+                - survey_frequencies[0],
+                1
+            )
         )
 
         best_frequency = sorted_results[0][0]

@@ -21,9 +21,9 @@ def create_heatmap_panel(
         "left"
     )
 
-    heatmap_plot.hideAxis(
-        "bottom"
-    )
+    #heatmap_plot.hideAxis(
+       # "bottom"
+    #)
 
     heatmap_img = pg.ImageItem(
         axisOrder="row-major"
