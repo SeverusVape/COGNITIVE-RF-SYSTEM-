@@ -777,11 +777,21 @@ def survey_step():
             survey_results
         )
 
-        results_text = build_results_text(
+        best_frequency = sorted_results[0][0]
+        best_occupancy = sorted_results[0][1]
+
+        results_text = (
+            "Survey Complete\n\n"
+            "Best Frequency\n\n"
+            f"{best_frequency:.3f} MHz\n"
+            f"{best_occupancy:.1f}%\n\n"
+        )
+
+        results_text += build_results_text(
             sorted_results
         )
 
-        for freq, occupancy in sorted_results[:10]:
+        for freq, occupancy in sorted_results[:5]:
             results_text += (
                 f"{freq:.1f} MHz"
                 f" -> "

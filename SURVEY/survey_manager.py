@@ -7,6 +7,9 @@ survey_results = {}
 current_survey_index = 0
 occupancy_percent = 0
 
+best_frequency = None
+best_occupancy = 0
+
 def add_survey_result(
     survey_label,
     frequency,
