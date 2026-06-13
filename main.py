@@ -42,6 +42,9 @@ from UI.heatmap_panel import (
 from UI.waterfall_panel import (
     create_waterfall_panel
 )
+from UI.fft_panel import (
+    create_fft_panel
+)
 from UI.control_panel import create_control_widgets
 from UI.survey_controls import create_survey_controls
 from UI.signal_panel import create_signal_panel
@@ -217,35 +220,12 @@ main_window.show()
 # ==================================================
 # FFT PLOT SETUP
 # ==================================================
-fft_plot = win.addPlot(
-    title="Real-Time Spectrum"
-)
 
-fft_plot.setLabel(
-    "left",
-    "Power",
-    units="dB"
-)
-
-fft_plot.setLabel(
-    "bottom",
-    "Frequency",
-    units="MHz"
-)
-
-fft_plot.showGrid(
-    x=True,
-    y=True,
-    alpha=0.3
-)
-
-curve = fft_plot.plot(
-    pen=pg.mkPen(
-        color=(180, 0, 255),
-        width=1
+fft_plot, curve = (
+    create_fft_panel(
+        win
     )
 )
-
 
 # ==================================================
 # WATERFALL PLOT SETUP
