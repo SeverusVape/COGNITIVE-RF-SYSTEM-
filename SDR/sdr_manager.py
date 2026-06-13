@@ -34,10 +34,6 @@ class SDRManager:
 
         self.sdr.center_freq = freq_hz
 
-        print(
-            f"Tuned to {freq_hz / 1e6:.2f} MHz"
-        )
-
     def close(self):
 
         self.sdr.close()

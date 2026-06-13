@@ -36,6 +36,12 @@ from SURVEY.survey_manager import (
     build_results_text
 )
 
+from UI.heatmap_panel import (
+    create_heatmap_panel
+)
+from UI.waterfall_panel import (
+    create_waterfall_panel
+)
 from UI.control_panel import create_control_widgets
 from UI.survey_controls import create_survey_controls
 from UI.signal_panel import create_signal_panel
@@ -244,74 +250,22 @@ curve = fft_plot.plot(
 # ==================================================
 # WATERFALL PLOT SETUP
 # ==================================================
-win.nextRow()
 
-waterfall_plot = win.addPlot(
-    title="Waterfall"
-)
-
-waterfall_plot.setMaximumHeight(
-    180
-)
-
-waterfall_plot.hideAxis(
-    "left"
-)
-
-waterfall_plot.setLabel(
-    "bottom",
-    "Frequency",
-    units="MHz"
-)
-
-waterfall_img = pg.ImageItem(
-    axisOrder="row-major"
-)
-
-waterfall_plot.addItem(
-    waterfall_img
-)
-
-colormap = pg.colormap.get(
-    "viridis"
-)
-
-waterfall_img.setColorMap(
-    colormap
+waterfall_plot, waterfall_img, colormap = (
+    create_waterfall_panel(
+        win
+    )
 )
 
 # ==================================================
 # HEAT MAP SETUP
 # ==================================================
 
-win.nextRow()
-
-heatmap_plot = win.addPlot(
-    title="Survey Heat Map"
-)
-
-heatmap_plot.setMaximumHeight(
-    100
-)
-
-heatmap_img = pg.ImageItem(
-    axisOrder="row-major"
-)
-
-heatmap_plot.addItem(
-    heatmap_img
-)
-
-heatmap_img.setColorMap(
-    colormap
-)
-
-heatmap_plot.hideAxis(
-    "left"
-)
-
-heatmap_plot.hideAxis(
-    "bottom"
+heatmap_plot, heatmap_img = (
+    create_heatmap_panel(
+        win,
+        colormap
+    )
 )
 
 # ==================================================
@@ -895,11 +849,6 @@ def survey_step():
         float(occupancy_percent), 1
     )
 
-    print(
-        f"{frequency:.1f} MHz -> "
-        f"{occupancy_percent:.1f}%"
-    )
-
     current_survey_index += 1
 
 # =========================================
@@ -945,10 +894,11 @@ start_survey_button.clicked.connect(
 # ==================================================
 # START APPLICATION
 # ==================================================
-app.exec()
 
+app.exec()
 
 # ==================================================
 # CLEANUP
 # ==================================================
+
 sdr_manager.close()
