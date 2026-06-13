@@ -278,6 +278,35 @@ waterfall_img.setColorMap(
     colormap
 )
 
+# ==================================================
+# HEAT MAP PLOT SETUP
+# ==================================================
+
+# ==================================================
+# HEAT MAP SETUP
+# ==================================================
+
+win.nextRow()
+
+heatmap_plot = win.addPlot(
+    title="Survey Heat Map"
+)
+
+heatmap_plot.setMaximumHeight(
+    180
+)
+
+heatmap_img = pg.ImageItem(
+    axisOrder="row-major"
+)
+
+heatmap_plot.addItem(
+    heatmap_img
+)
+
+heatmap_img.setColorMap(
+    colormap
+)
 
 # ==================================================
 # FREQUENCY AXIS SETUP
@@ -775,6 +804,29 @@ def survey_step():
 
         sorted_results = rank_frequencies(
             survey_results
+        )
+
+        occupancies = []
+
+        for freq, occupancy in sorted_results:
+            occupancies.append(
+                occupancy
+            )
+
+        heatmap_data = np.array(
+            [occupancies]
+        )
+
+        print(
+            heatmap_data
+        )
+
+        print(
+            heatmap_data.shape
+        )
+
+        heatmap_img.setImage(
+            heatmap_data
         )
 
         best_frequency = sorted_results[0][0]
