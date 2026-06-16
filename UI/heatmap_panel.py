@@ -10,20 +10,22 @@ def create_heatmap_panel(
     win.nextRow()
 
     heatmap_plot = win.addPlot(
-        title="Survey Heat Map"
+        title="Survey Occupancy Map"
     )
 
-    heatmap_plot.setMaximumHeight(
-        180
+    heatmap_plot.setLabel(
+        "bottom",
+        "Frequency",
+        units="MHz"
     )
 
     heatmap_plot.hideAxis(
         "left"
     )
 
-    #heatmap_plot.hideAxis(
-       # "bottom"
-    #)
+    heatmap_plot.setMaximumHeight(
+        180
+    )
 
     heatmap_img = pg.ImageItem(
         axisOrder="row-major"

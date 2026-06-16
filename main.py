@@ -23,9 +23,7 @@ from SDR.sdr_manager import SDRManager
 from SDR.fft_processing import compute_fft
 from SDR.detection import detect_peaks
 from UTILS.config import *
-
 from LOGGING.signal_logger import log_signals
-
 from SURVEY.survey_manager import (
     add_survey_result,
     clear_survey,
@@ -36,7 +34,9 @@ from SURVEY.survey_manager import (
     build_results_text,
     heatmap_history
 )
-
+from SIGNALS.signal_classifier import (
+    classify_signal
+)
 from UI.heatmap_panel import (
     create_heatmap_panel
 )
@@ -48,8 +48,14 @@ from UI.fft_panel import (
 )
 from UI.control_panel import create_control_widgets
 from UI.survey_controls import create_survey_controls
-from UI.signal_panel import create_signal_panel
-from UI.status_panel import create_status_panel
+from UI.signal_panel import (
+    create_signal_panel,
+    update_signal_panel
+)
+from UI.status_panel import (
+    create_status_panel,
+    update_status_panel
+)
 from UI.survey_panel import create_survey_panel
 
 
@@ -438,69 +444,6 @@ def calculate_occupancy(
     )
 
     return occupancy, meter
-# ==================================================
-# SIGNAL PANEL UPDATE
-# ==================================================
-def update_signal_panel(
-    peaks
-):
-
-    signal_text = "Detected Signals\n\n"
-
-    if len(peaks) == 0:
-
-        signal_text += "None"
-
-    else:
-
-        for freq, power in peaks:
-
-            if power > 60:
-
-                strength = "Strong"
-
-            elif power > 45:
-
-                strength = "Medium"
-
-            else:
-
-                strength = "Weak"
-
-            signal_text += (
-                f"{freq:.2f} MHz  "
-                f"{strength}\n"
-            )
-
-    signals_label.setText(
-        signal_text
-    )
-
-
-# ==================================================
-# STATUS PANEL UPDATE
-# ==================================================
-def update_status_panel(
-    peaks,
-    threshold,
-    meter,
-    occupancy
-):
-    status_text = (
-        "<b>Status</b><br><br>"
-        "RTL-SDR Connected<br>"
-        f"Center: {freq_input.text()} MHz<br>"
-        f"Sample Rate: {SAMPLE_RATE / 1e6:.3f} MSPS<br>"
-        f"Range: {freqs_mhz[0]:.3f} - {freqs_mhz[-1]:.3f} MHz<br>"
-        f"Signals Found: {len(peaks)}<br>"
-        f"Thresholds: {threshold:.1f} dB<br>"
-        f"Occupancy: {meter}&nbsp;&nbsp;{occupancy:.0f}%<br>"
-    )
-
-    status_label.setHtml(
-        status_text
-    )
-
 
 # ==================================================
 # PEAK MARKER UPDATE
@@ -651,10 +594,16 @@ def update():
     )
 
     update_signal_panel(
-        peaks
+        signals_label,
+        peaks,
+        classify_signal
     )
 
     update_status_panel(
+        status_label,
+        freq_input,
+        SAMPLE_RATE,
+        freqs_mhz,
         peaks,
         threshold,
         meter,
@@ -753,9 +702,9 @@ def survey_step():
 
         occupancies = []
 
-        for freq, occupancy in sorted_results:
+        for freq in survey_frequencies:
             occupancies.append(
-                occupancy
+                survey_results[freq]
             )
 
         heatmap_history.append(
