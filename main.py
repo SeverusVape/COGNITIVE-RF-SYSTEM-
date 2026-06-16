@@ -52,6 +52,9 @@ from UI.signal_panel import (
     create_signal_panel,
     update_signal_panel
 )
+from SIGNALS.signal_history import (
+    update_signal_history
+)
 from UI.status_panel import (
     create_status_panel,
     update_status_panel

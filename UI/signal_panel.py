@@ -1,5 +1,7 @@
 from PyQt6.QtWidgets import QTextEdit
-
+from SIGNALS.signal_history import (
+    update_signal_history
+)
 
 def create_signal_panel():
 
@@ -38,10 +40,15 @@ def update_signal_panel(
 
         for freq, power in peaks:
 
+            history_count = update_signal_history(
+                freq
+            )
+
             classification = (
                 classify_signal(
                     power,
-                    freq
+                    freq,
+                    history_count
                 )
             )
 

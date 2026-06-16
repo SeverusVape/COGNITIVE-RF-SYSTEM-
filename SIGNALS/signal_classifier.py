@@ -4,24 +4,30 @@
 
 def classify_signal(
         power,
-        frequency=None
+        frequency=None,
+        history_count=1
 ):
-
-    if power > 60:
-        strength = "S"
-
-    elif power > 45:
-        strength = "M"
-
-    else:
-        strength = "W"
+    strength = classify_strength(
+        power
+    )
+    persistent = (
+            history_count >= 10
+    )
 
     band = None
 
     if frequency is not None:
 
         if 88 <= frequency <= 108:
-            band = "FM Broadcast"
+
+            if power > 60:
+                return "Broadcast Station [S]"
+
+            elif power > 45:
+                return "FM Broadcast [M]"
+
+            else:
+                return "FM Broadcast [W]"
 
         elif 118 <= frequency <= 137:
             band = "Aircraft"
@@ -39,6 +45,35 @@ def classify_signal(
             band = "GMRS"
 
     if band is not None:
+
+        if persistent:
+            return (
+                f"{band} "
+                f"[{strength}] "
+                f"(Persistent)"
+            )
+
         return f"{band} [{strength}]"
 
+    if persistent:
+        return (
+            f"Unknown RF "
+            f"[{strength}] "
+            f"(Persistent)"
+        )
+
     return f"Unknown RF [{strength}]"
+
+
+def classify_strength(
+        power
+):
+
+    if power > 60:
+        return "S"
+
+    elif power > 45:
+        return "M"
+
+    else:
+        return "W"
