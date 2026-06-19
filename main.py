@@ -125,7 +125,8 @@ info_layout = QVBoxLayout()
     freq_input,
     tune_button,
     survey_button,
-    clear_survey_button
+    clear_survey_button,
+    auto_tune_button
 ) = create_control_widgets()
 
 (
@@ -203,6 +204,10 @@ control_layout.addWidget(
 
 control_layout.addWidget(
     clear_survey_button
+)
+
+control_layout.addWidget(
+    auto_tune_button
 )
 
 control_layout.addStretch()
@@ -333,6 +338,37 @@ def clear_current_survey():
     clear_survey(
         survey_label
     )
+
+def auto_tune_best():
+
+    global survey_results
+
+    if len(survey_results) == 0:
+
+        print(
+            "No survey results"
+        )
+
+        return
+
+    recommended_frequency, recommended_occupancy = (
+        get_best_frequency(
+            survey_results
+        )
+    )
+
+    freq_input.setText(
+        str(recommended_frequency)
+    )
+
+    tune_frequency()
+
+    print(
+        "Recommended:",
+        recommended_frequency,
+        recommended_occupancy
+    )
+
 
 # ==================================================
 # FREQUENCY TUNING FUNCTION
@@ -778,12 +814,19 @@ def survey_step():
             occupancies
         )
 
+        if len(heatmap_history) > 50:
+            heatmap_history.pop(0)
+
         heatmap_data = np.array(
             heatmap_history
         )
 
         heatmap_img.setImage(
             heatmap_data
+        )
+
+        heatmap_img.setLevels(
+            (0, 20)
         )
 
         heatmap_img.setRect(
@@ -931,6 +974,10 @@ survey_button.clicked.connect(
 
 clear_survey_button.clicked.connect(
     clear_current_survey
+)
+
+auto_tune_button.clicked.connect(
+    auto_tune_best
 )
 
 start_survey_button.clicked.connect(

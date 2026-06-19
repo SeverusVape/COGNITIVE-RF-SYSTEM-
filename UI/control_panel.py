@@ -25,10 +25,15 @@ def create_control_widgets():
         "Clear Survey"
     )
 
+    auto_tune_button = QPushButton(
+        "AUTO TUNE BEST"
+    )
+
     return (
         freq_label,
         freq_input,
         tune_button,
         survey_button,
-        clear_survey_button
+        clear_survey_button,
+        auto_tune_button
     )
