@@ -343,6 +343,10 @@ def auto_tune_best():
 
     global survey_results
 
+    current_frequency = float(
+        freq_input.text()
+    )
+
     if len(survey_results) == 0:
 
         print(
@@ -356,6 +360,17 @@ def auto_tune_best():
             survey_results
         )
     )
+
+    if abs(
+            current_frequency
+            -
+            recommended_frequency
+    ) < 0.1:
+        print(
+            "Already on best frequency"
+        )
+
+        return
 
     freq_input.setText(
         str(recommended_frequency)
@@ -880,6 +895,8 @@ def survey_step():
         survey_popup = SurveyPopup(
             latest_survey_results_text
         )
+
+        auto_tune_best()
 
         progress_bar = build_progress_bar(
             100
