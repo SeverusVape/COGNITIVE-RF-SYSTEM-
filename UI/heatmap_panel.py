@@ -24,7 +24,7 @@ def create_heatmap_panel(
     )
 
     heatmap_plot.setMaximumHeight(
-        180
+        230
     )
 
     heatmap_img = pg.ImageItem(

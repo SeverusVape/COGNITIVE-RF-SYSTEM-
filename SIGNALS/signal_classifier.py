@@ -10,9 +10,18 @@ def classify_signal(
     strength = classify_strength(
         power
     )
-    persistent = (
-            history_count >= 10
-    )
+
+    if history_count >= 20:
+        persistence = "L"
+
+    elif history_count >= 10:
+        persistence = "P"
+
+    elif history_count >= 5:
+        persistence = "A"
+
+    else:
+        persistence = None
 
     band = None
 
@@ -21,48 +30,51 @@ def classify_signal(
         if 88 <= frequency <= 108:
 
             if power > 60:
-                return "Broadcast Station [S]"
-
-            elif power > 45:
-                return "FM Broadcast [M]"
+                band = "BC"
 
             else:
-                return "FM Broadcast [W]"
+                band = "FM"
 
         elif 118 <= frequency <= 137:
-            band = "Aircraft"
+            band = "AIRBND"
 
         elif 144 <= frequency <= 148:
-            band = "2m Amateur"
+            band = "2m"
 
         elif 162 <= frequency <= 163:
-            band = "NOAA Weather"
+            band = "NOAA"
 
         elif 420 <= frequency <= 450:
-            band = "70cm Amateur"
+            band = "70cm"
 
         elif 462 <= frequency <= 468:
             band = "GMRS"
 
     if band is not None:
 
-        if persistent:
+        if persistence is not None:
             return (
                 f"{band} "
                 f"[{strength}] "
-                f"(Persistent)"
+                f"[{persistence}]"
             )
 
-        return f"{band} [{strength}]"
+        return (
+            f"{band} "
+            f"[{strength}]"
+        )
 
-    if persistent:
+    if persistence is not None:
         return (
             f"Unknown RF "
             f"[{strength}] "
-            f"(Persistent)"
+            f"[{persistence}]"
         )
 
-    return f"Unknown RF [{strength}]"
+    return (
+        f"Unknown RF "
+        f"[{strength}]"
+    )
 
 
 def classify_strength(

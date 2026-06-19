@@ -32,11 +32,21 @@ from SURVEY.survey_manager import (
     rank_frequencies,
     build_status_text,
     build_results_text,
-    heatmap_history
+    heatmap_history,
+    get_best_frequency
 )
+
+#SIGNALS --------->
+
 from SIGNALS.signal_classifier import (
     classify_signal
 )
+from SIGNALS.signal_history import (
+    update_signal_history
+)
+
+# UI -------->
+
 from UI.heatmap_panel import (
     create_heatmap_panel
 )
@@ -52,14 +62,17 @@ from UI.signal_panel import (
     create_signal_panel,
     update_signal_panel
 )
-from SIGNALS.signal_history import (
-    update_signal_history
-)
+
 from UI.status_panel import (
     create_status_panel,
     update_status_panel
 )
 from UI.survey_panel import create_survey_panel
+
+# POPUP -------->
+from UI.survey_popup import (
+    SurveyPopup
+)
 
 
 # ==================================================
@@ -290,9 +303,10 @@ waterfall = np.zeros(
 )
 
 smoothed_fft = None
-
 occupancy_percent = 0
-
+survey_popup = None
+latest_survey_results_text = ""
+last_survey_settings = None
 
 # ==================================================
 # SURVEY BUTTON FUNCTIONS
@@ -306,8 +320,6 @@ def add_current_survey_point():
     )
 
 
-
-
 def clear_current_survey():
 
     global survey_timer
@@ -316,6 +328,7 @@ def clear_current_survey():
     survey.survey_frequencies = []
     survey.survey_results = {}
     survey.current_survey_index = 0
+
 
     clear_survey(
         survey_label
@@ -632,12 +645,12 @@ def start_survey():
     global survey_results
     global heatmap_history
     global heatmap_history
+    global last_survey_settings
+
     # clean the array
     survey_frequencies = []
     survey_results = {}
     current_survey_index = 0
-
-    heatmap_history.clear()
 
     start_mhz = float(
         start_freq_input.text()
@@ -651,6 +664,30 @@ def start_survey():
         step_freq_input.text()
     )
 
+    current_survey_settings = (
+        start_mhz,
+        stop_mhz,
+        step_mhz
+    )
+
+    if (
+            last_survey_settings is not None
+            and
+            current_survey_settings
+            !=
+            last_survey_settings
+    ):
+        heatmap_history.clear()
+
+        print(
+            "Survey range changed - history cleared"
+        )
+
+    last_survey_settings = (
+
+        current_survey_settings
+
+    )
     survey_frequencies = (
         generate_frequencies(
             start_mhz,
@@ -675,6 +712,19 @@ def start_survey():
         3000
     )
 
+def open_survey_popup():
+
+    global survey_popup
+    global latest_survey_results_text
+
+    if latest_survey_results_text == "":
+        return
+
+    survey_popup = SurveyPopup(
+        latest_survey_results_text
+    )
+
+    survey_popup.show()
 
 # ==================================================
 # SURVEY TIMER SETUP
@@ -689,6 +739,8 @@ def survey_step():
     global survey_timer
     global occupancy_percent
     global survey_results
+    global survey_popup
+    global latest_survey_results_text
 
     if current_survey_index >= len(
             survey_frequencies
@@ -701,6 +753,18 @@ def survey_step():
 
         sorted_results = rank_frequencies(
             survey_results
+        )
+
+        recommended_frequency, recommended_occupancy = (
+            get_best_frequency(
+                survey_results
+            )
+        )
+
+        print(
+            "Recommended:",
+            recommended_frequency,
+            recommended_occupancy
         )
 
         occupancies = []
@@ -728,7 +792,7 @@ def survey_step():
                 0,
                 survey_frequencies[-1]
                 - survey_frequencies[0],
-                1
+                len(heatmap_history)
             )
         )
 
@@ -738,8 +802,8 @@ def survey_step():
             units="MHz"
         )
 
-        best_frequency = sorted_results[0][0]
-        best_occupancy = sorted_results[0][1]
+        highest_frequency = sorted_results[0][0]
+        highest_occupancy = sorted_results[0][1]
 
         average_occupancy = round(
             sum(survey_results.values())
@@ -755,13 +819,38 @@ def survey_step():
             sorted_results,
             points_scanned,
             average_occupancy,
-            best_frequency,
-            best_occupancy
+            highest_frequency,
+            highest_occupancy
         )
 
+        results_text += (
+            "\n\n"
+            "RECOMMENDED\n\n"
+            f"{recommended_frequency:.1f} MHz\n"
+            f"{recommended_occupancy:.1f}%"
+        )
+
+        latest_survey_results_text = (
+            results_text
+        )
+
+        survey_popup = SurveyPopup(
+            latest_survey_results_text
+        )
+
+        progress_bar = build_progress_bar(
+            100
+        )
 
         survey_label.setText(
-            results_text
+            "SURVEY STATUS\n\n"
+            "✓ COMPLETE\n\n"
+            "Progress:\n"
+            f"{progress_bar}\n"
+            "100%\n\n"
+            f"Last Scan:\n"
+            f"{len(survey_results)} Points\n\n"
+            "[ VIEW RESULTS ]\n"
         )
 
         return
@@ -846,6 +935,10 @@ clear_survey_button.clicked.connect(
 
 start_survey_button.clicked.connect(
     start_survey
+)
+
+survey_label.mousePressEvent = (
+    lambda event: open_survey_popup()
 )
 
 # ==================================================

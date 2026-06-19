@@ -186,3 +186,30 @@ def build_status_text(
     )
 
     return survey_text
+
+
+def get_best_frequency(
+        survey_results
+):
+
+    if len(
+        survey_results
+    ) == 0:
+
+        return None, None
+
+    best_frequency = min(
+        survey_results,
+        key=survey_results.get
+    )
+
+    best_occupancy = (
+        survey_results[
+            best_frequency
+        ]
+    )
+
+    return (
+        best_frequency,
+        best_occupancy
+    )

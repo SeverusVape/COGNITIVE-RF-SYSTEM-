@@ -40,9 +40,23 @@ def update_signal_panel(
 
         for freq, power in peaks:
 
-            history_count = update_signal_history(
-                freq
+            history_count, age_seconds = (
+                update_signal_history(
+                    freq
+                )
             )
+
+            if age_seconds < 60:
+
+                age_text = (
+                    f"{age_seconds}s"
+                )
+
+            else:
+
+                age_text = (
+                    f"{age_seconds // 60}m"
+                )
 
             classification = (
                 classify_signal(
@@ -54,7 +68,8 @@ def update_signal_panel(
 
             signal_text += (
                 f"{freq:.2f} MHz  "
-                f"{classification}\n"
+                f"{classification} "
+                f"[{age_text}]\n"
             )
 
     signals_label.setText(
