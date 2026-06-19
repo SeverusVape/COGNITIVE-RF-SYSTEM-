@@ -11,7 +11,8 @@ from PyQt6.QtWidgets import (
 
 from PyQt6.QtCore import (
     QTimer,
-    QRectF
+    QRectF,
+    Qt
 )
 
 from PyQt6.QtTest import QTest
@@ -129,6 +130,22 @@ info_layout = QVBoxLayout()
     auto_tune_button
 ) = create_control_widgets()
 
+frequency_display = QLabel(
+    "100.0 MHz"
+)
+
+frequency_display.setAlignment(
+    Qt.AlignmentFlag.AlignCenter
+)
+
+frequency_display.setStyleSheet(
+    """
+    font-size: 28px;
+    font-weight: bold;
+    color: white;
+    """
+)
+
 (
     start_freq_input,
     stop_freq_input,
@@ -144,17 +161,17 @@ survey_label = create_survey_panel()
 # ==================================================
 # LEFT CONTROL PANEL LAYOUT
 # ==================================================
-control_layout.addWidget(
-    freq_label
-)
+#control_layout.addWidget(
+    #freq_label
+#)
 
-control_layout.addWidget(
-    freq_input
-)
+#control_layout.addWidget(
+    #freq_input
+#)
 
-control_layout.addWidget(
-    tune_button
-)
+#control_layout.addWidget(
+    #tune_button
+#)
 
 control_layout.addWidget(
     survey_button
@@ -221,10 +238,46 @@ main_layout.addLayout(
 # ==================================================
 # GRAPH AREA SETUP
 # ==================================================
+center_layout = QVBoxLayout()
+
+tune_layout = QHBoxLayout()
+
+tune_layout.addStretch()
+
+tune_layout.addWidget(
+    freq_label
+)
+
+tune_layout.addWidget(
+    freq_input
+)
+
+tune_layout.addWidget(
+    tune_button
+)
+
+tune_layout.addWidget(
+    auto_tune_button
+)
+
+tune_layout.addStretch()
+
 win = pg.GraphicsLayoutWidget()
 
-main_layout.addWidget(
-    win,
+center_layout.addWidget(
+    frequency_display
+)
+
+center_layout.addLayout(
+    tune_layout
+)
+
+center_layout.addWidget(
+    win
+)
+
+main_layout.addLayout(
+    center_layout,
     8
 )
 
@@ -397,6 +450,10 @@ def tune_frequency():
 
         freq_mhz = float(
             freq_input.text()
+        )
+
+        frequency_display.setText(
+            f"{freq_mhz:.1f} MHz"
         )
 
         new_freq = freq_mhz * 1e6
