@@ -11,6 +11,11 @@ def create_control_widgets():
     )
 
     freq_input = QLineEdit()
+
+    freq_input.setFixedWidth(
+        150
+    )
+
     freq_input.setText("100")
 
     tune_button = QPushButton(

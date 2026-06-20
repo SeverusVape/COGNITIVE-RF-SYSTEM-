@@ -161,35 +161,44 @@ survey_label = create_survey_panel()
 # ==================================================
 # LEFT CONTROL PANEL LAYOUT
 # ==================================================
-#control_layout.addWidget(
-    #freq_label
-#)
 
 #control_layout.addWidget(
-    #freq_input
+    #survey_button
 #)
-
-#control_layout.addWidget(
-    #tune_button
-#)
-
-control_layout.addWidget(
-    survey_button
-)
 
 info_layout.addWidget(
     signals_label
 )
 
-info_layout.addWidget(
-    survey_label
-)
+#info_layout.addWidget(
+    #survey_label
+#)
 
 info_layout.addWidget(
     status_label
 )
 
 info_layout.addStretch()
+
+survey_settings_label = QLabel(
+    "SURVEY SETTINGS"
+)
+
+survey_settings_label.setStyleSheet(
+    """
+    font-size: 16px;
+    font-weight: bold;
+    color: white;
+    """
+)
+
+control_layout.addWidget(
+    survey_settings_label
+)
+
+control_layout.addSpacing(
+    10
+)
 
 control_layout.addWidget(
     QLabel("Start MHz")
@@ -215,6 +224,10 @@ control_layout.addWidget(
     step_freq_input
 )
 
+control_layout.addSpacing(
+    15
+)
+
 control_layout.addWidget(
     start_survey_button
 )
@@ -223,8 +236,16 @@ control_layout.addWidget(
     clear_survey_button
 )
 
+control_layout.addSpacing(
+    20
+)
+
 control_layout.addWidget(
-    auto_tune_button
+    QLabel("SURVEY RESULTS")
+)
+
+control_layout.addWidget(
+    survey_label
 )
 
 control_layout.addStretch()
@@ -869,12 +890,6 @@ def survey_step():
             )
         )
 
-        print(
-            "Recommended:",
-            recommended_frequency,
-            recommended_occupancy
-        )
-
         occupancies = []
 
         for freq in survey_frequencies:
@@ -934,15 +949,8 @@ def survey_step():
             sorted_results,
             points_scanned,
             average_occupancy,
-            highest_frequency,
-            highest_occupancy
-        )
-
-        results_text += (
-            "\n\n"
-            "RECOMMENDED\n\n"
-            f"{recommended_frequency:.1f} MHz\n"
-            f"{recommended_occupancy:.1f}%"
+            recommended_frequency,
+            recommended_occupancy
         )
 
         latest_survey_results_text = (

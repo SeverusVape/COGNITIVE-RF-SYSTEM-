@@ -144,11 +144,12 @@ def build_results_text(
         f"Average Occupancy:\n"
         f"{average_occupancy:.1f}%\n\n"
 
-        "Best Frequency\n\n"
+        "Recommended Frequency\n"
+        "(Lowest Occupancy)\n\n"
         f"{best_frequency:.3f} MHz\n"
         f"{best_occupancy:.1f}%\n\n"
 
-        "Top Frequencies\n\n"
+        "Most Active Frequencies\n\n"
     )
 
     for freq, occupancy in sorted_results[:5]:

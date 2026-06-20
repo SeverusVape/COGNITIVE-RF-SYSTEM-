@@ -10,7 +10,12 @@ def create_survey_panel():
     )
 
     survey_label.setText(
-        "Survey Results\n"
+        "\n"
+        "No Survey Data Available\n\n"
+        "Run a survey to generate\n"
+        "occupancy statistics,\n"
+        "recommendations, and\n"
+        "heatmap history."
     )
 
     survey_label.setFixedHeight(
