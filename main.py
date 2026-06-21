@@ -707,17 +707,21 @@ def update():
 
 def open_survey_popup():
 
-    global survey_popup
-    global latest_survey_results_text
-
-    if latest_survey_results_text == "":
+    if (
+            survey_controller.latest_survey_results_text
+            == ""
+    ):
+        print("No survey results available")
         return
 
-    survey_popup = SurveyPopup(
-        latest_survey_results_text
+    popup = SurveyPopup(
+        survey_controller.latest_survey_results_text
     )
 
-    survey_popup.show()
+    popup.show()
+
+    global popup_ref
+    popup_ref = popup
 
 # ==================================================
 # SURVEY TIMER SETUP
@@ -737,195 +741,12 @@ survey_controller = SurveyController(
     lambda: occupancy_percent
 )
 
-def survey_step():
-
-    global survey_timer
-    global occupancy_percent
-    global survey_popup
-    global latest_survey_results_text
-
-    if survey.current_survey_index >= len(
-            survey.survey_frequencies
-    ):
-        survey_timer.stop()
-
-        print(
-            "Survey Complete"
-        )
-
-        sorted_results = rank_frequencies(
-            survey.survey_results
-        )
-
-        recommended_frequency, recommended_occupancy = (
-            get_best_frequency(
-                survey.survey_results
-            )
-        )
-
-        occupancies = []
-
-        for freq in survey.survey_frequencies:
-            occupancies.append(
-                survey.survey_results[freq]
-            )
-
-        survey.heatmap_history.append(
-            occupancies
-        )
-
-        if len(survey.heatmap_history) > 100:
-            survey.heatmap_history.pop(0)
-
-        heatmap_data = np.array(
-            survey.heatmap_history
-        )
-
-        heatmap_img.setImage(
-            heatmap_data,
-            autoLevels=False
-        )
-
-        heatmap_img.setRect(
-            QRectF(
-                min(survey.survey_frequencies),
-                0,
-                max(survey.survey_frequencies)
-                -
-                min(survey.survey_frequencies),
-                len(survey.heatmap_history)
-            )
-        )
-
-        heatmap_img.setLevels(
-            (
-                np.min(heatmap_data),
-                np.max(heatmap_data)
-            )
-        )
-
-        heatmap_img.setRect(
-            QRectF(
-                survey.survey_frequencies[0],
-                0,
-                survey.survey_frequencies[-1]
-                - survey.survey_frequencies[0],
-                len(survey.heatmap_history)
-            )
-        )
-
-        heatmap_plot.setLabel(
-            "bottom",
-            "Frequency",
-            units="MHz"
-        )
-
-        highest_frequency = sorted_results[0][0]
-        highest_occupancy = sorted_results[0][1]
-
-        average_occupancy = round(
-            sum(survey.survey_results.values())
-            / len(survey.survey_results),
-            1
-        )
-
-        points_scanned = len(
-            survey.survey_results
-        )
-
-        results_text = build_results_text(
-            sorted_results,
-            points_scanned,
-            average_occupancy,
-            recommended_frequency,
-            recommended_occupancy
-        )
-
-        latest_survey_results_text = (
-            results_text
-        )
-
-        survey_popup = SurveyPopup(
-            latest_survey_results_text
-        )
-
-        survey_controller.auto_tune_best()
-
-        progress_bar = build_progress_bar(
-            100
-        )
-
-        survey_label.setText(
-            "SURVEY STATUS\n\n"
-            "✓ COMPLETE\n\n"
-
-            f"RECOMMENDED:\n\n"
-            f"{recommended_frequency:.1f} MHz\n\n"
-
-            f"Points:\n"
-            f"{len(survey.survey_results)}\n\n"
-
-            "Progress:\n"
-            f"{progress_bar}\n"
-            "100%\n\n"
-
-            "[ VIEW RESULTS ]\n"
-        )
-
-        return
-
-    frequency = survey.survey_frequencies[
-        survey.current_survey_index
-    ]
-
-    progress_percent = int(
-        (survey.current_survey_index + 1)
-        / len(survey.survey_frequencies)
-        * 100
-    )
-
-    progress_bar = build_progress_bar(
-        progress_percent
-    )
-
-    survey_text = build_status_text(
-        frequency,
-        survey.current_survey_index + 1,
-        len(survey.survey_frequencies),
-        progress_percent,
-        progress_bar
-    )
-
-    survey_label.setText(
-        survey_text
-    )
-
-    freq_input.setText(
-        str(frequency)
-    )
-
-    tune_frequency()
-
-    QTest.qWait(
-        500
-    )
-
-    survey.survey_results[frequency] = round(
-        float(occupancy_percent), 1
-    )
-
-    survey.current_survey_index += 1
-
-
-# TEST ONLY
-#survey_controller.survey_step()
-
 # =========================================
 # CONNECT SURVEY TIMER
 # =========================================
 
 survey_timer.timeout.connect(
-        survey_step
+        survey_controller.survey_step
     )
 # ==================================================
 # TIMER SETUP MAIN
