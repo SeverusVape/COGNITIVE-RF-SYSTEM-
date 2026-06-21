@@ -20,6 +20,7 @@ from PyQt6.QtTest import QTest
 import pyqtgraph as pg
 
 import SURVEY.survey_manager as survey
+from SURVEY.survey_controller import SurveyController
 from SDR.sdr_manager import SDRManager
 from SDR.fft_processing import compute_fft
 from SDR.detection import detect_peaks
@@ -395,21 +396,6 @@ def add_current_survey_point():
         survey_label,
         float(freq_input.text()),
         occupancy_percent
-    )
-
-
-def clear_current_survey():
-
-    global survey_timer
-
-    survey_timer.stop()
-    survey.survey_frequencies = []
-    survey.survey_results.clear()
-    survey.current_survey_index = 0
-
-
-    clear_survey(
-        survey_label
     )
 
 def auto_tune_best():
@@ -849,6 +835,18 @@ def open_survey_popup():
 # ==================================================
 survey_timer = QTimer()
 
+survey_controller = SurveyController(
+    survey_timer,
+    survey_label,
+    freq_input,
+    start_freq_input,
+    stop_freq_input,
+    step_freq_input,
+    heatmap_img,
+    heatmap_plot,
+    tune_frequency,
+    lambda: occupancy_percent
+)
 
 def survey_step():
 
@@ -1062,7 +1060,7 @@ survey_button.clicked.connect(
 )
 
 clear_survey_button.clicked.connect(
-    clear_current_survey
+    survey_controller.clear_current_survey
 )
 
 auto_tune_button.clicked.connect(
