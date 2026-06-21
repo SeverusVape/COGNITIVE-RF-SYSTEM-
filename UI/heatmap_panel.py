@@ -21,8 +21,9 @@ def create_heatmap_panel(
         units="MHz"
     )
 
-    heatmap_plot.hideAxis(
-        "left"
+    heatmap_plot.setLabel(
+        "left",
+        "Survey #"
     )
 
     heatmap_plot.setMaximumHeight(
@@ -45,5 +46,4 @@ def create_heatmap_panel(
     return (
         heatmap_plot,
         heatmap_img,
-        #placeholder_text
     )

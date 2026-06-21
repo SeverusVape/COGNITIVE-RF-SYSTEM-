@@ -19,7 +19,7 @@ def create_survey_panel():
     )
 
     survey_label.setFixedHeight(
-        230
+        280
     )
 
     return survey_label

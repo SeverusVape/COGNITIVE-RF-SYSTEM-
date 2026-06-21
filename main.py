@@ -887,7 +887,7 @@ def survey_step():
             occupancies
         )
 
-        if len(survey.heatmap_history) > 50:
+        if len(survey.heatmap_history) > 100:
             survey.heatmap_history.pop(0)
 
         heatmap_data = np.array(
@@ -895,11 +895,26 @@ def survey_step():
         )
 
         heatmap_img.setImage(
-            heatmap_data
+            heatmap_data,
+            autoLevels=False
+        )
+
+        heatmap_img.setRect(
+            QRectF(
+                min(survey.survey_frequencies),
+                0,
+                max(survey.survey_frequencies)
+                -
+                min(survey.survey_frequencies),
+                len(survey.heatmap_history)
+            )
         )
 
         heatmap_img.setLevels(
-            (0, 20)
+            (
+                np.min(heatmap_data),
+                np.max(heatmap_data)
+            )
         )
 
         heatmap_img.setRect(
@@ -956,11 +971,17 @@ def survey_step():
         survey_label.setText(
             "SURVEY STATUS\n\n"
             "✓ COMPLETE\n\n"
+
+            f"RECOMMENDED:\n\n"
+            f"{recommended_frequency:.1f} MHz\n\n"
+
+            f"Points:\n"
+            f"{len(survey.survey_results)}\n\n"
+
             "Progress:\n"
             f"{progress_bar}\n"
             "100%\n\n"
-            f"Last Scan:\n"
-            f"{len(survey.survey_results)} Points\n\n"
+
             "[ VIEW RESULTS ]\n"
         )
 
