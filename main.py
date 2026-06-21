@@ -343,7 +343,7 @@ waterfall_plot, waterfall_img, colormap = (
 # HEAT MAP SETUP
 # ==================================================
 
-heatmap_plot, heatmap_img = (
+heatmap_plot, heatmap_img= (
     create_heatmap_panel(
         win,
         colormap

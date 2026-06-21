@@ -136,7 +136,7 @@ def build_results_text(
         best_occupancy
 ):
     results_text = (
-        "Survey Complete\n\n"
+        "========== SURVEY COMPLETE ==========\n\n"
 
         f"Points Scanned:\n"
         f"{points_scanned}\n\n"
@@ -144,8 +144,9 @@ def build_results_text(
         f"Average Occupancy:\n"
         f"{average_occupancy:.1f}%\n\n"
 
-        "Recommended Frequency\n"
-        "(Lowest Occupancy)\n\n"
+        "\n"
+        "========== RECOMMENDED ==========\n\n"
+        "(LOWEST OCCUPANCY):\n\n"
         f"{best_frequency:.3f} MHz\n"
         f"{best_occupancy:.1f}%\n\n"
 

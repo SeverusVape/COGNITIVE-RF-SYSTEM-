@@ -13,6 +13,8 @@ def create_heatmap_panel(
         title="Survey Occupancy Map"
     )
 
+
+
     heatmap_plot.setLabel(
         "bottom",
         "Frequency",
@@ -39,7 +41,9 @@ def create_heatmap_panel(
         colormap
     )
 
+
     return (
         heatmap_plot,
-        heatmap_img
+        heatmap_img,
+        #placeholder_text
     )
