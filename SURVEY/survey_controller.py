@@ -1,4 +1,5 @@
 import numpy as np
+import pyqtgraph as pg
 
 from PyQt6.QtCore import QRectF
 from PyQt6.QtTest import QTest
@@ -24,12 +25,14 @@ class SurveyController:
             self,
             survey_timer,
             survey_label,
+            top_frequencies_label,
             freq_input,
             start_freq_input,
             stop_freq_input,
             step_freq_input,
             heatmap_img,
             heatmap_plot,
+            recommended_line,
             tune_frequency_callback,
             get_occupancy_callback
     ):
@@ -43,6 +46,7 @@ class SurveyController:
 
         self.heatmap_img = heatmap_img
         self.heatmap_plot = heatmap_plot
+        self.recommended_line = recommended_line
 
         self.tune_frequency_callback = tune_frequency_callback
         self.get_occupancy_callback = get_occupancy_callback
@@ -51,6 +55,11 @@ class SurveyController:
         self.latest_survey_results_text = ""
         self.last_survey_settings = None
         self.occupancy_percent = 0
+
+        self.top_frequencies_label = (
+            top_frequencies_label
+        )
+
 
     def clear_current_survey(self):
         self.survey_timer.stop()
@@ -81,6 +90,63 @@ class SurveyController:
             get_best_frequency(
                 survey.survey_results
             )
+        )
+
+        heatmap_height = max(
+            1,
+            len(survey.heatmap_history)
+        )
+
+        self.recommended_line.setData(
+            [recommended_frequency, recommended_frequency],
+            [0, heatmap_height]
+        )
+
+        if hasattr(self, "recommended_text"):
+            self.heatmap_plot.removeItem(
+                self.recommended_text
+            )
+
+        if hasattr(self, "recommended_arrow"):
+            self.heatmap_plot.removeItem(
+                self.recommended_arrow
+            )
+
+        self.recommended_text = pg.TextItem(
+            "RCMND",
+            color="red"
+        )
+
+        self.recommended_arrow = pg.TextItem(
+            "▼",
+            color="red"
+        )
+
+        text_y = heatmap_height * 1.18
+        arrow_y = heatmap_height * 1.08
+
+        self.recommended_text.setPos(
+            recommended_frequency - 0.35,
+            text_y
+        )
+
+        self.recommended_arrow.setPos(
+            recommended_frequency - 0.053,
+            arrow_y
+        )
+
+        self.heatmap_plot.addItem(
+            self.recommended_text
+        )
+
+        self.heatmap_plot.addItem(
+            self.recommended_arrow
+        )
+
+        self.heatmap_plot.setYRange(
+            0,
+            heatmap_height * 1.25,
+            padding=0
         )
 
         if abs(
@@ -205,6 +271,42 @@ class SurveyController:
 
             heatmap_data = np.array(
                 survey.heatmap_history
+            )
+
+            average_by_frequency = np.mean(
+                heatmap_data,
+                axis=0
+            )
+
+            top_indices = np.argsort(
+                average_by_frequency
+            )[-3:][::-1]
+
+            persistent_text = (
+                "MOST ACTIVE (HISTORY)\n\n"
+            )
+
+            for rank, index in enumerate(
+                    top_indices,
+                    start=1
+            ):
+                freq = survey.survey_frequencies[
+                    index
+                ]
+
+                avg_occ = round(
+                    average_by_frequency[index],
+                    1
+                )
+
+                persistent_text += (
+                    f"{rank}. "
+                    f"{freq:.1f} MHz   "
+                    f"{avg_occ}%\n"
+                )
+
+            self.top_frequencies_label.setText(
+                persistent_text
             )
 
             self.heatmap_img.setImage(

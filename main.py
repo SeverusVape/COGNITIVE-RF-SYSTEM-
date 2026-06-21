@@ -157,25 +157,35 @@ signals_label = create_signal_panel()
 status_label = create_status_panel()
 survey_label = create_survey_panel()
 
+top_frequencies_label = QLabel(
+    "PERSISTENT FREQUENCIES\n\n"
+    "No survey data"
+)
+
+top_frequencies_label.setStyleSheet(
+    """
+    background-color: #111111;
+    border: 1px solid #333333;
+    padding: 8px;
+    color: #00ff88;
+    font-family: Courier New;
+    """
+)
 
 # ==================================================
 # LEFT CONTROL PANEL LAYOUT
 # ==================================================
 
-#control_layout.addWidget(
-    #survey_button
-#)
-
 info_layout.addWidget(
     signals_label
 )
 
-#info_layout.addWidget(
-    #survey_label
-#)
-
 info_layout.addWidget(
     status_label
+)
+
+info_layout.addWidget(
+    top_frequencies_label
 )
 
 info_layout.addStretch()
@@ -254,7 +264,6 @@ main_layout.addLayout(
     control_layout,
     2
 )
-
 
 # ==================================================
 # GRAPH AREA SETUP
@@ -343,11 +352,13 @@ waterfall_plot, waterfall_img, colormap = (
 # HEAT MAP SETUP
 # ==================================================
 
-heatmap_plot, heatmap_img= (
-    create_heatmap_panel(
-        win,
-        colormap
-    )
+(
+    heatmap_plot,
+    heatmap_img,
+    recommended_line
+) = create_heatmap_panel(
+    win,
+    colormap
 )
 
 # ==================================================
@@ -731,12 +742,14 @@ survey_timer = QTimer()
 survey_controller = SurveyController(
     survey_timer,
     survey_label,
+    top_frequencies_label,
     freq_input,
     start_freq_input,
     stop_freq_input,
     step_freq_input,
     heatmap_img,
     heatmap_plot,
+    recommended_line,
     tune_frequency,
     lambda: occupancy_percent
 )

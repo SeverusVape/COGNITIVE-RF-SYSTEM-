@@ -42,8 +42,23 @@ def create_heatmap_panel(
         colormap
     )
 
+    recommended_line = pg.PlotDataItem(
+        [],
+        [],
+        pen=pg.mkPen(
+            color=(255, 0, 0),
+            width=2,
+            style=pg.QtCore.Qt.PenStyle.DashLine
+        )
+    )
+
+    heatmap_plot.addItem(
+        recommended_line
+    )
+
 
     return (
         heatmap_plot,
         heatmap_img,
+        recommended_line
     )
