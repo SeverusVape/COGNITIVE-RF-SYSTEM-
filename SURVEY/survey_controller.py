@@ -61,3 +61,101 @@ class SurveyController:
         clear_survey(
             self.survey_label
         )
+
+    def auto_tune_best(self):
+
+        current_frequency = float(
+            self.freq_input.text()
+        )
+
+        if len(survey.survey_results) == 0:
+            print(
+                "No survey results"
+            )
+
+            return
+
+        recommended_frequency, recommended_occupancy = (
+            get_best_frequency(
+                survey.survey_results
+            )
+        )
+
+        if abs(
+                current_frequency
+                -
+                recommended_frequency
+        ) < 0.1:
+            print(
+                "Already on best frequency"
+            )
+
+            return
+
+        self.freq_input.setText(
+            str(recommended_frequency)
+        )
+
+        self.tune_frequency_callback()
+
+        print(
+            "Recommended:",
+            recommended_frequency,
+            recommended_occupancy
+        )
+
+    def start_survey(self):
+
+        # clean survey state
+        survey.survey_frequencies = []
+        survey.survey_results.clear()
+        survey.current_survey_index = 0
+
+        current_survey_settings = (
+            float(self.start_freq_input.text()),
+            float(self.stop_freq_input.text()),
+            float(self.step_freq_input.text())
+        )
+
+        if (
+                self.last_survey_settings is not None
+                and
+                current_survey_settings
+                !=
+                self.last_survey_settings
+        ):
+            survey.heatmap_history.clear()
+
+            print(
+                "Survey range changed - history cleared"
+            )
+
+        self.last_survey_settings = (
+            current_survey_settings
+        )
+
+        start_mhz = current_survey_settings[0]
+        stop_mhz = current_survey_settings[1]
+        step_mhz = current_survey_settings[2]
+
+        survey.survey_frequencies = (
+            generate_frequencies(
+                start_mhz,
+                stop_mhz,
+                step_mhz
+            )
+        )
+
+        self.survey_label.setText(
+            f"SURVEY STATUS\n\n"
+            f"Frequency:\n"
+            f"{survey.survey_frequencies[0]:.1f} MHz\n\n"
+            f"Point:\n"
+            f"0 / {len(survey.survey_frequencies)}\n\n"
+            f"Progress:\n"
+            f"0%"
+        )
+
+        self.survey_timer.start(
+            3000
+        )

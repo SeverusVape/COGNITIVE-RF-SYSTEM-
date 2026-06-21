@@ -397,51 +397,6 @@ def add_current_survey_point():
         float(freq_input.text()),
         occupancy_percent
     )
-
-def auto_tune_best():
-
-    current_frequency = float(
-        freq_input.text()
-    )
-
-    if len(survey.survey_results) == 0:
-
-        print(
-            "No survey results"
-        )
-
-        return
-
-    recommended_frequency, recommended_occupancy = (
-        get_best_frequency(
-            survey.survey_results
-        )
-    )
-
-    if abs(
-            current_frequency
-            -
-            recommended_frequency
-    ) < 0.1:
-        print(
-            "Already on best frequency"
-        )
-
-        return
-
-    freq_input.setText(
-        str(recommended_frequency)
-    )
-
-    tune_frequency()
-
-    print(
-        "Recommended:",
-        recommended_frequency,
-        recommended_occupancy
-    )
-
-
 # ==================================================
 # FREQUENCY TUNING FUNCTION
 # ==================================================
@@ -750,72 +705,6 @@ def update():
 # SURVEY AUTOMATION
 # ==================================================
 
-def start_survey():
-    global last_survey_settings
-
-    # clean survey state
-    survey.survey_frequencies = []
-    survey.survey_results.clear()
-    survey.current_survey_index = 0
-
-    start_mhz = float(
-        start_freq_input.text()
-    )
-
-    stop_mhz = float(
-        stop_freq_input.text()
-    )
-
-    step_mhz = float(
-        step_freq_input.text()
-    )
-
-    current_survey_settings = (
-        start_mhz,
-        stop_mhz,
-        step_mhz
-    )
-
-    if (
-            last_survey_settings is not None
-            and
-            current_survey_settings
-            !=
-            last_survey_settings
-    ):
-        survey.heatmap_history.clear()
-
-        print(
-            "Survey range changed - history cleared"
-        )
-
-    last_survey_settings = (
-        current_survey_settings
-    )
-    survey.survey_frequencies = (
-        generate_frequencies(
-            start_mhz,
-            stop_mhz,
-            step_mhz
-        )
-    )
-
-    survey_label.setText(
-        f"SURVEY STATUS\n\n"
-        f"Frequency:\n"
-        f"{survey.survey_frequencies[0]:.1f} MHz\n\n"
-        f"Point:\n"
-        f"0 / {len(survey.survey_frequencies)}\n\n"
-        f"Progress:\n"
-        f"0%"
-    )
-
-
-
-    survey_timer.start(
-        3000
-    )
-
 def open_survey_popup():
 
     global survey_popup
@@ -960,7 +849,7 @@ def survey_step():
             latest_survey_results_text
         )
 
-        auto_tune_best()
+        survey_controller.auto_tune_best()
 
         progress_bar = build_progress_bar(
             100
@@ -1064,11 +953,11 @@ clear_survey_button.clicked.connect(
 )
 
 auto_tune_button.clicked.connect(
-    auto_tune_best
+    survey_controller.auto_tune_best
 )
 
 start_survey_button.clicked.connect(
-    start_survey
+    survey_controller.start_survey
 )
 
 survey_label.mousePressEvent = (
