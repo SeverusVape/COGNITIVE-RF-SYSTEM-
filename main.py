@@ -405,7 +405,7 @@ def clear_current_survey():
 
     survey_timer.stop()
     survey.survey_frequencies = []
-    survey.survey_results = {}
+    survey.survey_results.clear()
     survey.current_survey_index = 0
 
 
