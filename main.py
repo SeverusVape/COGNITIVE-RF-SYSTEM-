@@ -916,6 +916,10 @@ def survey_step():
 
     survey.current_survey_index += 1
 
+
+# TEST ONLY
+#survey_controller.survey_step()
+
 # =========================================
 # CONNECT SURVEY TIMER
 # =========================================

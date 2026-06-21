@@ -50,6 +50,7 @@ class SurveyController:
         self.survey_popup = None
         self.latest_survey_results_text = ""
         self.last_survey_settings = None
+        self.occupancy_percent = 0
 
     def clear_current_survey(self):
         self.survey_timer.stop()
@@ -57,6 +58,7 @@ class SurveyController:
         survey.survey_frequencies = []
         survey.survey_results.clear()
         survey.current_survey_index = 0
+
 
         clear_survey(
             self.survey_label
@@ -159,3 +161,214 @@ class SurveyController:
         self.survey_timer.start(
             3000
         )
+
+    def survey_step(self):
+
+        if survey.current_survey_index >= len(
+                survey.survey_frequencies
+        ):
+            self.survey_timer.stop()
+
+            print(
+                "Survey Complete"
+            )
+
+            sorted_results = rank_frequencies(
+                survey.survey_results
+            )
+
+            recommended_frequency, recommended_occupancy = (
+                get_best_frequency(
+                    survey.survey_results
+                )
+            )
+
+            print(
+                "Best:",
+                recommended_frequency,
+                recommended_occupancy
+            )
+
+            occupancies = []
+
+            for freq in survey.survey_frequencies:
+                occupancies.append(
+                    survey.survey_results[freq]
+                )
+
+            survey.heatmap_history.append(
+                occupancies
+            )
+
+            if len(survey.heatmap_history) > 100:
+                survey.heatmap_history.pop(0)
+
+            heatmap_data = np.array(
+                survey.heatmap_history
+            )
+
+            self.heatmap_img.setImage(
+                heatmap_data,
+                autoLevels=False
+            )
+
+            self.heatmap_img.setRect(
+                QRectF(
+                    min(survey.survey_frequencies),
+                    0,
+                    max(survey.survey_frequencies)
+                    -
+                    min(survey.survey_frequencies),
+                    len(survey.heatmap_history)
+                )
+            )
+
+            self.heatmap_img.setLevels(
+                (
+                    np.min(heatmap_data),
+                    np.max(heatmap_data)
+                )
+            )
+
+            self.heatmap_img.setRect(
+                QRectF(
+                    survey.survey_frequencies[0],
+                    0,
+                    survey.survey_frequencies[-1]
+                    - survey.survey_frequencies[0],
+                    len(survey.heatmap_history)
+                )
+            )
+
+            self.heatmap_plot.setLabel(
+                "bottom",
+                "Frequency",
+                units="MHz"
+            )
+
+            highest_frequency = sorted_results[0][0]
+            highest_occupancy = sorted_results[0][1]
+
+            average_occupancy = round(
+                sum(survey.survey_results.values())
+                / len(survey.survey_results),
+                1
+            )
+
+            points_scanned = len(
+                survey.survey_results
+            )
+
+            results_text = build_results_text(
+                sorted_results,
+                points_scanned,
+                average_occupancy,
+                recommended_frequency,
+                recommended_occupancy
+            )
+
+            self.latest_survey_results_text = (
+                results_text
+            )
+
+            self.survey_popup = SurveyPopup(
+                self.latest_survey_results_text
+            )
+
+            self.auto_tune_best()
+
+            progress_bar = build_progress_bar(
+                100
+            )
+
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "✓ COMPLETE\n\n"
+
+                f"RECOMMENDED:\n\n"
+                f"{recommended_frequency:.1f} MHz\n\n"
+
+                f"Points:\n"
+                f"{len(survey.survey_results)}\n\n"
+
+                "Progress:\n"
+                f"{progress_bar}\n"
+                "100%\n\n"
+
+                "[ VIEW RESULTS ]\n"
+            )
+
+
+            print(
+                "Popup prepared"
+            )
+
+            print(
+                "Results text generated"
+            )
+
+            print(
+                "Average occupancy:",
+                average_occupancy
+            )
+
+            print(
+                "Heatmap rows:",
+                len(survey.heatmap_history)
+            )
+
+            return
+
+        frequency = survey.survey_frequencies[
+            survey.current_survey_index
+        ]
+
+        progress_percent = int(
+            (survey.current_survey_index + 1)
+            / len(survey.survey_frequencies)
+            * 100
+        )
+
+        progress_bar = build_progress_bar(
+            progress_percent
+        )
+
+        print(
+            "Survey point:",
+            survey.current_survey_index + 1,
+            "/",
+            len(survey.survey_frequencies)
+        )
+
+        survey_text = build_status_text(
+            frequency,
+            survey.current_survey_index + 1,
+            len(survey.survey_frequencies),
+            progress_percent,
+            progress_bar
+        )
+
+        self.survey_label.setText(
+            survey_text
+        )
+
+        self.freq_input.setText(
+            str(frequency)
+        )
+
+        self.tune_frequency_callback()
+
+        QTest.qWait(
+            500
+        )
+
+        current_occupancy = (
+            self.get_occupancy_callback()
+        )
+
+        survey.survey_results[frequency] = round(
+            float(current_occupancy),
+            1
+        )
+
+        survey.current_survey_index += 1
