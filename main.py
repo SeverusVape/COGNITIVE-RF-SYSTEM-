@@ -33,7 +33,6 @@ from SURVEY.survey_manager import (
     rank_frequencies,
     build_status_text,
     build_results_text,
-    heatmap_history,
     get_best_frequency
 )
 
@@ -884,15 +883,15 @@ def survey_step():
                 survey.survey_results[freq]
             )
 
-        heatmap_history.append(
+        survey.heatmap_history.append(
             occupancies
         )
 
-        if len(heatmap_history) > 50:
-            heatmap_history.pop(0)
+        if len(survey.heatmap_history) > 50:
+            survey.heatmap_history.pop(0)
 
         heatmap_data = np.array(
-            heatmap_history
+            survey.heatmap_history
         )
 
         heatmap_img.setImage(
@@ -909,7 +908,7 @@ def survey_step():
                 0,
                 survey.survey_frequencies[-1]
                 - survey.survey_frequencies[0],
-                len(heatmap_history)
+                len(survey.heatmap_history)
             )
         )
 
