@@ -415,13 +415,11 @@ def clear_current_survey():
 
 def auto_tune_best():
 
-    global survey_results
-
     current_frequency = float(
         freq_input.text()
     )
 
-    if len(survey_results) == 0:
+    if len(survey.survey_results) == 0:
 
         print(
             "No survey results"
@@ -431,7 +429,7 @@ def auto_tune_best():
 
     recommended_frequency, recommended_occupancy = (
         get_best_frequency(
-            survey_results
+            survey.survey_results
         )
     )
 
@@ -768,18 +766,12 @@ def update():
 # ==================================================
 
 def start_survey():
-
-    global survey_frequencies
-    global current_survey_index
-    global survey_results
-    global heatmap_history
-    global heatmap_history
     global last_survey_settings
 
-    # clean the array
-    survey_frequencies = []
-    survey_results = {}
-    current_survey_index = 0
+    # clean survey state
+    survey.survey_frequencies = []
+    survey.survey_results.clear()
+    survey.current_survey_index = 0
 
     start_mhz = float(
         start_freq_input.text()
@@ -806,18 +798,16 @@ def start_survey():
             !=
             last_survey_settings
     ):
-        heatmap_history.clear()
+        survey.heatmap_history.clear()
 
         print(
             "Survey range changed - history cleared"
         )
 
     last_survey_settings = (
-
         current_survey_settings
-
     )
-    survey_frequencies = (
+    survey.survey_frequencies = (
         generate_frequencies(
             start_mhz,
             stop_mhz,
@@ -828,9 +818,9 @@ def start_survey():
     survey_label.setText(
         f"SURVEY STATUS\n\n"
         f"Frequency:\n"
-        f"{survey_frequencies[0]:.1f} MHz\n\n"
+        f"{survey.survey_frequencies[0]:.1f} MHz\n\n"
         f"Point:\n"
-        f"0 / {len(survey_frequencies)}\n\n"
+        f"0 / {len(survey.survey_frequencies)}\n\n"
         f"Progress:\n"
         f"0%"
     )
@@ -863,16 +853,13 @@ survey_timer = QTimer()
 
 def survey_step():
 
-    global current_survey_index
-    global survey_frequencies
     global survey_timer
     global occupancy_percent
-    global survey_results
     global survey_popup
     global latest_survey_results_text
 
-    if current_survey_index >= len(
-            survey_frequencies
+    if survey.current_survey_index >= len(
+            survey.survey_frequencies
     ):
         survey_timer.stop()
 
@@ -881,20 +868,20 @@ def survey_step():
         )
 
         sorted_results = rank_frequencies(
-            survey_results
+            survey.survey_results
         )
 
         recommended_frequency, recommended_occupancy = (
             get_best_frequency(
-                survey_results
+                survey.survey_results
             )
         )
 
         occupancies = []
 
-        for freq in survey_frequencies:
+        for freq in survey.survey_frequencies:
             occupancies.append(
-                survey_results[freq]
+                survey.survey_results[freq]
             )
 
         heatmap_history.append(
@@ -918,10 +905,10 @@ def survey_step():
 
         heatmap_img.setRect(
             QRectF(
-                survey_frequencies[0],
+                survey.survey_frequencies[0],
                 0,
-                survey_frequencies[-1]
-                - survey_frequencies[0],
+                survey.survey_frequencies[-1]
+                - survey.survey_frequencies[0],
                 len(heatmap_history)
             )
         )
@@ -936,13 +923,13 @@ def survey_step():
         highest_occupancy = sorted_results[0][1]
 
         average_occupancy = round(
-            sum(survey_results.values())
-            / len(survey_results),
+            sum(survey.survey_results.values())
+            / len(survey.survey_results),
             1
         )
 
         points_scanned = len(
-            survey_results
+            survey.survey_results
         )
 
         results_text = build_results_text(
@@ -974,19 +961,19 @@ def survey_step():
             f"{progress_bar}\n"
             "100%\n\n"
             f"Last Scan:\n"
-            f"{len(survey_results)} Points\n\n"
+            f"{len(survey.survey_results)} Points\n\n"
             "[ VIEW RESULTS ]\n"
         )
 
         return
 
-    frequency = survey_frequencies[
-        current_survey_index
+    frequency = survey.survey_frequencies[
+        survey.current_survey_index
     ]
 
     progress_percent = int(
-        (current_survey_index + 1)
-        / len(survey_frequencies)
+        (survey.current_survey_index + 1)
+        / len(survey.survey_frequencies)
         * 100
     )
 
@@ -996,8 +983,8 @@ def survey_step():
 
     survey_text = build_status_text(
         frequency,
-        current_survey_index + 1,
-        len(survey_frequencies),
+        survey.current_survey_index + 1,
+        len(survey.survey_frequencies),
         progress_percent,
         progress_bar
     )
@@ -1016,11 +1003,11 @@ def survey_step():
         500
     )
 
-    survey_results[frequency] = round(
+    survey.survey_results[frequency] = round(
         float(occupancy_percent), 1
     )
 
-    current_survey_index += 1
+    survey.current_survey_index += 1
 
 # =========================================
 # CONNECT SURVEY TIMER
