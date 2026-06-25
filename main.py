@@ -33,8 +33,7 @@ from SURVEY.survey_manager import (
     generate_frequencies,
     rank_frequencies,
     build_status_text,
-    build_results_text,
-    get_best_frequency
+    build_results_text
 )
 
 #SIGNALS --------->

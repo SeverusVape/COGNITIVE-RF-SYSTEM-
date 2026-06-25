@@ -12,8 +12,11 @@ from SURVEY.survey_manager import (
     generate_frequencies,
     rank_frequencies,
     build_status_text,
-    build_results_text,
-    get_best_frequency
+    build_results_text
+)
+
+from SURVEY.decision_engine import (
+    find_free_channel
 )
 
 from UI.survey_popup import SurveyPopup
@@ -114,7 +117,7 @@ class SurveyController:
             return
 
         recommended_frequency, recommended_occupancy = (
-            get_best_frequency(
+            find_free_channel(
                 survey.survey_results
             )
         )
@@ -256,7 +259,7 @@ class SurveyController:
             )
 
             recommended_frequency, recommended_occupancy = (
-                get_best_frequency(
+                find_free_channel(
                     survey.survey_results
                 )
             )
