@@ -50,32 +50,14 @@ def classify_signal(
         elif 462 <= frequency <= 468:
             band = "GMRS"
 
-    if band is not None:
-
-        if persistence is not None:
-            return (
-                f"{band} "
-                f"[{strength}] "
-                f"[{persistence}]"
-            )
-
-        return (
-            f"{band} "
-            f"[{strength}]"
-        )
-
-    if persistence is not None:
-        return (
-            f"Unknown RF "
-            f"[{strength}] "
-            f"[{persistence}]"
-        )
+    if band is None:
+        band = "Unknown"
 
     return (
-        f"Unknown RF "
-        f"[{strength}]"
+        band,
+        strength,
+        persistence
     )
-
 
 def classify_strength(
         power

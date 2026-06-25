@@ -60,6 +60,33 @@ class SurveyController:
             top_frequencies_label
         )
 
+        self.recommended_text = pg.TextItem(
+            color="red"
+        )
+
+        self.recommended_arrow = pg.TextItem(
+            color="red"
+        )
+
+        self.recommended_text.setAnchor(
+            (0.5, 0)
+        )
+
+        self.recommended_arrow.setAnchor(
+            (0.5, 0)
+        )
+
+        self.heatmap_plot.addItem(
+            self.recommended_text
+        )
+
+        self.heatmap_plot.addItem(
+            self.recommended_arrow
+        )
+
+        self.recommended_text.hide()
+        self.recommended_arrow.hide()
+
 
     def clear_current_survey(self):
         self.survey_timer.stop()
@@ -102,46 +129,31 @@ class SurveyController:
             [0, heatmap_height]
         )
 
-        if hasattr(self, "recommended_text"):
-            self.heatmap_plot.removeItem(
-                self.recommended_text
-            )
-
-        if hasattr(self, "recommended_arrow"):
-            self.heatmap_plot.removeItem(
-                self.recommended_arrow
-            )
-
-        self.recommended_text = pg.TextItem(
-            "RCMND",
-            color="red"
+        self.recommended_text.setText(
+            "RCMND"
         )
 
-        self.recommended_arrow = pg.TextItem(
-            "▼",
-            color="red"
+        self.recommended_arrow.setText(
+            "▼"
         )
 
-        text_y = heatmap_height * 1.18
-        arrow_y = heatmap_height * 1.08
+
+        text_y = heatmap_height * 1.22
+        arrow_y = heatmap_height * 1.13
 
         self.recommended_text.setPos(
-            recommended_frequency - 0.35,
+            recommended_frequency,
             text_y
         )
 
         self.recommended_arrow.setPos(
-            recommended_frequency - 0.053,
+            recommended_frequency,
             arrow_y
         )
 
-        self.heatmap_plot.addItem(
-            self.recommended_text
-        )
+        self.recommended_text.show()
 
-        self.heatmap_plot.addItem(
-            self.recommended_arrow
-        )
+        self.recommended_arrow.show()
 
         self.heatmap_plot.setYRange(
             0,
