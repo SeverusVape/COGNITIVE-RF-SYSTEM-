@@ -16,7 +16,7 @@ from SURVEY.survey_manager import (
 )
 
 from SURVEY.decision_engine import (
-    find_free_channel
+    make_decision,
 )
 
 from UI.survey_popup import SurveyPopup
@@ -33,6 +33,7 @@ class SurveyController:
             start_freq_input,
             stop_freq_input,
             step_freq_input,
+            decision_mode_combo,
             heatmap_img,
             heatmap_plot,
             recommended_line,
@@ -90,6 +91,10 @@ class SurveyController:
         self.recommended_text.hide()
         self.recommended_arrow.hide()
 
+        self.decision_mode = "FREE"
+        self.decision_mode_combo = (
+            decision_mode_combo
+        )
 
     def clear_current_survey(self):
         self.survey_timer.stop()
@@ -116,8 +121,19 @@ class SurveyController:
 
             return
 
+        mode_text = self.decision_mode_combo.currentText()
+
+        if mode_text == "Find Free Channel":
+            self.decision_mode = "FREE"
+
+        elif mode_text == "Find Active Signal":
+            self.decision_mode = "ACTIVE"
+        else:
+            self.decision_mode = "SMART"
+
         recommended_frequency, recommended_occupancy = (
-            find_free_channel(
+            make_decision(
+                self.decision_mode,
                 survey.survey_results
             )
         )
@@ -259,7 +275,8 @@ class SurveyController:
             )
 
             recommended_frequency, recommended_occupancy = (
-                find_free_channel(
+                make_decision(
+                    self.decision_mode,
                     survey.survey_results
                 )
             )

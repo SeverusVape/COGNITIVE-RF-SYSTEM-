@@ -149,6 +149,7 @@ frequency_display.setStyleSheet(
     start_freq_input,
     stop_freq_input,
     step_freq_input,
+    decision_mode_combo,
     start_survey_button
 ) = create_survey_controls()
 
@@ -231,6 +232,18 @@ control_layout.addWidget(
 
 control_layout.addWidget(
     step_freq_input
+)
+
+control_layout.addSpacing(
+    10
+)
+
+control_layout.addWidget(
+    QLabel("Decision Mode")
+)
+
+control_layout.addWidget(
+    decision_mode_combo
 )
 
 control_layout.addSpacing(
@@ -746,6 +759,7 @@ survey_controller = SurveyController(
     start_freq_input,
     stop_freq_input,
     step_freq_input,
+    decision_mode_combo,
     heatmap_img,
     heatmap_plot,
     recommended_line,
