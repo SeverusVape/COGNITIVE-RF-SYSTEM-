@@ -148,6 +148,14 @@ def build_results_text(
         "occupancy"
     ]
 
+    recommended_score = recommendation[
+        "score"
+    ]
+
+    recommended_reason = recommendation[
+        "reason"
+    ]
+
     results_text = (
         "========== SURVEY COMPLETE ==========\n\n"
 
@@ -160,10 +168,39 @@ def build_results_text(
         "\n"
         "========== RECOMMENDED ==========\n\n"
         f"({recommendation_title})\n\n"
-        f"{recommended_frequency:.3f} MHz\n"
-        f"{recommended_occupancy:.1f}%\n\n"
+        f"Frequency:\n"
+        f"{recommended_frequency:.3f} MHz\n\n"
+        f"Occupancy:\n"
+        f"{recommended_occupancy:.1f}%\n"
+    )
 
-        "Survey Rankings\n\n"
+    if recommended_score is not None:
+        results_text += (
+
+            "\n"
+            "Overall Score:\n"
+            f"{recommended_score:.1f} / 80\n\n"
+
+        )
+
+    if recommended_reason:
+
+        results_text += (
+            "\n"
+            "Decision Reason:\n"
+
+        )
+
+        for reason in recommended_reason:
+            results_text += (
+
+                f"✓ {reason}\n"
+
+            )
+
+    results_text += (
+        "\n"
+        "Measured Occupancy\n\n"
     )
 
     for freq, occupancy in sorted_results[:5]:

@@ -34,12 +34,31 @@ def create_heatmap_panel(
         axisOrder="row-major"
     )
 
+    color_bar = pg.ColorBarItem(
+
+        values=(0, 100),
+        colorMap=colormap,
+        orientation="horizontal",
+        interactive=False,
+        label="Occupancy (%)",
+        width=7
+
+    )
+
     heatmap_plot.addItem(
         heatmap_img
     )
 
     heatmap_img.setColorMap(
         colormap
+    )
+
+    color_bar.setImageItem(
+        heatmap_img
+    )
+
+    color_bar.axis.setLabel(
+        "Occupancy (%)"
     )
 
     recommended_line = pg.PlotDataItem(
@@ -54,6 +73,11 @@ def create_heatmap_panel(
 
     heatmap_plot.addItem(
         recommended_line
+    )
+
+    win.nextRow()
+    win.addItem(
+        color_bar
     )
 
 
