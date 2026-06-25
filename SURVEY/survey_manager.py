@@ -4,6 +4,7 @@
 
 survey_frequencies = []
 survey_results = {}
+survey_metrics = {}
 current_survey_index = 0
 occupancy_percent = 0
 heatmap_history = []

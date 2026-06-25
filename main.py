@@ -409,6 +409,11 @@ occupancy_percent = 0
 survey_popup = None
 latest_survey_results_text = ""
 last_survey_settings = None
+current_measurement = {
+    "occupancy": 0,
+    "max_power": 0,
+    "average_power": 0
+}
 
 # ==================================================
 # SURVEY BUTTON FUNCTIONS
@@ -656,8 +661,8 @@ def update_waterfall(
 # REAL-TIME SDR UPDATE LOOP
 # ==================================================
 def update():
-
     global occupancy_percent
+    global current_measurement
 
     samples = sdr_manager.read_samples(
         NUM_SAMPLES
@@ -698,6 +703,12 @@ def update():
         power_db,
         threshold
     )
+
+    current_measurement = {
+        "occupancy": round(float(occupancy_percent), 1),
+        "max_power": round(float(np.max(power_db)), 1),
+        "average_power": round(float(np.mean(power_db)), 1)
+    }
 
     update_signal_panel(
         signals_label,
@@ -764,7 +775,7 @@ survey_controller = SurveyController(
     heatmap_plot,
     recommended_line,
     tune_frequency,
-    lambda: occupancy_percent
+    lambda: current_measurement
 )
 
 # =========================================

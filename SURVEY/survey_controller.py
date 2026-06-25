@@ -496,13 +496,25 @@ class SurveyController:
             500
         )
 
-        current_occupancy = (
+        measurement = (
             self.get_occupancy_callback()
         )
+
+        current_occupancy = measurement[
+            "occupancy"
+        ]
 
         survey.survey_results[frequency] = round(
             float(current_occupancy),
             1
+        )
+
+        survey.survey_metrics[frequency] = measurement
+
+        # TEST CHECK
+        print(
+            frequency,
+            survey.survey_metrics[frequency]
         )
 
         survey.current_survey_index += 1
