@@ -104,25 +104,83 @@ def smart_recommendation(
         survey_results
     )
 
-    # Placeholder:
-    # Until Smart scoring is implemented,
-    # return the FREE recommendation.
+    frequency_scores = {}
+
+    for frequency, metrics in survey_metrics.items():
+        occupancy = metrics["occupancy"]
+        max_power = metrics["max_power"]
+        average_power = metrics["average_power"]
+        score = 0
+
+        # ----------------------------------
+        # Occupancy Score (0–50)
+        # Lower occupancy = higher score
+        # ----------------------------------
+
+        score += max(
+            0,
+            50 - occupancy
+        )
+
+        # ----------------------------------
+        # Maximum Power Score (0–30)
+        # Stronger signal = higher score
+        # ----------------------------------
+
+        score += max_power / 100 * 30
+
+        print(
+
+            f"{frequency:.1f} MHz | "
+            f"Occ={occupancy:.1f}% | "
+            f"OccScore={50 - occupancy:.1f} | "
+            f"Max={max_power:.1f} | "
+            f"MaxScore={(max_power / 100) * 30:.1f} | "
+            f"Total={score:.1f}"
+
+        )
+
+        frequency_scores[frequency] = score
+
+    # BEST SMART SCORE
+    best_frequency = max(
+        frequency_scores,
+        key=frequency_scores.get
+    )
+
+    best_score = frequency_scores[
+        best_frequency
+    ]
+
+    print(
+        "SMART Winner:",
+        best_frequency,
+        best_score
+    )
 
     return build_recommendation(
 
-        frequency=free_recommendation["frequency"],
+        frequency=best_frequency,
 
-        occupancy=free_recommendation["occupancy"],
+        occupancy=survey_metrics[
+            best_frequency
+        ]["occupancy"],
 
         mode="SMART",
 
         title="SMART RECOMMENDATION",
 
-        score=None,
+        score=round(
+            best_score,
+            1
+        ),
 
         reason=[
-            "Using free-channel fallback",
-            "Lowest occupancy selected"
+
+            "Highest overall score",
+
+            "Balanced occupancy and signal strength"
+
         ]
 
     )
