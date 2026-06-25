@@ -132,8 +132,12 @@ class SurveyController:
             self.decision_mode = "SMART"
 
         recommendation = make_decision(
+
             self.decision_mode,
-            survey.survey_results
+            survey.survey_results,
+            survey.survey_metrics,
+            survey.heatmap_history
+
         )
 
         recommended_frequency = recommendation[
@@ -295,8 +299,12 @@ class SurveyController:
             )
 
             recommendation = make_decision(
+
                 self.decision_mode,
-                survey.survey_results
+                survey.survey_results,
+                survey.survey_metrics,
+                survey.heatmap_history
+
             )
 
             print(recommendation)

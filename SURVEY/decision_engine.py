@@ -90,35 +90,74 @@ def find_active_signal(
 # ==================================================
 
 def smart_recommendation(
+
         survey_results,
         survey_metrics,
         heatmap_history
 ):
 
-    # Placeholder until Smart Recommendation
-    # algorithm is implemented.
-
-    return find_free_channel(
+    free_recommendation = find_free_channel(
         survey_results
     )
 
+    active_recommendation = find_active_signal(
+        survey_results
+    )
+
+    # Placeholder:
+    # Until Smart scoring is implemented,
+    # return the FREE recommendation.
+
+    return build_recommendation(
+
+        frequency=free_recommendation["frequency"],
+
+        occupancy=free_recommendation["occupancy"],
+
+        mode="SMART",
+
+        title="SMART RECOMMENDATION",
+
+        score=None,
+
+        reason=[
+            "Using free-channel fallback",
+            "Lowest occupancy selected"
+        ]
+
+    )
 # ==================================================
 # DECISION ENGINE
 # ==================================================
 
 def make_decision(
+
         mode,
-        survey_results
+        survey_results,
+        survey_metrics=None,
+        heatmap_history=None
 ):
 
     if mode == "FREE":
+
         return find_free_channel(
             survey_results
         )
 
     elif mode == "ACTIVE":
+
         return find_active_signal(
             survey_results
+        )
+
+    elif mode == "SMART":
+
+        return smart_recommendation(
+
+            survey_results,
+            survey_metrics,
+            heatmap_history
+
         )
 
     return find_free_channel(
