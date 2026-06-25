@@ -134,8 +134,24 @@ def build_results_text(
         points_scanned,
         average_occupancy,
         best_frequency,
-        best_occupancy
+        best_occupancy,
+        decision_mode
 ):
+    if decision_mode == "FREE":
+        recommendation_title = (
+            "FREE CHANNEL"
+        )
+
+    elif decision_mode == "ACTIVE":
+        recommendation_title = (
+            "MOST ACTIVE SIGNAL"
+        )
+
+    else:
+        recommendation_title = (
+            "SMART RECOMMENDATION"
+        )
+
     results_text = (
         "========== SURVEY COMPLETE ==========\n\n"
 
@@ -147,11 +163,11 @@ def build_results_text(
 
         "\n"
         "========== RECOMMENDED ==========\n\n"
-        "(LOWEST OCCUPANCY):\n\n"
+        f"({recommendation_title})\n\n"
         f"{best_frequency:.3f} MHz\n"
         f"{best_occupancy:.1f}%\n\n"
 
-        "Most Active Frequencies\n\n"
+        "Survey Rankings\n\n"
     )
 
     for freq, occupancy in sorted_results[:5]:

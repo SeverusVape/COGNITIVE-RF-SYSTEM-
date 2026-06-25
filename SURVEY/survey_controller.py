@@ -270,6 +270,20 @@ class SurveyController:
                 "Survey Complete"
             )
 
+            mode_text = self.decision_mode_combo.currentText()
+
+            if mode_text == "Find Free Channel":
+
+                self.decision_mode = "FREE"
+
+            elif mode_text == "Find Active Signal":
+
+                self.decision_mode = "ACTIVE"
+
+            else:
+
+                self.decision_mode = "SMART"
+
             sorted_results = rank_frequencies(
                 survey.survey_results
             )
@@ -398,7 +412,8 @@ class SurveyController:
                 points_scanned,
                 average_occupancy,
                 recommended_frequency,
-                recommended_occupancy
+                recommended_occupancy,
+                self.decision_mode
             )
 
             self.latest_survey_results_text = (
