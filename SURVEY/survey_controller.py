@@ -131,12 +131,18 @@ class SurveyController:
         else:
             self.decision_mode = "SMART"
 
-        recommended_frequency, recommended_occupancy = (
-            make_decision(
-                self.decision_mode,
-                survey.survey_results
-            )
+        recommendation = make_decision(
+            self.decision_mode,
+            survey.survey_results
         )
+
+        recommended_frequency = recommendation[
+            "frequency"
+        ]
+
+        recommended_occupancy = recommendation[
+            "occupancy"
+        ]
 
         heatmap_height = max(
             1,
@@ -288,18 +294,26 @@ class SurveyController:
                 survey.survey_results
             )
 
-            recommended_frequency, recommended_occupancy = (
-                make_decision(
-                    self.decision_mode,
-                    survey.survey_results
-                )
+            recommendation = make_decision(
+                self.decision_mode,
+                survey.survey_results
             )
 
-            print(
-                "Best:",
-                recommended_frequency,
-                recommended_occupancy
-            )
+            print(recommendation)
+
+            recommended_frequency = recommendation[
+                "frequency"
+            ]
+
+            recommended_occupancy = recommendation[
+                "occupancy"
+            ]
+
+            #print(
+                #"Best:",
+                #recommended_frequency,
+                #recommended_occupancy
+            #)
 
             occupancies = []
 
@@ -411,9 +425,7 @@ class SurveyController:
                 sorted_results,
                 points_scanned,
                 average_occupancy,
-                recommended_frequency,
-                recommended_occupancy,
-                self.decision_mode
+                recommendation
             )
 
             self.latest_survey_results_text = (

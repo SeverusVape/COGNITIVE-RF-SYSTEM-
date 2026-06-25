@@ -130,27 +130,23 @@ def rank_frequencies(
 # ==================================================
 
 def build_results_text(
+
         sorted_results,
         points_scanned,
         average_occupancy,
-        best_frequency,
-        best_occupancy,
-        decision_mode
+        recommendation
 ):
-    if decision_mode == "FREE":
-        recommendation_title = (
-            "FREE CHANNEL"
-        )
+    recommendation_title = recommendation[
+        "title"
+    ]
 
-    elif decision_mode == "ACTIVE":
-        recommendation_title = (
-            "MOST ACTIVE SIGNAL"
-        )
+    recommended_frequency = recommendation[
+        "frequency"
+    ]
 
-    else:
-        recommendation_title = (
-            "SMART RECOMMENDATION"
-        )
+    recommended_occupancy = recommendation[
+        "occupancy"
+    ]
 
     results_text = (
         "========== SURVEY COMPLETE ==========\n\n"
@@ -164,8 +160,8 @@ def build_results_text(
         "\n"
         "========== RECOMMENDED ==========\n\n"
         f"({recommendation_title})\n\n"
-        f"{best_frequency:.3f} MHz\n"
-        f"{best_occupancy:.1f}%\n\n"
+        f"{recommended_frequency:.3f} MHz\n"
+        f"{recommended_occupancy:.1f}%\n\n"
 
         "Survey Rankings\n\n"
     )

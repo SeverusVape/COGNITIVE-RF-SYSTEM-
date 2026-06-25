@@ -21,7 +21,7 @@ def create_survey_controls():
     decision_mode_combo.addItems([
         "Find Free Channel",
         "Find Active Signal",
-        "Smart Recommendation"
+        "Smart Recommendation",
     ])
 
     decision_mode_combo.setCurrentIndex(0)

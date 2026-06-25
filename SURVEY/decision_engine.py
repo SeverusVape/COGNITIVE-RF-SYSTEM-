@@ -1,4 +1,28 @@
 # ==================================================
+# BUILD RECOMMENDATION
+# ==================================================
+
+def build_recommendation(
+
+        frequency,
+        occupancy,
+        mode,
+        title,
+        score=None,
+        reason=None
+):
+
+    return {
+
+        "frequency": frequency,
+        "occupancy": occupancy,
+        "mode": mode,
+        "title": title,
+        "score": score,
+        "reason": reason
+
+    }
+# ==================================================
 # FIND FREE CHANNEL
 # ==================================================
 
@@ -18,9 +42,15 @@ def find_free_channel(
         best_frequency
     ]
 
-    return (
-        best_frequency,
-        best_occupancy
+    return build_recommendation(
+
+        frequency=best_frequency,
+        occupancy=best_occupancy,
+        mode="FREE",
+        title="FREE CHANNEL",
+        reason=[
+            "Lowest occupancy"
+        ]
     )
 
 # ==================================================
@@ -43,9 +73,33 @@ def find_active_signal(
         best_frequency
     ]
 
-    return (
-        best_frequency,
-        best_occupancy
+    return build_recommendation(
+
+        frequency=best_frequency,
+        occupancy=best_occupancy,
+        mode="ACTIVE",
+        title="MOST ACTIVE SIGNAL",
+        reason=[
+            "Highest occupancy"
+        ]
+
+    )
+
+# ==================================================
+# SMART RECOMMENDATION
+# ==================================================
+
+def smart_recommendation(
+        survey_results,
+        survey_metrics,
+        heatmap_history
+):
+
+    # Placeholder until Smart Recommendation
+    # algorithm is implemented.
+
+    return find_free_channel(
+        survey_results
     )
 
 # ==================================================
