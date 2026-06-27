@@ -21,7 +21,7 @@ def classify_signal(
         persistence = "A" # Active
 
     else:
-        persistence = None
+        persistence = "N"
 
     band = None
 

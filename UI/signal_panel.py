@@ -93,7 +93,7 @@ def create_signal_panel():
     legend = QLabel(
         "[ SIGNAL LEGEND ]\n"
         "W=Weak   M=Medium   S=Strong\n"
-        "A=Active   P=Persistent   L=Long"
+        "A=Active   P=Persistent   L=Long   N=New"
     )
 
     legend.setAlignment(
@@ -163,10 +163,6 @@ def update_signal_panel(
             persistence=""
         )
 
-        feature_store.update(
-            feature
-        )
-
         signal_type, strength, persistence = (
             classify_signal(
                 power,
@@ -177,6 +173,9 @@ def update_signal_panel(
 
         feature.strength = strength
         feature.persistence = persistence
+        feature_store.update(
+            feature
+        )
 
         if age_seconds < 60:
             age_text = f"{age_seconds}s"

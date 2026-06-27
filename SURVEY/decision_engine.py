@@ -86,6 +86,41 @@ def find_active_signal(
     )
 
 # ==================================================
+# FIND NEAREST FEATURE
+# ==================================================
+
+def find_nearest_feature(
+        survey_frequency,
+        feature_store,
+        max_distance_mhz=0.5
+):
+
+    if feature_store is None:
+        return None
+
+    if len(feature_store.features) == 0:
+        return None
+
+    nearest_feature = None
+    nearest_distance = float("inf")
+
+    for feature_frequency, feature in feature_store.features.items():
+
+        distance = abs(
+            feature_frequency - survey_frequency
+        )
+
+        if distance < nearest_distance:
+
+            nearest_distance = distance
+            nearest_feature = feature
+
+    if nearest_distance > max_distance_mhz:
+        return None
+
+    return nearest_feature
+
+# ==================================================
 # SMART RECOMMENDATION
 # ==================================================
 
@@ -112,6 +147,20 @@ def smart_recommendation(
         max_power = metrics["max_power"]
         average_power = metrics["average_power"]
         score = 0
+
+        feature = find_nearest_feature(
+            frequency,
+            feature_store
+        )
+
+        if feature is not None:
+            print(
+                f"{frequency:.1f} MHz -> "
+                f"{feature.frequency:.3f} MHz | "
+                f"PERSIST={feature.persistence} | "
+                f"AGE={feature.age_seconds:.1f}s"
+            )
+
 
         # ----------------------------------
         # Occupancy Score (0–50)
