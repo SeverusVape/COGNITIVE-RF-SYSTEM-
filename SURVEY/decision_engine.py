@@ -154,6 +154,8 @@ def smart_recommendation(
         )
 
         persistence_bonus = 0
+        age_bonus = 0
+        strength_bonus = 0
 
         if feature is not None:
 
@@ -166,13 +168,20 @@ def smart_recommendation(
             elif feature.persistence == "L":
                 persistence_bonus = 15
 
-        if feature is not None:
-            print(
-                f"{frequency:.1f} MHz -> "
-                f"{feature.frequency:.3f} MHz | "
-                f"PERSIST={feature.persistence} | "
-                f"AGE={feature.age_seconds:.1f}s"
-            )
+            if feature.age_seconds >= 30:
+                age_bonus = 10
+
+            elif feature.age_seconds >= 15:
+                age_bonus = 6
+
+            elif feature.age_seconds >= 5:
+                age_bonus = 3
+
+            if feature.strength == "M":
+                strength_bonus = 3
+
+            elif feature.strength == "S":
+                strength_bonus = 6
 
 
         # ----------------------------------
@@ -192,13 +201,8 @@ def smart_recommendation(
 
         score += max_power / 100 * 30
         score += persistence_bonus
-
-        # TEMPORARY
-        print(
-            f"{frequency:.1f} MHz | "
-            f"SCORE={score:.1f} | "
-            f"PERSIST_BONUS={persistence_bonus}"
-        )
+        score += age_bonus
+        score += strength_bonus
 
         frequency_scores[frequency] = score
 
