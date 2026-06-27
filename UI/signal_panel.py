@@ -13,8 +13,16 @@ from PyQt6.QtGui import QFont
 from PyQt6.QtGui import QColor
 
 from SIGNALS.signal_history import (
-    update_signal_history
+    update_signal_history,
+    get_occupancy_percent
 )
+
+from SIGNALS.feature_extractor import (
+    FeatureStore,
+    extract_features
+)
+
+feature_store = FeatureStore()
 
 def create_signal_panel():
 
@@ -137,6 +145,27 @@ def update_signal_panel(
             )
         )
 
+        occupancy_percent = (
+            get_occupancy_percent(
+                freq
+            )
+        )
+
+        feature = extract_features(
+            frequency=freq,
+            peak_power=power,
+            average_power=power,
+            bandwidth_khz=0.0,
+            occupancy_percent=occupancy_percent,
+            age_seconds=age_seconds,
+            strength="",
+            persistence=""
+        )
+
+        feature_store.update(
+            feature
+        )
+
         signal_type, strength, persistence = (
             classify_signal(
                 power,
@@ -144,6 +173,9 @@ def update_signal_panel(
                 history_count
             )
         )
+
+        feature.strength = strength
+        feature.persistence = persistence
 
         if age_seconds < 60:
             age_text = f"{age_seconds}s"
