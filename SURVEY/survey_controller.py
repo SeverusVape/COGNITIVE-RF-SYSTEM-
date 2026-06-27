@@ -355,6 +355,59 @@ class SurveyController:
             "occupancy"
         ]
 
+        self._update_heatmap_and_history()
+
+        average_occupancy = round(
+            sum(survey.survey_results.values())
+            / len(survey.survey_results),
+            1
+        )
+
+        points_scanned = len(
+            survey.survey_results
+        )
+
+        results_text = build_results_text(
+            sorted_results,
+            points_scanned,
+            average_occupancy,
+            recommendation
+        )
+
+        self.latest_survey_results_text = (
+            results_text
+        )
+
+        self.survey_popup = SurveyPopup(
+            self.latest_survey_results_text
+        )
+
+        self.auto_tune_best()
+
+        progress_bar = build_progress_bar(
+            100
+        )
+
+        self.survey_label.setText(
+            "SURVEY STATUS\n\n"
+            "✓ COMPLETE\n\n"
+
+            f"RECOMMENDED:\n\n"
+            f"{recommended_frequency:.1f} MHz\n\n"
+
+            f"Points:\n"
+            f"{len(survey.survey_results)}\n\n"
+
+            "Progress:\n"
+            f"{progress_bar}\n"
+            "100%\n\n"
+
+            "[ VIEW RESULTS ]\n"
+        )
+
+        return
+
+    def _update_heatmap_and_history(self):
         occupancies = []
 
         for freq in survey.survey_frequencies:
@@ -427,8 +480,6 @@ class SurveyController:
 
         self.heatmap_img.setLevels(
             (
-                # np.min(heatmap_data),
-                # np.max(heatmap_data)
                 0, 100
             )
         )
@@ -448,56 +499,6 @@ class SurveyController:
             "Frequency",
             units="MHz"
         )
-
-        average_occupancy = round(
-            sum(survey.survey_results.values())
-            / len(survey.survey_results),
-            1
-        )
-
-        points_scanned = len(
-            survey.survey_results
-        )
-
-        results_text = build_results_text(
-            sorted_results,
-            points_scanned,
-            average_occupancy,
-            recommendation
-        )
-
-        self.latest_survey_results_text = (
-            results_text
-        )
-
-        self.survey_popup = SurveyPopup(
-            self.latest_survey_results_text
-        )
-
-        self.auto_tune_best()
-
-        progress_bar = build_progress_bar(
-            100
-        )
-
-        self.survey_label.setText(
-            "SURVEY STATUS\n\n"
-            "✓ COMPLETE\n\n"
-
-            f"RECOMMENDED:\n\n"
-            f"{recommended_frequency:.1f} MHz\n\n"
-
-            f"Points:\n"
-            f"{len(survey.survey_results)}\n\n"
-
-            "Progress:\n"
-            f"{progress_bar}\n"
-            "100%\n\n"
-
-            "[ VIEW RESULTS ]\n"
-        )
-
-        return
 
     def clear_current_survey(self):
         self.survey_timer.stop()
