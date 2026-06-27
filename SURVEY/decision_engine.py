@@ -153,6 +153,19 @@ def smart_recommendation(
             feature_store
         )
 
+        persistence_bonus = 0
+
+        if feature is not None:
+
+            if feature.persistence == "A":
+                persistence_bonus = 5
+
+            elif feature.persistence == "P":
+                persistence_bonus = 10
+
+            elif feature.persistence == "L":
+                persistence_bonus = 15
+
         if feature is not None:
             print(
                 f"{frequency:.1f} MHz -> "
@@ -178,6 +191,14 @@ def smart_recommendation(
         # ----------------------------------
 
         score += max_power / 100 * 30
+        score += persistence_bonus
+
+        # TEMPORARY
+        print(
+            f"{frequency:.1f} MHz | "
+            f"SCORE={score:.1f} | "
+            f"PERSIST_BONUS={persistence_bonus}"
+        )
 
         frequency_scores[frequency] = score
 
