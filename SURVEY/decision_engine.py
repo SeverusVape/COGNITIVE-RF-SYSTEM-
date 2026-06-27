@@ -93,7 +93,8 @@ def smart_recommendation(
 
         survey_results,
         survey_metrics,
-        heatmap_history
+        heatmap_history,
+        feature_store
 ):
 
     free_recommendation = find_free_channel(
@@ -176,7 +177,8 @@ def make_decision(
         mode,
         survey_results,
         survey_metrics=None,
-        heatmap_history=None
+        heatmap_history=None,
+        feature_store=None
 ):
 
     if mode == "FREE":
@@ -197,7 +199,8 @@ def make_decision(
 
             survey_results,
             survey_metrics,
-            heatmap_history
+            heatmap_history,
+            feature_store
 
         )
 

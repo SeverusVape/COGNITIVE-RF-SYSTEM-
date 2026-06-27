@@ -127,7 +127,8 @@ class SurveyController:
             self.decision_mode,
             survey.survey_results,
             survey.survey_metrics,
-            survey.heatmap_history
+            survey.heatmap_history,
+            self.feature_store
 
         )
 
@@ -346,7 +347,8 @@ class SurveyController:
             self.decision_mode,
             survey.survey_results,
             survey.survey_metrics,
-            survey.heatmap_history
+            survey.heatmap_history,
+            self.feature_store
 
         )
 
