@@ -207,17 +207,12 @@ class SurveyController:
 
         self.tune_frequency_callback()
 
-        print(
-            "Recommended:",
-            recommended_frequency,
-            recommended_occupancy
-        )
-
     def start_survey(self):
 
         # clean survey state
         survey.survey_frequencies = []
         survey.survey_results.clear()
+        survey.survey_metrics.clear()
         survey.current_survey_index = 0
 
         current_survey_settings = (
@@ -234,10 +229,6 @@ class SurveyController:
                 self.last_survey_settings
         ):
             survey.heatmap_history.clear()
-
-            print(
-                "Survey range changed - history cleared"
-            )
 
         self.last_survey_settings = (
             current_survey_settings
@@ -276,10 +267,6 @@ class SurveyController:
         ):
             self.survey_timer.stop()
 
-            print(
-                "Survey Complete"
-            )
-
             mode_text = self.decision_mode_combo.currentText()
 
             if mode_text == "Find Free Channel":
@@ -307,8 +294,6 @@ class SurveyController:
 
             )
 
-            print(recommendation)
-
             recommended_frequency = recommendation[
                 "frequency"
             ]
@@ -316,12 +301,6 @@ class SurveyController:
             recommended_occupancy = recommendation[
                 "occupancy"
             ]
-
-            #print(
-                #"Best:",
-                #recommended_frequency,
-                #recommended_occupancy
-            #)
 
             occupancies = []
 
@@ -395,8 +374,9 @@ class SurveyController:
 
             self.heatmap_img.setLevels(
                 (
-                    np.min(heatmap_data),
-                    np.max(heatmap_data)
+                    #np.min(heatmap_data),
+                    #np.max(heatmap_data)
+                    0, 100
                 )
             )
 
@@ -415,9 +395,6 @@ class SurveyController:
                 "Frequency",
                 units="MHz"
             )
-
-            highest_frequency = sorted_results[0][0]
-            highest_occupancy = sorted_results[0][1]
 
             average_occupancy = round(
                 sum(survey.survey_results.values())
@@ -465,25 +442,6 @@ class SurveyController:
                 "100%\n\n"
 
                 "[ VIEW RESULTS ]\n"
-            )
-
-
-            print(
-                "Popup prepared"
-            )
-
-            print(
-                "Results text generated"
-            )
-
-            print(
-                "Average occupancy:",
-                average_occupancy
-            )
-
-            print(
-                "Heatmap rows:",
-                len(survey.heatmap_history)
             )
 
             return
@@ -546,10 +504,5 @@ class SurveyController:
 
         survey.survey_metrics[frequency] = measurement
 
-        # TEST CHECK
-        print(
-            frequency,
-            survey.survey_metrics[frequency]
-        )
 
         survey.current_survey_index += 1
