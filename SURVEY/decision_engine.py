@@ -129,17 +129,6 @@ def smart_recommendation(
 
         score += max_power / 100 * 30
 
-        print(
-
-            f"{frequency:.1f} MHz | "
-            f"Occ={occupancy:.1f}% | "
-            f"OccScore={50 - occupancy:.1f} | "
-            f"Max={max_power:.1f} | "
-            f"MaxScore={(max_power / 100) * 30:.1f} | "
-            f"Total={score:.1f}"
-
-        )
-
         frequency_scores[frequency] = score
 
     # BEST SMART SCORE
@@ -151,12 +140,6 @@ def smart_recommendation(
     best_score = frequency_scores[
         best_frequency
     ]
-
-    print(
-        "SMART Winner:",
-        best_frequency,
-        best_score
-    )
 
     return build_recommendation(
 

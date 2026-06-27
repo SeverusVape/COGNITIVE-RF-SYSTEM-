@@ -46,6 +46,7 @@ from SIGNALS.signal_history import (
     increment_history_update_count,
     reset_cycle_tracking
 )
+from SIGNALS.feature_extractor import FeatureStore
 
 # UI -------->
 
@@ -75,6 +76,9 @@ from UI.survey_panel import create_survey_panel
 from UI.survey_popup import (
     SurveyPopup
 )
+
+# GLOBALS ----->
+feature_store = FeatureStore()
 
 
 # ==================================================
@@ -718,7 +722,8 @@ def update():
     update_signal_panel(
         signals_table,
         peaks,
-        classify_signal
+        classify_signal,
+        feature_store
     )
 
     update_status_panel(
@@ -780,7 +785,8 @@ survey_controller = SurveyController(
     heatmap_plot,
     recommended_line,
     tune_frequency,
-    lambda: current_measurement
+    lambda: current_measurement,
+    feature_store
 )
 
 # =========================================

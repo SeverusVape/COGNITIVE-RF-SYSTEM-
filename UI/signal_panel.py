@@ -22,8 +22,6 @@ from SIGNALS.feature_extractor import (
     extract_features
 )
 
-feature_store = FeatureStore()
-
 def create_signal_panel():
 
     table = QTableWidget()
@@ -124,7 +122,8 @@ def create_signal_panel():
 def update_signal_panel(
         table,
         peaks,
-        classify_signal
+        classify_signal,
+        feature_store
 ):
     table.setRowCount(
         len(peaks)

@@ -38,7 +38,8 @@ class SurveyController:
             heatmap_plot,
             recommended_line,
             tune_frequency_callback,
-            get_occupancy_callback
+            get_occupancy_callback,
+            feature_store,
     ):
         self.survey_timer = survey_timer
         self.survey_label = survey_label
@@ -59,6 +60,8 @@ class SurveyController:
         self.latest_survey_results_text = ""
         self.last_survey_settings = None
         self.occupancy_percent = 0
+
+        self.feature_store = feature_store
 
         self.top_frequencies_label = (
             top_frequencies_label
