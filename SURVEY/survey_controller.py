@@ -96,18 +96,6 @@ class SurveyController:
             decision_mode_combo
         )
 
-    def clear_current_survey(self):
-        self.survey_timer.stop()
-
-        survey.survey_frequencies = []
-        survey.survey_results.clear()
-        survey.current_survey_index = 0
-
-
-        clear_survey(
-            self.survey_label
-        )
-
     def auto_tune_best(self):
 
         current_frequency = float(
@@ -265,185 +253,7 @@ class SurveyController:
         if survey.current_survey_index >= len(
                 survey.survey_frequencies
         ):
-            self.survey_timer.stop()
-
-            mode_text = self.decision_mode_combo.currentText()
-
-            if mode_text == "Find Free Channel":
-
-                self.decision_mode = "FREE"
-
-            elif mode_text == "Find Active Signal":
-
-                self.decision_mode = "ACTIVE"
-
-            else:
-
-                self.decision_mode = "SMART"
-
-            sorted_results = rank_frequencies(
-                survey.survey_results
-            )
-
-            recommendation = make_decision(
-
-                self.decision_mode,
-                survey.survey_results,
-                survey.survey_metrics,
-                survey.heatmap_history
-
-            )
-
-            recommended_frequency = recommendation[
-                "frequency"
-            ]
-
-            recommended_occupancy = recommendation[
-                "occupancy"
-            ]
-
-            occupancies = []
-
-            for freq in survey.survey_frequencies:
-                occupancies.append(
-                    survey.survey_results[freq]
-                )
-
-            survey.heatmap_history.append(
-                occupancies
-            )
-
-            if len(survey.heatmap_history) > 100:
-                survey.heatmap_history.pop(0)
-
-            heatmap_data = np.array(
-                survey.heatmap_history
-            )
-
-            average_by_frequency = np.mean(
-                heatmap_data,
-                axis=0
-            )
-
-            top_indices = np.argsort(
-                average_by_frequency
-            )[-3:][::-1]
-
-            persistent_text = (
-                "MOST ACTIVE (HISTORY)\n\n"
-            )
-
-            for rank, index in enumerate(
-                    top_indices,
-                    start=1
-            ):
-                freq = survey.survey_frequencies[
-                    index
-                ]
-
-                avg_occ = round(
-                    average_by_frequency[index],
-                    1
-                )
-
-                persistent_text += (
-                    f"{rank}. "
-                    f"{freq:.1f} MHz   "
-                    f"{avg_occ}%\n"
-                )
-
-            self.top_frequencies_label.setText(
-                persistent_text
-            )
-
-            self.heatmap_img.setImage(
-                heatmap_data,
-                autoLevels=False
-            )
-
-            self.heatmap_img.setRect(
-                QRectF(
-                    min(survey.survey_frequencies),
-                    0,
-                    max(survey.survey_frequencies)
-                    -
-                    min(survey.survey_frequencies),
-                    len(survey.heatmap_history)
-                )
-            )
-
-            self.heatmap_img.setLevels(
-                (
-                    #np.min(heatmap_data),
-                    #np.max(heatmap_data)
-                    0, 100
-                )
-            )
-
-            self.heatmap_img.setRect(
-                QRectF(
-                    survey.survey_frequencies[0],
-                    0,
-                    survey.survey_frequencies[-1]
-                    - survey.survey_frequencies[0],
-                    len(survey.heatmap_history)
-                )
-            )
-
-            self.heatmap_plot.setLabel(
-                "bottom",
-                "Frequency",
-                units="MHz"
-            )
-
-            average_occupancy = round(
-                sum(survey.survey_results.values())
-                / len(survey.survey_results),
-                1
-            )
-
-            points_scanned = len(
-                survey.survey_results
-            )
-
-            results_text = build_results_text(
-                sorted_results,
-                points_scanned,
-                average_occupancy,
-                recommendation
-            )
-
-            self.latest_survey_results_text = (
-                results_text
-            )
-
-            self.survey_popup = SurveyPopup(
-                self.latest_survey_results_text
-            )
-
-            self.auto_tune_best()
-
-            progress_bar = build_progress_bar(
-                100
-            )
-
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "✓ COMPLETE\n\n"
-
-                f"RECOMMENDED:\n\n"
-                f"{recommended_frequency:.1f} MHz\n\n"
-
-                f"Points:\n"
-                f"{len(survey.survey_results)}\n\n"
-
-                "Progress:\n"
-                f"{progress_bar}\n"
-                "100%\n\n"
-
-                "[ VIEW RESULTS ]\n"
-            )
-
+            self._handle_survey_completion()
             return
 
         frequency = survey.survey_frequencies[
@@ -506,3 +316,197 @@ class SurveyController:
 
 
         survey.current_survey_index += 1
+
+    def _handle_survey_completion(self):
+        self.survey_timer.stop()
+
+        mode_text = self.decision_mode_combo.currentText()
+
+        if mode_text == "Find Free Channel":
+
+            self.decision_mode = "FREE"
+
+        elif mode_text == "Find Active Signal":
+
+            self.decision_mode = "ACTIVE"
+
+        else:
+
+            self.decision_mode = "SMART"
+
+        sorted_results = rank_frequencies(
+            survey.survey_results
+        )
+
+        recommendation = make_decision(
+
+            self.decision_mode,
+            survey.survey_results,
+            survey.survey_metrics,
+            survey.heatmap_history
+
+        )
+
+        recommended_frequency = recommendation[
+            "frequency"
+        ]
+
+        recommended_occupancy = recommendation[
+            "occupancy"
+        ]
+
+        occupancies = []
+
+        for freq in survey.survey_frequencies:
+            occupancies.append(
+                survey.survey_results[freq]
+            )
+
+        survey.heatmap_history.append(
+            occupancies
+        )
+
+        if len(survey.heatmap_history) > 100:
+            survey.heatmap_history.pop(0)
+
+        heatmap_data = np.array(
+            survey.heatmap_history
+        )
+
+        average_by_frequency = np.mean(
+            heatmap_data,
+            axis=0
+        )
+
+        top_indices = np.argsort(
+            average_by_frequency
+        )[-3:][::-1]
+
+        persistent_text = (
+            "MOST ACTIVE (HISTORY)\n\n"
+        )
+
+        for rank, index in enumerate(
+                top_indices,
+                start=1
+        ):
+            freq = survey.survey_frequencies[
+                index
+            ]
+
+            avg_occ = round(
+                average_by_frequency[index],
+                1
+            )
+
+            persistent_text += (
+                f"{rank}. "
+                f"{freq:.1f} MHz   "
+                f"{avg_occ}%\n"
+            )
+
+        self.top_frequencies_label.setText(
+            persistent_text
+        )
+
+        self.heatmap_img.setImage(
+            heatmap_data,
+            autoLevels=False
+        )
+
+        self.heatmap_img.setRect(
+            QRectF(
+                min(survey.survey_frequencies),
+                0,
+                max(survey.survey_frequencies)
+                -
+                min(survey.survey_frequencies),
+                len(survey.heatmap_history)
+            )
+        )
+
+        self.heatmap_img.setLevels(
+            (
+                # np.min(heatmap_data),
+                # np.max(heatmap_data)
+                0, 100
+            )
+        )
+
+        self.heatmap_img.setRect(
+            QRectF(
+                survey.survey_frequencies[0],
+                0,
+                survey.survey_frequencies[-1]
+                - survey.survey_frequencies[0],
+                len(survey.heatmap_history)
+            )
+        )
+
+        self.heatmap_plot.setLabel(
+            "bottom",
+            "Frequency",
+            units="MHz"
+        )
+
+        average_occupancy = round(
+            sum(survey.survey_results.values())
+            / len(survey.survey_results),
+            1
+        )
+
+        points_scanned = len(
+            survey.survey_results
+        )
+
+        results_text = build_results_text(
+            sorted_results,
+            points_scanned,
+            average_occupancy,
+            recommendation
+        )
+
+        self.latest_survey_results_text = (
+            results_text
+        )
+
+        self.survey_popup = SurveyPopup(
+            self.latest_survey_results_text
+        )
+
+        self.auto_tune_best()
+
+        progress_bar = build_progress_bar(
+            100
+        )
+
+        self.survey_label.setText(
+            "SURVEY STATUS\n\n"
+            "✓ COMPLETE\n\n"
+
+            f"RECOMMENDED:\n\n"
+            f"{recommended_frequency:.1f} MHz\n\n"
+
+            f"Points:\n"
+            f"{len(survey.survey_results)}\n\n"
+
+            "Progress:\n"
+            f"{progress_bar}\n"
+            "100%\n\n"
+
+            "[ VIEW RESULTS ]\n"
+        )
+
+        return
+
+    def clear_current_survey(self):
+        self.survey_timer.stop()
+
+        survey.survey_frequencies = []
+        survey.survey_results.clear()
+        survey.current_survey_index = 0
+
+
+        clear_survey(
+            self.survey_label
+        )
