@@ -153,7 +153,7 @@ frequency_display.setStyleSheet(
     start_survey_button
 ) = create_survey_controls()
 
-signals_label = create_signal_panel()
+signals_panel, signals_table = create_signal_panel()
 status_label = create_status_panel()
 survey_label = create_survey_panel()
 
@@ -177,7 +177,7 @@ top_frequencies_label.setStyleSheet(
 # ==================================================
 
 info_layout.addWidget(
-    signals_label
+    signals_panel
 )
 
 info_layout.addWidget(
@@ -711,7 +711,7 @@ def update():
     }
 
     update_signal_panel(
-        signals_label,
+        signals_table,
         peaks,
         classify_signal
     )

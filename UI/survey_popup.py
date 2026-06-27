@@ -23,9 +23,7 @@ class SurveyPopup(QWidget):
         )
 
         layout = QVBoxLayout()
-
         text_box = QTextEdit()
-
         text_box.setReadOnly(
             True
         )

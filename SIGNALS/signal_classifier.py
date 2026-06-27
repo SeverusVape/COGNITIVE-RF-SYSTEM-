@@ -12,13 +12,13 @@ def classify_signal(
     )
 
     if history_count >= 20:
-        persistence = "L"
+        persistence = "L" # LONG TERM
 
     elif history_count >= 10:
-        persistence = "P"
+        persistence = "P" # Persistent
 
     elif history_count >= 5:
-        persistence = "A"
+        persistence = "A" # Active
 
     else:
         persistence = None
@@ -30,22 +30,31 @@ def classify_signal(
         if 88 <= frequency <= 108:
 
             if power > 60:
-                band = "BC"
+                band = "BC-STR" # strong broadcast signal
 
             else:
-                band = "FM"
+                band = "BC" # broadcast signal
 
         elif 118 <= frequency <= 137:
             band = "AIRBND"
 
         elif 144 <= frequency <= 148:
-            band = "2m"
+            if frequency >= 146:
+                band = "2m-RPT"
+            else:
+                band = "2m"
+
+        elif 162.4 <= frequency <= 162.6:
+            band = "NOAA" # likely NOAA weather channel
 
         elif 162 <= frequency <= 163:
-            band = "NOAA"
+            band = "WX" # weather-band area but not exact NOAA frequency
 
         elif 420 <= frequency <= 450:
-            band = "70cm"
+            if frequency >= 440:
+                band = "70cm-RPT" # likely repeater activity
+            else:
+                band = "70cm" # general 70cm activity
 
         elif 462 <= frequency <= 468:
             band = "GMRS"

@@ -1,4 +1,7 @@
 from PyQt6.QtWidgets import (
+    QWidget,
+    QVBoxLayout,
+    QLabel,
     QTableWidget,
     QTableWidgetItem,
     QHeaderView
@@ -7,6 +10,7 @@ from PyQt6.QtWidgets import (
 from PyQt6.QtCore import Qt
 
 from PyQt6.QtGui import QFont
+from PyQt6.QtGui import QColor
 
 from SIGNALS.signal_history import (
     update_signal_history
@@ -63,23 +67,50 @@ def create_signal_panel():
         """
     )
 
-    table.setFixedHeight(130)
-
+    table.setFixedHeight(110)
     table.horizontalHeader().setStretchLastSection(True)
-
     table.horizontalHeader().setSectionResizeMode(
         QHeaderView.ResizeMode.ResizeToContents
     )
-
     table.horizontalHeader().setStretchLastSection(
         True
     )
-
     table.setHorizontalScrollBarPolicy(
         Qt.ScrollBarPolicy.ScrollBarAlwaysOff
     )
 
-    return table
+    panel = QWidget()
+    layout = QVBoxLayout(panel)
+    layout.setSpacing(0)
+    layout.setContentsMargins(0, 0, 0, 0)
+    layout.addWidget(table)
+    legend = QLabel(
+        "[ SIGNAL LEGEND ]\n"
+        "W=Weak   M=Medium   S=Strong\n"
+        "A=Active   P=Persistent   L=Long"
+    )
+
+    legend.setAlignment(
+        Qt.AlignmentFlag.AlignCenter
+    )
+
+    legend.setStyleSheet(
+        """
+        QLabel {
+            color: #3da5ff;
+            background-color: #111111;
+            border: 2px solid #0078ff;
+            border-radius: 6px;
+            padding: 8px;
+            font-size: 10px;
+            font-weight: bold;
+        }
+        """
+    )
+    layout.addWidget(legend)
+    legend.setMaximumHeight(80)
+    #panel.setMaximumHeight(150)
+    return panel, table
 
 
 def update_signal_panel(
@@ -119,11 +150,40 @@ def update_signal_panel(
         else:
             age_text = f"{age_seconds // 60}m"
 
+        display_type = signal_type
+
+        if persistence is not None:
+            display_type += f" [{persistence}]"
+
+        type_item = QTableWidgetItem(display_type)
         table.setItem(
             row,
             1,
-            QTableWidgetItem(signal_type)
+            type_item
         )
+
+        # COLORED ITEMS ================
+        if "BC" in signal_type:
+            type_item.setForeground(QColor("#00ff66"))
+
+        elif signal_type == "NOAA":
+            type_item.setForeground(QColor("#00ffff"))
+
+        elif signal_type == "WX":
+            type_item.setForeground(QColor("#66ffff"))
+
+        elif "AIRBND" in signal_type:
+            type_item.setForeground(QColor("#ffff00"))
+
+        elif "2m" in signal_type:
+            type_item.setForeground(QColor("#ff9900"))
+
+        elif "70cm" in signal_type:
+            type_item.setForeground(QColor("#ff66ff"))
+
+        elif signal_type == "GMRS":
+            type_item.setForeground(QColor("#ff4444"))
+        # ==============================
 
         table.setItem(
             row,
