@@ -42,7 +42,9 @@ from SIGNALS.signal_classifier import (
     classify_signal
 )
 from SIGNALS.signal_history import (
-    update_signal_history
+    update_signal_history,
+    increment_history_update_count,
+    reset_cycle_tracking
 )
 
 # UI -------->
@@ -663,6 +665,9 @@ def update_waterfall(
 def update():
     global occupancy_percent
     global current_measurement
+
+    reset_cycle_tracking()
+    increment_history_update_count()
 
     samples = sdr_manager.read_samples(
         NUM_SAMPLES

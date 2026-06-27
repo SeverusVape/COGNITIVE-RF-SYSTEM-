@@ -130,6 +130,8 @@ def update_signal_panel(
         len(peaks)
     )
 
+    seen_this_update = set()
+
     for row, (freq, power) in enumerate(peaks):
         table.setItem(
             row,

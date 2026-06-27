@@ -9,7 +9,7 @@ signal_history = {}
 signal_first_seen = {}
 
 history_update_count = 0
-
+seen_this_cycle = set()
 # ==================================================
 # UPDATE HISTORY
 # ==================================================
@@ -17,12 +17,31 @@ history_update_count = 0
 def update_signal_history(
         frequency
 ):
-    global history_update_count
-    history_update_count += 1
-
     frequency = round(
         frequency,
         1
+    )
+
+    if frequency in seen_this_cycle:
+        age_seconds = int(
+            time.time()
+            -
+            signal_first_seen.get(
+                frequency,
+                time.time()
+            )
+        )
+
+        return (
+            signal_history.get(
+                frequency,
+                0
+            ),
+            age_seconds
+        )
+
+    seen_this_cycle.add(
+        frequency
     )
 
     if frequency not in signal_first_seen:
@@ -57,8 +76,15 @@ def update_signal_history(
         age_seconds
     )
 
+def increment_history_update_count():
+    global history_update_count
+    history_update_count += 1
+
 def get_history_update_count():
     return history_update_count
+
+def reset_cycle_tracking():
+    seen_this_cycle.clear()
 
 def get_occupancy_percent(
         frequency
