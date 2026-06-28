@@ -1,5 +1,7 @@
 from dataclasses import dataclass
-
+from SIGNALS.signal_type_classifier import (
+    classify_signal_type
+)
 
 @dataclass
 class SignalFeatures:
@@ -11,6 +13,7 @@ class SignalFeatures:
     age_seconds: float
     strength: str
     persistence: str
+    signal_type: str = "Unknown"
 
 class FeatureStore:
     def __init__(self):
@@ -36,6 +39,23 @@ def extract_features(
     strength,
     persistence
 ):
+    signal_type = classify_signal_type(
+        SignalFeatures(
+            frequency=frequency,
+            peak_power=peak_power,
+            average_power=average_power,
+            bandwidth_khz=bandwidth_khz,
+            occupancy_percent=occupancy_percent,
+            age_seconds=age_seconds,
+            strength=strength,
+            persistence=persistence
+        )
+    )
+
+    print(
+        f"{frequency:.3f} MHz -> {signal_type}"
+    )
+
     return SignalFeatures(
         frequency=frequency,
         peak_power=peak_power,
@@ -44,5 +64,6 @@ def extract_features(
         occupancy_percent=occupancy_percent,
         age_seconds=age_seconds,
         strength=strength,
-        persistence=persistence
+        persistence=persistence,
+        signal_type=signal_type
     )
