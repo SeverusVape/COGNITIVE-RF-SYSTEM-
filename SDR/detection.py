@@ -35,8 +35,34 @@ def detect_peaks(
 
         power = power_db[peak]
 
+        left = peak
+
+        while (
+                left > 0
+                and power_db[left] > threshold
+        ):
+            left -= 1
+
+        right = peak
+
+        while (
+                right < len(power_db) - 1
+                and power_db[right] > threshold
+        ):
+            right += 1
+
+        bandwidth_bins = right - left
+
+        bandwidth_khz = (
+                bandwidth_bins * 0.25
+        )
+
         results.append(
-            (freq, power)
+            (
+                freq,
+                power,
+                bandwidth_khz
+            )
         )
 
     return results, threshold

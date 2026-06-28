@@ -52,10 +52,6 @@ def extract_features(
         )
     )
 
-    print(
-        f"{frequency:.3f} MHz -> {signal_type}"
-    )
-
     return SignalFeatures(
         frequency=frequency,
         peak_power=peak_power,

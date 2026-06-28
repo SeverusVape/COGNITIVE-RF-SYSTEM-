@@ -131,7 +131,7 @@ def update_signal_panel(
 
     seen_this_update = set()
 
-    for row, (freq, power) in enumerate(peaks):
+    for row, (freq, power, bandwidth_khz) in enumerate(peaks):
         table.setItem(
             row,
             0,
@@ -152,17 +152,6 @@ def update_signal_panel(
             )
         )
 
-        feature = extract_features(
-            frequency=freq,
-            peak_power=power,
-            average_power=power,
-            bandwidth_khz=0.0,
-            occupancy_percent=occupancy_percent,
-            age_seconds=age_seconds,
-            strength="",
-            persistence=""
-        )
-
         signal_type, strength, persistence = (
             classify_signal(
                 power,
@@ -171,8 +160,17 @@ def update_signal_panel(
             )
         )
 
-        feature.strength = strength
-        feature.persistence = persistence
+        feature = extract_features(
+            frequency=freq,
+            peak_power=power,
+            average_power=power,
+            bandwidth_khz=bandwidth_khz,
+            occupancy_percent=occupancy_percent,
+            age_seconds=age_seconds,
+            strength=strength,
+            persistence=persistence
+        )
+
         feature_store.update(
             feature
         )

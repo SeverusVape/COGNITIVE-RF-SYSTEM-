@@ -589,7 +589,7 @@ def update_peak_markers(
                 item
             )
 
-    for freq, power in peaks:
+    for freq, power, bandwidth_khz in peaks:
 
         peak_marker = pg.ScatterPlotItem(
             [freq],
