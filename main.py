@@ -82,6 +82,9 @@ from UI.survey_popup import (
 from UTILS.occupancy import (
     calculate_occupancy
 )
+from UTILS.frequency_axis import (
+    build_frequency_axis
+)
 
 # GLOBALS ----->
 feature_store = FeatureStore()
@@ -461,16 +464,11 @@ def tune_frequency():
             new_freq
         )
 
-        freqs = np.fft.fftshift(
-            np.fft.fftfreq(
-                NUM_SAMPLES,
-                d=1 / SAMPLE_RATE
-            )
+        freqs, freqs_mhz = build_frequency_axis(
+            NUM_SAMPLES,
+            SAMPLE_RATE,
+            new_freq
         )
-
-        freqs = freqs + new_freq
-
-        freqs_mhz = freqs / 1e6
 
         waterfall_plot.setXRange(
             freqs_mhz[0],
