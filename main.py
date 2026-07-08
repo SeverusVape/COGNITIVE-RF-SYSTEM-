@@ -506,6 +506,15 @@ def update():
         NUM_SAMPLES
     )
 
+    if samples is None:
+        status_label.setText(
+            "SYSTEM STATUS\n\n"
+            "SDR NOT CONNECTED\n\n"
+            "Check USB connection\n"
+            "and restart device."
+        )
+        return
+
     power_db = compute_fft(
         samples
     )
