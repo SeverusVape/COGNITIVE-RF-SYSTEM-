@@ -201,16 +201,71 @@ class SurveyController:
 
     def start_survey(self):
 
-        # clean survey state
+        try:
+            start_mhz = float(
+                self.start_freq_input.text()
+            )
+
+            stop_mhz = float(
+                self.stop_freq_input.text()
+            )
+
+            step_mhz = float(
+                self.step_freq_input.text()
+            )
+
+        except ValueError:
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "INVALID INPUT\n\n"
+                "Start, Stop, and Step\n"
+                "must be numbers."
+            )
+            return
+
+        if step_mhz <= 0:
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "INVALID STEP\n\n"
+                "Step must be greater\n"
+                "than 0 MHz."
+            )
+            return
+
+        if stop_mhz <= start_mhz:
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "INVALID RANGE\n\n"
+                "Stop frequency must be\n"
+                "greater than Start."
+            )
+            return
+
+        new_frequencies = generate_frequencies(
+            start_mhz,
+            stop_mhz,
+            step_mhz
+        )
+
+        if len(new_frequencies) == 0:
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "INVALID SURVEY\n\n"
+                "No frequencies were\n"
+                "generated."
+            )
+            return
+
+        # clean survey state only after validation passes
         survey.survey_frequencies = []
         survey.survey_results.clear()
         survey.survey_metrics.clear()
         survey.current_survey_index = 0
 
         current_survey_settings = (
-            float(self.start_freq_input.text()),
-            float(self.stop_freq_input.text()),
-            float(self.step_freq_input.text())
+            start_mhz,
+            stop_mhz,
+            step_mhz
         )
 
         if (
@@ -226,16 +281,8 @@ class SurveyController:
             current_survey_settings
         )
 
-        start_mhz = current_survey_settings[0]
-        stop_mhz = current_survey_settings[1]
-        step_mhz = current_survey_settings[2]
-
         survey.survey_frequencies = (
-            generate_frequencies(
-                start_mhz,
-                stop_mhz,
-                step_mhz
-            )
+            new_frequencies
         )
 
         self.survey_label.setText(
