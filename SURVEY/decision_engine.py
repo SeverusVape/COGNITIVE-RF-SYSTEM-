@@ -33,7 +33,15 @@ def find_free_channel(
 ):
 
     if len(survey_results) == 0:
-        return None, None
+        return build_recommendation(
+            frequency=None,
+            occupancy=None,
+            mode="FREE",
+            title="NO SURVEY DATA",
+            reason=[
+                "No survey results available"
+            ]
+        )
 
     best_frequency = min(
         survey_results,
@@ -64,7 +72,15 @@ def find_active_signal(
 ):
 
     if len(survey_results) == 0:
-        return None, None
+        return build_recommendation(
+            frequency=None,
+            occupancy=None,
+            mode="ACTIVE",
+            title="NO SURVEY DATA",
+            reason=[
+                "No survey results available"
+            ]
+        )
 
     best_frequency = max(
         survey_results,
