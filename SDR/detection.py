@@ -34,12 +34,13 @@ def detect_peaks(
         freq = freqs_mhz[peak]
 
         power = power_db[peak]
+        bw_threshold = power - 15
 
         left = peak
 
         while (
                 left > 0
-                and power_db[left] > threshold
+                and power_db[left] > bw_threshold
         ):
             left -= 1
 
@@ -47,7 +48,7 @@ def detect_peaks(
 
         while (
                 right < len(power_db) - 1
-                and power_db[right] > threshold
+                and power_db[right] > bw_threshold
         ):
             right += 1
 

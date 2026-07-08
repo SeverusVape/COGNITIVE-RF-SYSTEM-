@@ -1,7 +1,10 @@
+# IMPORTS =======================================
 from dataclasses import dataclass
+from collections import deque
 from SIGNALS.signal_type_classifier import (
     classify_signal_type
 )
+# ================================================
 
 @dataclass
 class SignalFeatures:
@@ -18,9 +21,36 @@ class SignalFeatures:
 class FeatureStore:
     def __init__(self):
         self.features = {}
+        self.bandwidth_history = {}
 
     def update(self, feature):
-        self.features[feature.frequency] = feature
+        freq_key = round(
+            feature.frequency,
+            2
+        )
+
+        if freq_key not in self.bandwidth_history:
+            self.bandwidth_history[freq_key] = deque(
+                maxlen=20
+            )
+
+        self.bandwidth_history[
+            freq_key
+        ].append(
+            feature.bandwidth_khz
+        )
+
+        history = self.bandwidth_history[
+            freq_key
+        ]
+
+        feature.bandwidth_khz = max(
+            history
+        )
+
+        self.features[
+            feature.frequency
+        ] = feature
 
     def get(self, frequency):
         return self.features.get(frequency)
