@@ -134,13 +134,15 @@ def smart_recommendation(
         feature_store
 ):
 
-    free_recommendation = find_free_channel(
-        survey_results
-    )
+    if survey_metrics is None:
+        return find_free_channel(
+            survey_results
+        )
 
-    active_recommendation = find_active_signal(
-        survey_results
-    )
+    if len(survey_metrics) == 0:
+        return find_free_channel(
+            survey_results
+        )
 
     frequency_scores = {}
 
