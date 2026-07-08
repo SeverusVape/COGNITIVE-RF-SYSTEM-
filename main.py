@@ -58,7 +58,8 @@ from UI.waterfall_panel import (
     update_waterfall_panel
 )
 from UI.fft_panel import (
-    create_fft_panel
+    create_fft_panel,
+    update_peak_markers
 )
 from UI.control_panel import create_control_widgets
 from UI.survey_controls import create_survey_controls
@@ -492,69 +493,6 @@ def tune_frequency():
             f"Invalid frequency: {e}"
         )
 
-# ==================================================
-# PEAK MARKER UPDATE
-# ==================================================
-def update_peak_markers(
-    peaks
-):
-
-    for item in fft_plot.items[:]:
-
-        if isinstance(
-            item,
-            pg.TextItem
-        ):
-
-            fft_plot.removeItem(
-                item
-            )
-
-        if isinstance(
-            item,
-            pg.ScatterPlotItem
-        ):
-
-            fft_plot.removeItem(
-                item
-            )
-
-    for freq, power, bandwidth_khz in peaks:
-
-        peak_marker = pg.ScatterPlotItem(
-            [freq],
-            [power + 2],
-            symbol="t",
-            size=14,
-            brush=pg.mkBrush(
-                0,
-                220,
-                140,
-                255
-            ),
-            pen=pg.mkPen(
-                color=(0, 220, 140, 100),
-                width=3
-            )
-        )
-
-        fft_plot.addItem(
-            peak_marker
-        )
-
-        label = pg.TextItem(
-            text=f"{freq:.1f} MHz",
-            color="yellow"
-        )
-
-        label.setPos(
-            freq,
-            power + 5
-        )
-
-        fft_plot.addItem(
-            label
-        )
 
 # ==================================================
 # REAL-TIME SDR UPDATE LOOP
@@ -631,6 +569,7 @@ def update():
     )
 
     update_peak_markers(
+        fft_plot,
         peaks
     )
 
