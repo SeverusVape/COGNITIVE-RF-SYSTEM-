@@ -54,7 +54,8 @@ from UI.heatmap_panel import (
     create_heatmap_panel
 )
 from UI.waterfall_panel import (
-    create_waterfall_panel
+    create_waterfall_panel,
+    update_waterfall_panel
 )
 from UI.fft_panel import (
     create_fft_panel
@@ -555,43 +556,6 @@ def update_peak_markers(
             label
         )
 
-
-# ==================================================
-# WATERFALL UPDATE
-# ==================================================
-def update_waterfall(
-    power_db
-):
-
-    global waterfall
-
-    waterfall = np.roll(
-        waterfall,
-        -1,
-        axis=0
-    )
-
-    waterfall[-1, :] = power_db
-
-    waterfall_img.setImage(
-        waterfall,
-        autoLevels=False
-    )
-
-    waterfall_img.setRect(
-        QRectF(
-            freqs_mhz[0],
-            0,
-            freqs_mhz[-1] - freqs_mhz[0],
-            WATERFALL_HISTORY
-        )
-    )
-
-    waterfall_img.setLevels(
-        (10, 60)
-    )
-
-
 # ==================================================
 # REAL-TIME SDR UPDATE LOOP
 # ==================================================
@@ -670,8 +634,12 @@ def update():
         peaks
     )
 
-    update_waterfall(
-        power_db
+    update_waterfall_panel(
+        waterfall,
+        waterfall_img,
+        freqs_mhz,
+        power_db,
+        WATERFALL_HISTORY
     )
 
 # ==================================================
