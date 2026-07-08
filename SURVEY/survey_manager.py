@@ -152,6 +152,10 @@ def build_results_text(
         "score"
     ]
 
+    score_details = recommendation.get(
+        "score_details"
+    )
+
     recommended_reason = recommendation[
         "reason"
     ]
@@ -175,12 +179,34 @@ def build_results_text(
     )
 
     if recommended_score is not None:
+
+        max_possible_score = 115
+
         results_text += (
 
             "\n"
             "Overall Score:\n"
-            f"{recommended_score:.1f} / 80\n\n"
+            f"{recommended_score:.1f} / {max_possible_score}\n\n"
 
+        )
+
+    if score_details:
+        results_text += (
+            "Score Breakdown:\n"
+            f"Occupancy Score:   "
+            f"{score_details['occupancy_score']:.1f}\n"
+            f"Power Score:       "
+            f"{score_details['power_score']:.1f}\n"
+            f"Persistence Score: "
+            f"{score_details['persistence_score']:.1f}\n"
+            f"Age Score:         "
+            f"{score_details['age_score']:.1f}\n"
+            f"Strength Score:    "
+            f"{score_details['strength_score']:.1f}\n"
+            f"Max Power:         "
+            f"{score_details['max_power']:.1f} dB\n"
+            f"Average Power:     "
+            f"{score_details['average_power']:.1f} dB\n\n"
         )
 
     if recommended_reason:

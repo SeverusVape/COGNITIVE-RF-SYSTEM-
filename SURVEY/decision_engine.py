@@ -9,7 +9,8 @@ def build_recommendation(
         mode,
         title,
         score=None,
-        reason=None
+        reason=None,
+        score_details=None
 ):
 
     return {
@@ -19,7 +20,8 @@ def build_recommendation(
         "mode": mode,
         "title": title,
         "score": score,
-        "reason": reason
+        "reason": reason,
+        "score_details": score_details
 
     }
 # ==================================================
@@ -189,7 +191,7 @@ def smart_recommendation(
         # Lower occupancy = higher score
         # ----------------------------------
 
-        score += max(
+        occupancy_score = max(
             0,
             50 - occupancy
         )
@@ -199,20 +201,38 @@ def smart_recommendation(
         # Stronger signal = higher score
         # ----------------------------------
 
-        score += max_power / 100 * 30
-        score += persistence_bonus
-        score += age_bonus
-        score += strength_bonus
+        power_score = max_power / 100 * 30
 
-        frequency_scores[frequency] = score
+        score = (
+                occupancy_score
+                + power_score
+                + persistence_bonus
+                + age_bonus
+                + strength_bonus
+        )
+
+        frequency_scores[frequency] = {
+            "score": score,
+            "occupancy_score": occupancy_score,
+            "power_score": power_score,
+            "persistence_score": persistence_bonus,
+            "age_score": age_bonus,
+            "strength_score": strength_bonus,
+            "max_power": max_power,
+            "average_power": average_power
+        }
 
     # BEST SMART SCORE
     best_frequency = max(
         frequency_scores,
-        key=frequency_scores.get
+        key=lambda frequency: frequency_scores[frequency]["score"]
     )
 
     best_score = frequency_scores[
+        best_frequency
+    ]["score"]
+
+    score_details = frequency_scores[
         best_frequency
     ]
 
@@ -239,7 +259,9 @@ def smart_recommendation(
 
             "Balanced occupancy and signal strength"
 
-        ]
+        ],
+
+        score_details=score_details
 
     )
 # ==================================================
