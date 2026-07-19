@@ -370,6 +370,27 @@ class SurveyController:
             self.get_occupancy_callback()
         )
 
+        required_measurements = {
+            "occupancy",
+            "max_power",
+            "average_power"
+        }
+
+        if (
+                not isinstance(measurement, dict)
+                or not required_measurements.issubset(measurement)
+        ):
+            self.survey_timer.stop()
+
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "MEASUREMENT ERROR\n\n"
+                "Survey stopped because\n"
+                "RF measurements are\n"
+                "not available."
+            )
+            return
+
         current_occupancy = measurement[
             "occupancy"
         ]

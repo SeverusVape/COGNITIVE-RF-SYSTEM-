@@ -507,6 +507,8 @@ def update():
     )
 
     if samples is None:
+        current_measurement = None
+
         status_label.setText(
             "SYSTEM STATUS\n\n"
             "SDR NOT CONNECTED\n\n"
