@@ -453,6 +453,15 @@ class SurveyController:
             "occupancy"
         ]
 
+        if recommended_frequency is None:
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "NO RECOMMENDATION\n\n"
+                "No valid frequency\n"
+                "could be selected."
+            )
+            return
+
         self._update_heatmap_and_history()
 
         average_occupancy = round(
