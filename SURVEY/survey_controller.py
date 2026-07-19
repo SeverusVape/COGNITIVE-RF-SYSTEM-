@@ -101,15 +101,26 @@ class SurveyController:
 
     def auto_tune_best(self):
 
-        current_frequency = float(
-            self.freq_input.text()
-        )
+        try:
+            current_frequency = float(
+                self.freq_input.text()
+            )
+        except ValueError:
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "AUTO TUNE ERROR\n\n"
+                "Current frequency is\n"
+                "not a valid number."
+            )
+            return
 
         if len(survey.survey_results) == 0:
-            print(
-                "No survey results"
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "AUTO TUNE BLOCKED\n\n"
+                "No survey results\n"
+                "available."
             )
-
             return
 
         mode_text = self.decision_mode_combo.currentText()
@@ -136,9 +147,14 @@ class SurveyController:
             "frequency"
         ]
 
-        recommended_occupancy = recommendation[
-            "occupancy"
-        ]
+        if recommended_frequency is None:
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "AUTO TUNE BLOCKED\n\n"
+                "No valid recommended\n"
+                "frequency available."
+            )
+            return
 
         heatmap_height = max(
             1,
