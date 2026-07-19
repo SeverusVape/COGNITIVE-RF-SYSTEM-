@@ -429,6 +429,7 @@ current_measurement = {
     "max_power": 0,
     "average_power": 0
 }
+tune_error_active = False
 
 # ==================================================
 # SURVEY BUTTON FUNCTIONS
@@ -447,6 +448,9 @@ def tune_frequency():
 
     global freqs
     global freqs_mhz
+    global tune_error_active
+
+    tune_error_active = False
 
     try:
 
@@ -454,9 +458,26 @@ def tune_frequency():
             freq_input.text()
         )
 
+        if (
+                not np.isfinite(freq_mhz)
+                or freq_mhz < MIN_CENTER_FREQ_MHZ
+                or freq_mhz > MAX_CENTER_FREQ_MHZ
+        ):
+            tune_error_active = True
+
+            status_label.setText(
+                "SYSTEM STATUS\n\n"
+                "INVALID FREQUENCY\n\n"
+                f"Enter {MIN_CENTER_FREQ_MHZ}"
+                f"–{MAX_CENTER_FREQ_MHZ} MHz."
+            )
+            return
+
         new_freq = freq_mhz * 1e6
 
         if not sdr_manager.tune(new_freq):
+            tune_error_active = True
+
             status_label.setText(
                 "SYSTEM STATUS\n\n"
                 "TUNE ERROR\n\n"
@@ -489,10 +510,22 @@ def tune_frequency():
             )
         )
 
-    except Exception as e:
+    except ValueError:
+        tune_error_active = True
 
-        print(
-            f"Invalid frequency: {e}"
+        status_label.setText(
+            "SYSTEM STATUS\n\n"
+            "INVALID FREQUENCY\n\n"
+            "Enter a numeric frequency."
+        )
+
+    except Exception as error:
+        tune_error_active = True
+
+        status_label.setText(
+            "SYSTEM STATUS\n\n"
+            "TUNE ERROR\n\n"
+            + str(error)
         )
 
 
@@ -570,16 +603,17 @@ def update():
         feature_store
     )
 
-    update_status_panel(
-        status_label,
-        freq_input,
-        SAMPLE_RATE,
-        freqs_mhz,
-        peaks,
-        threshold,
-        meter,
-        occupancy_percent
-    )
+    if not tune_error_active:
+        update_status_panel(
+            status_label,
+            freq_input,
+            SAMPLE_RATE,
+            freqs_mhz,
+            peaks,
+            threshold,
+            meter,
+            occupancy_percent
+        )
 
     update_peak_markers(
         fft_plot,
