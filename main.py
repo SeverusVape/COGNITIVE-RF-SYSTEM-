@@ -454,14 +454,18 @@ def tune_frequency():
             freq_input.text()
         )
 
-        frequency_display.setText(
-            f"{freq_mhz:.1f} MHz"
-        )
-
         new_freq = freq_mhz * 1e6
 
-        sdr_manager.tune(
-            new_freq
+        if not sdr_manager.tune(new_freq):
+            status_label.setText(
+                "SYSTEM STATUS\n\n"
+                "TUNE ERROR\n\n"
+                "Unable to tune SDR."
+            )
+            return
+
+        frequency_display.setText(
+            f"{freq_mhz:.1f} MHz"
         )
 
         freqs, freqs_mhz = build_frequency_axis(
