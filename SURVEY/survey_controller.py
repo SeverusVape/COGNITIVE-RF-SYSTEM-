@@ -408,6 +408,15 @@ class SurveyController:
     def _handle_survey_completion(self):
         self.survey_timer.stop()
 
+        if len(survey.survey_results) == 0:
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "SURVEY INCOMPLETE\n\n"
+                "No valid measurements\n"
+                "were collected."
+            )
+            return
+
         mode_text = self.decision_mode_combo.currentText()
 
         if mode_text == "Find Free Channel":
