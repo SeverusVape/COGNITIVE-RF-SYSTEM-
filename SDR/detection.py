@@ -7,6 +7,16 @@ def detect_peaks(
     power_db,
     freqs_mhz
 ):
+    if len(freqs_mhz) < 2:
+        raise ValueError(
+            "At least two frequency bins are required."
+        )
+
+    bin_width_khz = abs(
+        freqs_mhz[1]
+        - freqs_mhz[0]
+    ) * 1000
+
     threshold = np.mean(power_db) + 10
 
     peaks, properties = find_peaks(
@@ -55,7 +65,8 @@ def detect_peaks(
         bandwidth_bins = right - left
 
         bandwidth_khz = (
-                bandwidth_bins * 0.25
+                bandwidth_bins
+                * bin_width_khz
         )
 
         results.append(
