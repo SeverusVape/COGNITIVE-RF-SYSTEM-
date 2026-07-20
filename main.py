@@ -50,6 +50,7 @@ from SIGNALS.signal_history import (
     reset_cycle_tracking
 )
 from SIGNALS.feature_extractor import FeatureStore
+from SIGNALS.peak_confirmation import PeakConfirmer
 
 # UI -------->
 
@@ -90,6 +91,12 @@ from UTILS.measurement_aggregation import (
 
 # GLOBALS ----->
 feature_store = FeatureStore()
+
+peak_confirmer = PeakConfirmer(
+    required_hits=PEAK_CONFIRMATION_REQUIRED_HITS,
+    window_frames=PEAK_CONFIRMATION_WINDOW_FRAMES,
+    tolerance_khz=PEAK_CONFIRMATION_TOLERANCE_KHZ
+)
 
 
 # ==================================================
@@ -479,6 +486,7 @@ def tune_frequency(
         tune_error_active = True
         current_measurement = None
         measurement_buffer.clear()
+        peak_confirmer.reset()
 
         if show_status:
             status_label.setText(
@@ -518,6 +526,8 @@ def handle_tune_success(freq_hz):
     global tune_error_active
 
     freq_mhz = freq_hz / 1e6
+
+    peak_confirmer.reset()
 
     freqs, freqs_mhz = build_frequency_axis(
         NUM_SAMPLES,
@@ -632,9 +642,13 @@ def process_samples(samples):
         smoothed_fft
     )
 
-    peaks, threshold = detect_peaks(
+    raw_peaks, threshold = detect_peaks(
         power_db,
         freqs_mhz
+    )
+
+    peaks = peak_confirmer.update(
+        raw_peaks
     )
 
     log_signals(
