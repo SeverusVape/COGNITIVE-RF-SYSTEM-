@@ -185,7 +185,7 @@ def build_results_text(
 
     if recommended_score is not None:
 
-        max_possible_score = 115
+        max_possible_score = 111
 
         results_text += (
 
