@@ -355,6 +355,36 @@ QPushButton#autoTuneButton:disabled {{
 
 
 # ==================================================
+# CENTER GRAPH AREA
+# ==================================================
+
+GRAPH_PANEL_MARGINS = (
+    8,
+    8,
+    8,
+    8
+)
+
+GRAPH_PANEL_STYLESHEET = f"""
+QWidget#graphPanel {{
+    background-color: {REPORT_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 10px;
+}}
+
+QGraphicsView#graphCanvas {{
+    background-color: #000000;
+    border: none;
+}}
+"""
+
+GRAPH_TITLE_COLOR = TEXT_PRIMARY
+GRAPH_AXIS_COLOR = TEXT_MUTED
+GRAPH_AXIS_LINE_COLOR = BORDER
+GRAPH_GRID_ALPHA = 0.22
+
+
+# ==================================================
 # SURVEY REPORT POPUP
 # ==================================================
 

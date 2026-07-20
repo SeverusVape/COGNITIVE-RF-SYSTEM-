@@ -6,6 +6,11 @@ from UTILS.frequency_axis import (
     build_frequency_edges
 )
 
+from UI.graph_style import (
+    set_axis_label,
+    style_plot
+)
+
 
 def create_waterfall_panel(
         win
@@ -13,8 +18,11 @@ def create_waterfall_panel(
 
     win.nextRow()
 
-    waterfall_plot = win.addPlot(
-        title="Waterfall"
+    waterfall_plot = win.addPlot()
+
+    style_plot(
+        waterfall_plot,
+        "Signal waterfall"
     )
 
     waterfall_plot.setMaximumHeight(
@@ -25,7 +33,8 @@ def create_waterfall_panel(
         "left"
     )
 
-    waterfall_plot.setLabel(
+    set_axis_label(
+        waterfall_plot,
         "bottom",
         "Frequency",
         units="MHz"

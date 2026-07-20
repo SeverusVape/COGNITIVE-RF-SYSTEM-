@@ -83,6 +83,9 @@ from UI.survey_history_panel import (
 from UI.tuning_panel import (
     create_tuning_panel
 )
+from UI.graph_style import (
+    create_graph_canvas
+)
 from UI.theme import (
     RIGHT_INFO_PANEL_MARGINS,
     RIGHT_INFO_PANEL_SPACING,
@@ -390,14 +393,14 @@ center_layout.setSpacing(
     10
 )
 
-win = pg.GraphicsLayoutWidget()
+graph_panel, win = create_graph_canvas()
 
 center_layout.addWidget(
     tuning_panel
 )
 
 center_layout.addWidget(
-    win
+    graph_panel
 )
 
 main_layout.addLayout(

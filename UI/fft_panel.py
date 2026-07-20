@@ -1,20 +1,33 @@
 import pyqtgraph as pg
 
+from UI.graph_style import (
+    set_axis_label,
+    style_plot
+)
+
+from UI.theme import GRAPH_GRID_ALPHA
+
+
 def create_fft_panel(
         win
 ):
 
-    fft_plot = win.addPlot(
-        title="Real-Time Spectrum"
+    fft_plot = win.addPlot()
+
+    style_plot(
+        fft_plot,
+        "Real-time spectrum"
     )
 
-    fft_plot.setLabel(
+    set_axis_label(
+        fft_plot,
         "left",
         "Power",
         units="dB"
     )
 
-    fft_plot.setLabel(
+    set_axis_label(
+        fft_plot,
         "bottom",
         "Frequency",
         units="MHz"
@@ -23,7 +36,7 @@ def create_fft_panel(
     fft_plot.showGrid(
         x=True,
         y=True,
-        alpha=0.3
+        alpha=GRAPH_GRID_ALPHA
     )
 
     curve = fft_plot.plot(

@@ -2,6 +2,12 @@
 
 import pyqtgraph as pg
 
+from UI.graph_style import (
+    set_axis_label,
+    style_plot
+)
+
+
 def create_heatmap_panel(
         win,
         colormap
@@ -9,21 +15,24 @@ def create_heatmap_panel(
 
     win.nextRow()
 
-    heatmap_plot = win.addPlot(
-        title="Survey Occupancy Map"
+    heatmap_plot = win.addPlot()
+
+    style_plot(
+        heatmap_plot,
+        "Survey occupancy history"
     )
 
-
-
-    heatmap_plot.setLabel(
+    set_axis_label(
+        heatmap_plot,
         "bottom",
         "Frequency",
         units="MHz"
     )
 
-    heatmap_plot.setLabel(
+    set_axis_label(
+        heatmap_plot,
         "left",
-        "Survey #"
+        "Survey run"
     )
 
     heatmap_plot.setMaximumHeight(
