@@ -60,6 +60,7 @@ class SurveyController:
         self.latest_survey_results_text = ""
         self.last_survey_settings = None
         self.occupancy_percent = 0
+        self.shutting_down = False
 
         self.feature_store = feature_store
 
@@ -98,6 +99,10 @@ class SurveyController:
         self.decision_mode_combo = (
             decision_mode_combo
         )
+
+    def begin_shutdown(self):
+        self.shutting_down = True
+        self.survey_timer.stop()
 
     def show_results_popup(self):
         if self.latest_survey_results_text == "":
@@ -229,6 +234,9 @@ class SurveyController:
         self.tune_frequency_callback()
 
     def start_survey(self):
+
+        if self.shutting_down:
+            return
 
         if self.survey_timer.isActive():
             self.survey_label.setText(
@@ -364,6 +372,9 @@ class SurveyController:
 
     def survey_step(self):
 
+        if self.shutting_down:
+            return
+
         if survey.current_survey_index >= len(
                 survey.survey_frequencies
         ):
@@ -412,6 +423,9 @@ class SurveyController:
         QTest.qWait(
             500
         )
+
+        if self.shutting_down:
+            return
 
         measurement = (
             self.get_occupancy_callback()

@@ -716,6 +716,16 @@ sdr_worker.tune_failed.connect(
 sdr_worker.start()
 
 
+def begin_shutdown():
+    survey_controller.begin_shutdown()
+    sdr_worker.requestInterruption()
+
+
+app.aboutToQuit.connect(
+    begin_shutdown
+)
+
+
 # ==================================================
 # BUTTON CONNECTIONS
 # ==================================================
