@@ -1,9 +1,12 @@
+import math
+
 from statistics import median
 
 from UTILS.config import (
     SMART_AGE_5_SECONDS_SCORE,
     SMART_AGE_15_SECONDS_SCORE,
     SMART_AGE_30_SECONDS_SCORE,
+    SMART_MAX_SCORE,
     SMART_OCCUPANCY_MAX_SCORE,
     SMART_PERSISTENCE_ACTIVE_SCORE,
     SMART_PERSISTENCE_LONG_SCORE,
@@ -14,6 +17,59 @@ from UTILS.config import (
     SMART_STRENGTH_MEDIUM_SCORE,
     SMART_STRENGTH_STRONG_SCORE
 )
+
+
+def classify_decision_confidence(
+        score_margin,
+        maximum_score=SMART_MAX_SCORE
+):
+    if score_margin is None:
+        return "N/A"
+
+    if (
+            isinstance(score_margin, bool)
+            or not isinstance(
+                score_margin,
+                (int, float)
+            )
+            or not math.isfinite(
+                score_margin
+            )
+            or score_margin < 0
+    ):
+        raise ValueError(
+            "Score margin must be a finite, "
+            "non-negative number."
+        )
+
+    if (
+            isinstance(maximum_score, bool)
+            or not isinstance(
+                maximum_score,
+                (int, float)
+            )
+            or not math.isfinite(
+                maximum_score
+            )
+            or maximum_score <= 0
+    ):
+        raise ValueError(
+            "Maximum score must be a finite, "
+            "positive number."
+        )
+
+    normalized_margin = (
+        score_margin
+        / maximum_score
+    )
+
+    if normalized_margin < 0.03:
+        return "LOW"
+
+    if normalized_margin < 0.08:
+        return "MODERATE"
+
+    return "HIGH"
 
 
 # ==================================================

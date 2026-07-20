@@ -3,6 +3,7 @@ import unittest
 from collections import OrderedDict
 
 from SURVEY.decision_engine import (
+    classify_decision_confidence,
     find_active_signal,
     find_free_channel,
     smart_recommendation
@@ -40,6 +41,66 @@ def make_smart_decision(
 
 
 class SmartDecisionTests(unittest.TestCase):
+
+    def test_decision_confidence_uses_normalized_margin(
+            self
+    ):
+        expected_confidence = {
+            None: "N/A",
+            0.0: "LOW",
+            2.9: "LOW",
+            3.0: "MODERATE",
+            7.9: "MODERATE",
+            8.0: "HIGH"
+        }
+
+        for margin, expected in expected_confidence.items():
+            with self.subTest(
+                    margin=margin
+            ):
+                self.assertEqual(
+                    classify_decision_confidence(
+                        margin,
+                        maximum_score=100
+                    ),
+                    expected
+                )
+
+    def test_decision_confidence_rejects_invalid_values(
+            self
+    ):
+        for invalid_margin in (
+                -1,
+                float("nan"),
+                float("inf"),
+                True
+        ):
+            with self.subTest(
+                    invalid_margin=invalid_margin
+            ):
+                with self.assertRaises(
+                        ValueError
+                ):
+                    classify_decision_confidence(
+                        invalid_margin
+                    )
+
+        for invalid_maximum in (
+                0,
+                -1,
+                float("nan"),
+                True
+        ):
+            with self.subTest(
+                    invalid_maximum=invalid_maximum
+            ):
+                with self.assertRaises(
+                        ValueError
+                ):
+                    classify_decision_confidence(
+                        1,
+                        maximum_score=invalid_maximum
+                    )
 
     def test_free_and_active_modes_select_opposites(self):
         survey_results = {
