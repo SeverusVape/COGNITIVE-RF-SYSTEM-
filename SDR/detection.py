@@ -17,12 +17,22 @@ def detect_peaks(
         - freqs_mhz[0]
     ) * 1000
 
+    minimum_peak_distance_khz = 75.0
+
+    minimum_peak_distance_bins = max(
+        1,
+        round(
+            minimum_peak_distance_khz
+            / bin_width_khz
+        )
+    )
+
     threshold = np.mean(power_db) + 10
 
     peaks, properties = find_peaks(
         power_db,
         height=threshold,
-        distance=300
+        distance=minimum_peak_distance_bins
     )
 
     peak_powers = properties[
