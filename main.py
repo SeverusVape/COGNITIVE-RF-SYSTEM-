@@ -84,6 +84,9 @@ from UTILS.frequency_axis import (
     build_frequency_axis,
     build_frequency_edges
 )
+from UTILS.measurement_aggregation import (
+    aggregate_measurements
+)
 
 # GLOBALS ----->
 feature_store = FeatureStore()
@@ -579,6 +582,14 @@ def handle_sdr_error(message):
     )
 
 
+def get_survey_measurement():
+    return aggregate_measurements(
+        list(
+            measurement_buffer
+        )
+    )
+
+
 # ==================================================
 # REAL-TIME SAMPLE PROCESSING
 # ==================================================
@@ -696,7 +707,7 @@ survey_controller = SurveyController(
     lambda: tune_frequency(
         show_status=False
     ),
-    lambda: current_measurement,
+    get_survey_measurement,
     feature_store
 )
 
