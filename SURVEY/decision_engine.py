@@ -13,7 +13,10 @@ def build_recommendation(
         title,
         score=None,
         reason=None,
-        score_details=None
+        score_details=None,
+        runner_up_frequency=None,
+        runner_up_score=None,
+        score_margin=None
 ):
 
     return {
@@ -24,7 +27,10 @@ def build_recommendation(
         "title": title,
         "score": score,
         "reason": reason,
-        "score_details": score_details
+        "score_details": score_details,
+        "runner_up_frequency": runner_up_frequency,
+        "runner_up_score": runner_up_score,
+        "score_margin": score_margin
 
     }
 # ==================================================
@@ -319,15 +325,39 @@ def smart_recommendation(
             "average_power": average_power
         }
 
-    # BEST SMART SCORE
-    best_frequency = max(
+    ranked_frequencies = sorted(
         frequency_scores,
-        key=lambda frequency: frequency_scores[frequency]["score"]
+        key=lambda frequency: frequency_scores[
+            frequency
+        ]["score"],
+        reverse=True
     )
+
+    best_frequency = ranked_frequencies[
+        0
+    ]
 
     best_score = frequency_scores[
         best_frequency
     ]["score"]
+
+    runner_up_frequency = None
+    runner_up_score = None
+    score_margin = None
+
+    if len(ranked_frequencies) > 1:
+        runner_up_frequency = ranked_frequencies[
+            1
+        ]
+
+        runner_up_score = frequency_scores[
+            runner_up_frequency
+        ]["score"]
+
+        score_margin = (
+            best_score
+            - runner_up_score
+        )
 
     score_details = frequency_scores[
         best_frequency
@@ -358,7 +388,27 @@ def smart_recommendation(
 
         ],
 
-        score_details=score_details
+        score_details=score_details,
+
+        runner_up_frequency=runner_up_frequency,
+
+        runner_up_score=(
+            None
+            if runner_up_score is None
+            else round(
+                runner_up_score,
+                1
+            )
+        ),
+
+        score_margin=(
+            None
+            if score_margin is None
+            else round(
+                score_margin,
+                1
+            )
+        )
 
     )
 # ==================================================
