@@ -376,9 +376,26 @@ class SurveyController:
             "average_power"
         }
 
+        normalized_measurement = None
+
         if (
-                not isinstance(measurement, dict)
-                or not required_measurements.issubset(measurement)
+                isinstance(measurement, dict)
+                and required_measurements.issubset(measurement)
+        ):
+            try:
+                normalized_measurement = {
+                    name: float(measurement[name])
+                    for name in required_measurements
+                }
+            except (TypeError, ValueError):
+                normalized_measurement = None
+
+        if (
+                normalized_measurement is None
+                or not all(
+                    np.isfinite(value)
+                    for value in normalized_measurement.values()
+                )
         ):
             self.survey_timer.stop()
 
@@ -391,7 +408,15 @@ class SurveyController:
             )
             return
 
-        current_occupancy = measurement[
+        normalized_measurement["occupancy"] = float(
+            np.clip(
+                normalized_measurement["occupancy"],
+                0,
+                100
+            )
+        )
+
+        current_occupancy = normalized_measurement[
             "occupancy"
         ]
 
@@ -400,7 +425,9 @@ class SurveyController:
             1
         )
 
-        survey.survey_metrics[frequency] = measurement
+        survey.survey_metrics[frequency] = (
+            normalized_measurement
+        )
 
 
         survey.current_survey_index += 1
