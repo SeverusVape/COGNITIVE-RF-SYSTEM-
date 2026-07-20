@@ -580,6 +580,10 @@ def process_samples(samples):
     global current_measurement
     global smoothed_fft
 
+    feature_store.prune_stale(
+        FEATURE_MAX_AGE_SECONDS
+    )
+
     reset_cycle_tracking()
     increment_history_update_count()
 
