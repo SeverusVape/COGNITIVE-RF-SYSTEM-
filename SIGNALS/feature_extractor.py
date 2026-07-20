@@ -1,4 +1,6 @@
 # IMPORTS =======================================
+import time
+
 from dataclasses import dataclass
 from collections import deque
 from SIGNALS.signal_type_classifier import (
@@ -17,6 +19,7 @@ class SignalFeatures:
     strength: str
     persistence: str
     signal_type: str = "Unknown"
+    last_seen: float = 0.0
 
 class FeatureStore:
     def __init__(self):
@@ -24,6 +27,8 @@ class FeatureStore:
         self.bandwidth_history = {}
 
     def update(self, feature):
+        feature.last_seen = time.monotonic()
+
         freq_key = round(
             feature.frequency,
             2
@@ -60,6 +65,23 @@ class FeatureStore:
 
         return self.features.get(
             freq_key
+        )
+
+    def get_seconds_since_seen(
+            self,
+            frequency
+    ):
+        feature = self.get(
+            frequency
+        )
+
+        if feature is None:
+            return None
+
+        return max(
+            0.0,
+            time.monotonic()
+            - feature.last_seen
         )
 
     def get_all(self):
