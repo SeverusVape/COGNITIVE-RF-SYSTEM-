@@ -219,7 +219,13 @@ def smart_recommendation(
         # Stronger signal = higher score
         # ----------------------------------
 
-        power_score = max_power / 100 * 30
+        power_score = min(
+            30,
+            max(
+                0,
+                max_power / 100 * 30
+            )
+        )
 
         score = (
                 occupancy_score
