@@ -5,6 +5,14 @@ def create_survey_panel():
 
     survey_label = QTextEdit()
 
+    survey_label.setObjectName(
+        "surveyResultsCard"
+    )
+
+    survey_label.setAccessibleName(
+        "Survey status and results"
+    )
+
     survey_label.setReadOnly(
         True
     )

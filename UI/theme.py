@@ -35,6 +35,146 @@ STATUS_ERROR = "#fb7185"
 
 
 # ==================================================
+# LEFT SURVEY CONTROL PANEL
+# ==================================================
+
+SURVEY_CONTROL_PANEL_MARGINS = (
+    18,
+    18,
+    18,
+    18
+)
+
+SURVEY_CONTROL_PANEL_SPACING = 6
+
+SURVEY_CONTROL_PANEL_STYLESHEET = f"""
+QWidget#surveyControlPanel {{
+    background-color: {WINDOW_BACKGROUND};
+    border: 1px solid {BORDER};
+    border-radius: 10px;
+}}
+
+QLabel#surveyPanelTitle {{
+    color: {TEXT_STRONG};
+    font-size: 18px;
+    font-weight: 700;
+    border: none;
+}}
+
+QLabel#surveyPanelSubtitle {{
+    color: {TEXT_MUTED};
+    font-size: 11px;
+    border: none;
+}}
+
+QLabel#surveySectionTitle {{
+    color: {TEXT_PRIMARY};
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+}}
+
+QLabel#surveyFieldLabel {{
+    color: {TEXT_MUTED};
+    font-size: 11px;
+    font-weight: 600;
+    border: none;
+}}
+
+QLineEdit#surveyInput {{
+    min-height: 30px;
+    padding: 0 10px;
+    color: {TEXT_PRIMARY};
+    background-color: {REPORT_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 6px;
+    selection-background-color: {ACCENT};
+}}
+
+QLineEdit#surveyInput:hover {{
+    border-color: {ACCENT_BORDER};
+}}
+
+QLineEdit#surveyInput:focus {{
+    border: 1px solid {ACCENT_LIGHT};
+}}
+
+QComboBox#surveyMode {{
+    min-height: 30px;
+    padding: 0 10px;
+    color: {TEXT_PRIMARY};
+    background-color: {CARD_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 6px;
+}}
+
+QComboBox#surveyMode:hover,
+QComboBox#surveyMode:focus {{
+    border-color: {ACCENT_LIGHT};
+}}
+
+QComboBox#surveyMode QAbstractItemView {{
+    color: {TEXT_PRIMARY};
+    background-color: {CARD_SURFACE};
+    border: 1px solid {BORDER};
+    selection-color: {TEXT_STRONG};
+    selection-background-color: {ACCENT};
+    outline: 0;
+}}
+
+QPushButton#surveyPrimaryButton {{
+    min-height: 34px;
+    padding: 0 14px;
+    color: {TEXT_STRONG};
+    background-color: {ACCENT};
+    border: 1px solid {ACCENT_BORDER};
+    border-radius: 6px;
+    font-weight: 700;
+}}
+
+QPushButton#surveyPrimaryButton:hover {{
+    background-color: {ACCENT_HOVER};
+}}
+
+QPushButton#surveyPrimaryButton:pressed {{
+    background-color: {ACCENT_PRESSED};
+}}
+
+QPushButton#surveySecondaryButton {{
+    min-height: 32px;
+    padding: 0 14px;
+    color: {TEXT_PRIMARY};
+    background-color: {CARD_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 6px;
+    font-weight: 600;
+}}
+
+QPushButton#surveySecondaryButton:hover {{
+    color: {TEXT_STRONG};
+    border-color: {ACCENT_BORDER};
+    background-color: {TABLE_HEADER_SURFACE};
+}}
+
+QPushButton#surveyPrimaryButton:disabled,
+QPushButton#surveySecondaryButton:disabled {{
+    color: {TEXT_SUBTLE};
+    background-color: {REPORT_SURFACE};
+    border-color: {BORDER};
+}}
+
+QTextEdit#surveyResultsCard {{
+    color: {TEXT_PRIMARY};
+    background-color: {REPORT_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 8px;
+    padding: 10px;
+    selection-background-color: {ACCENT};
+}}
+"""
+
+
+# ==================================================
 # SURVEY REPORT POPUP
 # ==================================================
 

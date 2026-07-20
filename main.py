@@ -77,6 +77,11 @@ from UI.status_panel import (
     update_status_panel
 )
 from UI.survey_panel import create_survey_panel
+from UI.theme import (
+    SURVEY_CONTROL_PANEL_MARGINS,
+    SURVEY_CONTROL_PANEL_SPACING,
+    SURVEY_CONTROL_PANEL_STYLESHEET
+)
 
 from UTILS.occupancy import (
     calculate_occupancy
@@ -130,7 +135,27 @@ main_layout = QHBoxLayout()
 # ==================================================
 # LEFT CONTROL PANEL SETUP
 # ==================================================
-control_layout = QVBoxLayout()
+control_panel = QWidget()
+
+control_panel.setObjectName(
+    "surveyControlPanel"
+)
+
+control_panel.setStyleSheet(
+    SURVEY_CONTROL_PANEL_STYLESHEET
+)
+
+control_layout = QVBoxLayout(
+    control_panel
+)
+
+control_layout.setContentsMargins(
+    *SURVEY_CONTROL_PANEL_MARGINS
+)
+
+control_layout.setSpacing(
+    SURVEY_CONTROL_PANEL_SPACING
+)
 
 info_layout = QVBoxLayout()
 
@@ -208,24 +233,75 @@ survey_settings_label = QLabel(
     "SURVEY SETTINGS"
 )
 
-survey_settings_label.setStyleSheet(
-    """
-    font-size: 16px;
-    font-weight: bold;
-    color: white;
-    """
+survey_settings_label.setObjectName(
+    "surveyPanelTitle"
+)
+
+survey_settings_subtitle = QLabel(
+    "Configure scan range and "
+    "recommendation strategy."
+)
+
+survey_settings_subtitle.setObjectName(
+    "surveyPanelSubtitle"
+)
+
+survey_settings_subtitle.setWordWrap(
+    True
+)
+
+start_frequency_label = QLabel(
+    "Start frequency (MHz)"
+)
+
+stop_frequency_label = QLabel(
+    "Stop frequency (MHz)"
+)
+
+step_frequency_label = QLabel(
+    "Step size (MHz)"
+)
+
+decision_mode_label = QLabel(
+    "Decision mode"
+)
+
+for field_label in (
+        start_frequency_label,
+        stop_frequency_label,
+        step_frequency_label,
+        decision_mode_label
+):
+    field_label.setObjectName(
+        "surveyFieldLabel"
+    )
+
+survey_results_label = QLabel(
+    "SURVEY RESULTS"
+)
+
+survey_results_label.setObjectName(
+    "surveySectionTitle"
+)
+
+clear_survey_button.setObjectName(
+    "surveySecondaryButton"
 )
 
 control_layout.addWidget(
     survey_settings_label
 )
 
+control_layout.addWidget(
+    survey_settings_subtitle
+)
+
 control_layout.addSpacing(
-    10
+    8
 )
 
 control_layout.addWidget(
-    QLabel("Start MHz")
+    start_frequency_label
 )
 
 control_layout.addWidget(
@@ -233,7 +309,7 @@ control_layout.addWidget(
 )
 
 control_layout.addWidget(
-    QLabel("Stop MHz")
+    stop_frequency_label
 )
 
 control_layout.addWidget(
@@ -241,7 +317,7 @@ control_layout.addWidget(
 )
 
 control_layout.addWidget(
-    QLabel("Step MHz")
+    step_frequency_label
 )
 
 control_layout.addWidget(
@@ -249,11 +325,11 @@ control_layout.addWidget(
 )
 
 control_layout.addSpacing(
-    10
+    8
 )
 
 control_layout.addWidget(
-    QLabel("Decision Mode")
+    decision_mode_label
 )
 
 control_layout.addWidget(
@@ -261,7 +337,7 @@ control_layout.addWidget(
 )
 
 control_layout.addSpacing(
-    15
+    12
 )
 
 control_layout.addWidget(
@@ -273,11 +349,11 @@ control_layout.addWidget(
 )
 
 control_layout.addSpacing(
-    20
+    18
 )
 
 control_layout.addWidget(
-    QLabel("SURVEY RESULTS")
+    survey_results_label
 )
 
 control_layout.addWidget(
@@ -286,8 +362,8 @@ control_layout.addWidget(
 
 control_layout.addStretch()
 
-main_layout.addLayout(
-    control_layout,
+main_layout.addWidget(
+    control_panel,
     2
 )
 
