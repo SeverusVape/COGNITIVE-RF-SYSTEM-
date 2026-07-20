@@ -35,6 +35,31 @@ STATUS_ERROR = "#fb7185"
 
 
 # ==================================================
+# MAIN WINDOW
+# ==================================================
+
+MAIN_WINDOW_MINIMUM_SIZE = (
+    1180,
+    760
+)
+
+MAIN_WINDOW_MARGINS = (
+    12,
+    12,
+    12,
+    12
+)
+
+MAIN_WINDOW_SPACING = 10
+
+MAIN_WINDOW_STYLESHEET = f"""
+QWidget#mainWindow {{
+    background-color: #303134;
+}}
+"""
+
+
+# ==================================================
 # LEFT SURVEY CONTROL PANEL
 # ==================================================
 
@@ -156,8 +181,29 @@ QPushButton#surveySecondaryButton:hover {{
     background-color: {TABLE_HEADER_SURFACE};
 }}
 
+QPushButton#surveyResultsButton {{
+    min-height: 32px;
+    padding: 0 14px;
+    color: {ACCENT_LIGHT};
+    background-color: {RECOMMENDATION_SURFACE};
+    border: 1px solid {ACCENT_BORDER};
+    border-radius: 6px;
+    font-weight: 700;
+}}
+
+QPushButton#surveyResultsButton:hover {{
+    color: {TEXT_STRONG};
+    background-color: {ACCENT};
+    border-color: {ACCENT_LIGHT};
+}}
+
+QPushButton#surveyResultsButton:pressed {{
+    background-color: {ACCENT_PRESSED};
+}}
+
 QPushButton#surveyPrimaryButton:disabled,
-QPushButton#surveySecondaryButton:disabled {{
+QPushButton#surveySecondaryButton:disabled,
+QPushButton#surveyResultsButton:disabled {{
     color: {TEXT_SUBTLE};
     background-color: {REPORT_SURFACE};
     border-color: {BORDER};

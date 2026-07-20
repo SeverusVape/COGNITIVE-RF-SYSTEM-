@@ -68,6 +68,8 @@ def style_plot(
         plot,
         title
 ):
+    plot.hideButtons()
+
     plot.setTitle(
         title,
         color=GRAPH_TITLE_COLOR,

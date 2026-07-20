@@ -13,15 +13,11 @@ from PyQt6.QtWidgets import (
 
 from PyQt6.QtCore import (
     QTimer,
-    QRectF,
-    Qt
+    QRectF
 )
-
-from PyQt6.QtTest import QTest
 
 import pyqtgraph as pg
 
-import SURVEY.survey_manager as survey
 from SURVEY.survey_controller import SurveyController
 from SDR.sdr_worker import SDRWorker
 from SDR.fft_processing import compute_windowed_fft
@@ -29,13 +25,7 @@ from SDR.detection import detect_peaks
 from UTILS.config import *
 from LOGGING.signal_logger import log_signals
 from SURVEY.survey_manager import (
-    add_survey_result,
-    clear_survey,
-    build_progress_bar,
-    generate_frequencies,
-    rank_frequencies,
-    build_status_text,
-    build_results_html
+    add_survey_result
 )
 
 #SIGNALS --------->
@@ -74,9 +64,13 @@ from UI.signal_panel import (
 
 from UI.status_panel import (
     create_status_panel,
+    show_status_message,
     update_status_panel
 )
-from UI.survey_panel import create_survey_panel
+from UI.survey_panel import (
+    create_survey_panel,
+    create_survey_results_button
+)
 from UI.survey_history_panel import (
     create_survey_history_panel
 )
@@ -87,6 +81,10 @@ from UI.graph_style import (
     create_graph_canvas
 )
 from UI.theme import (
+    MAIN_WINDOW_MARGINS,
+    MAIN_WINDOW_MINIMUM_SIZE,
+    MAIN_WINDOW_SPACING,
+    MAIN_WINDOW_STYLESHEET,
     RIGHT_INFO_PANEL_MARGINS,
     RIGHT_INFO_PANEL_SPACING,
     RIGHT_INFO_PANEL_STYLESHEET,
@@ -141,7 +139,27 @@ main_window.setWindowTitle(
     "Adaptive SDR Spectrum Analyzer"
 )
 
+main_window.setObjectName(
+    "mainWindow"
+)
+
+main_window.setStyleSheet(
+    MAIN_WINDOW_STYLESHEET
+)
+
+main_window.setMinimumSize(
+    *MAIN_WINDOW_MINIMUM_SIZE
+)
+
 main_layout = QHBoxLayout()
+
+main_layout.setContentsMargins(
+    *MAIN_WINDOW_MARGINS
+)
+
+main_layout.setSpacing(
+    MAIN_WINDOW_SPACING
+)
 
 
 # ==================================================
@@ -223,6 +241,9 @@ tuning_panel = create_tuning_panel(
 signals_panel, signals_table = create_signal_panel()
 status_label = create_status_panel()
 survey_label = create_survey_panel()
+survey_results_button = (
+    create_survey_results_button()
+)
 
 top_frequencies_label = (
     create_survey_history_panel()
@@ -375,6 +396,10 @@ control_layout.addWidget(
 
 control_layout.addWidget(
     survey_label
+)
+
+control_layout.addWidget(
+    survey_results_button
 )
 
 control_layout.addStretch()
@@ -544,11 +569,12 @@ def tune_frequency(
         ):
             tune_error_active = True
 
-            status_label.setText(
-                "SYSTEM STATUS\n\n"
-                "INVALID FREQUENCY\n\n"
+            show_status_message(
+                status_label,
+                "Invalid frequency",
                 f"Enter {MIN_CENTER_FREQ_MHZ}"
-                f"–{MAX_CENTER_FREQ_MHZ} MHz."
+                f"–{MAX_CENTER_FREQ_MHZ} MHz.",
+                tone="error"
             )
             return
 
@@ -560,10 +586,11 @@ def tune_frequency(
         peak_confirmer.reset()
 
         if show_status:
-            status_label.setText(
-                "SYSTEM STATUS\n\n"
-                "TUNING\n\n"
-                f"Requested {freq_mhz:.1f} MHz."
+            show_status_message(
+                status_label,
+                "Tuning receiver",
+                f"Requested {freq_mhz:.1f} MHz.",
+                tone="info"
             )
 
         if not sdr_worker.request_tune(new_freq):
@@ -575,19 +602,21 @@ def tune_frequency(
     except ValueError:
         tune_error_active = True
 
-        status_label.setText(
-            "SYSTEM STATUS\n\n"
-            "INVALID FREQUENCY\n\n"
-            "Enter a numeric frequency."
+        show_status_message(
+            status_label,
+            "Invalid frequency",
+            "Enter a numeric frequency.",
+            tone="error"
         )
 
     except Exception as error:
         tune_error_active = True
 
-        status_label.setText(
-            "SYSTEM STATUS\n\n"
-            "TUNE ERROR\n\n"
-            + str(error)
+        show_status_message(
+            status_label,
+            "Tune error",
+            str(error),
+            tone="error"
         )
 
 
@@ -644,10 +673,11 @@ def handle_tune_failure(
     tune_error_active = True
     current_measurement = None
 
-    status_label.setText(
-        "SYSTEM STATUS\n\n"
-        "TUNE ERROR\n\n"
-        + message
+    show_status_message(
+        status_label,
+        "Tune error",
+        message,
+        tone="error"
     )
 
 
@@ -656,10 +686,11 @@ def handle_sdr_error(message):
 
     current_measurement = None
 
-    status_label.setText(
-        "SYSTEM STATUS\n\n"
-        "SDR NOT CONNECTED\n\n"
-        + message
+    show_status_message(
+        status_label,
+        "SDR not connected",
+        message,
+        tone="error"
     )
 
 
@@ -789,6 +820,7 @@ survey_timer = QTimer()
 survey_controller = SurveyController(
     survey_timer,
     survey_label,
+    survey_results_button,
     top_frequencies_label,
     freq_input,
     start_freq_input,
@@ -874,9 +906,8 @@ start_survey_button.clicked.connect(
     survey_controller.start_survey
 )
 
-survey_label.mousePressEvent = (
-    lambda event:
-    survey_controller.show_results_popup()
+survey_results_button.clicked.connect(
+    survey_controller.show_results_popup
 )
 
 # ==================================================

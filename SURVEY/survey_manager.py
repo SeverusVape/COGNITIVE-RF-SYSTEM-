@@ -4,6 +4,10 @@ from UI.theme import (
     apply_report_html_theme,
     confidence_color
 )
+from UI.survey_panel import (
+    build_survey_progress_html,
+    show_empty_survey
+)
 from UTILS.config import SMART_MAX_SCORE
 
 
@@ -31,19 +35,20 @@ def add_survey_result(
         round(frequency, 1)
     ] = round(occupancy)
 
-    text = "Survey Results\n\n"
+    rows = []
 
     for freq in sorted(
             survey_results.keys()
     ):
 
-        text += (
+        rows.append(
             f"{freq:.1f} MHz | "
-            f"{survey_results[freq]}%\n"
+            f"{survey_results[freq]}%"
         )
 
-    survey_label.setText(
-        text
+    survey_label.setHtml(
+        "<b>MANUAL SURVEY POINTS</b><br><br>"
+        + "<br>".join(rows)
     )
 
 
@@ -53,13 +58,8 @@ def clear_survey(
 
     survey_results.clear()
 
-    survey_label.setText(
-        "\n"
-        "No Survey Data Available\n\n"
-        "Run a survey to generate\n"
-        "occupancy statistics,\n"
-        "recommendations, and\n"
-        "heatmap history."
+    show_empty_survey(
+        survey_label
     )
 
 # ==================================================
@@ -513,21 +513,14 @@ def build_status_text(
         frequency,
         current_point,
         total_points,
-        progress_percent,
-        progress_bar
+        progress_percent
 ):
 
-    survey_text = (
-        "SURVEY STATUS\n\n"
-        f"Frequency:\n"
-        f"{frequency:.3f} MHz\n\n"
-        f"Point:\n"
-        f"{current_point}"
-        f" / "
-        f"{total_points}\n\n"
-        f"Progress:\n"
-        f"{progress_bar}\n"
-        f"{progress_percent}%"
+    survey_text = build_survey_progress_html(
+        frequency,
+        current_point,
+        total_points,
+        progress_percent
     )
 
     return survey_text

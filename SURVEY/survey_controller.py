@@ -1,5 +1,4 @@
 import numpy as np
-import pyqtgraph as pg
 
 from PyQt6.QtCore import QRectF
 from PyQt6.QtTest import QTest
@@ -8,7 +7,6 @@ import SURVEY.survey_manager as survey
 
 from SURVEY.survey_manager import (
     clear_survey,
-    build_progress_bar,
     generate_frequencies,
     rank_frequencies,
     build_status_text,
@@ -25,6 +23,11 @@ from UI.survey_history_panel import (
     show_empty_survey_history,
     update_survey_history
 )
+from UI.survey_panel import (
+    show_survey_complete,
+    show_survey_notice,
+    show_survey_progress
+)
 
 
 class SurveyController:
@@ -33,6 +36,7 @@ class SurveyController:
             self,
             survey_timer,
             survey_label,
+            survey_results_button,
             top_frequencies_label,
             freq_input,
             start_freq_input,
@@ -48,6 +52,9 @@ class SurveyController:
     ):
         self.survey_timer = survey_timer
         self.survey_label = survey_label
+        self.survey_results_button = (
+            survey_results_button
+        )
         self.freq_input = freq_input
 
         self.start_freq_input = start_freq_input
@@ -63,6 +70,10 @@ class SurveyController:
 
         self.survey_popup = None
         self.latest_survey_results_html = ""
+
+        self.survey_results_button.setVisible(
+            False
+        )
         self.last_survey_settings = None
         self.occupancy_percent = 0
         self.shutting_down = False
@@ -72,33 +83,6 @@ class SurveyController:
         self.top_frequencies_label = (
             top_frequencies_label
         )
-
-        self.recommended_text = pg.TextItem(
-            color="red"
-        )
-
-        self.recommended_arrow = pg.TextItem(
-            color="red"
-        )
-
-        self.recommended_text.setAnchor(
-            (0.5, 0)
-        )
-
-        self.recommended_arrow.setAnchor(
-            (0.5, 0)
-        )
-
-        self.heatmap_plot.addItem(
-            self.recommended_text
-        )
-
-        self.heatmap_plot.addItem(
-            self.recommended_arrow
-        )
-
-        self.recommended_text.hide()
-        self.recommended_arrow.hide()
 
         self.decision_mode = "FREE"
         self.decision_mode_combo = (
@@ -129,20 +113,20 @@ class SurveyController:
                 self.freq_input.text()
             )
         except ValueError:
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "AUTO TUNE ERROR\n\n"
-                "Current frequency is\n"
-                "not a valid number."
+            show_survey_notice(
+                self.survey_label,
+                "Auto-tune error",
+                "Current frequency is not a valid number.",
+                tone="error"
             )
             return
 
         if len(survey.survey_results) == 0:
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "AUTO TUNE BLOCKED\n\n"
-                "No survey results\n"
-                "available."
+            show_survey_notice(
+                self.survey_label,
+                "Auto-tune unavailable",
+                "Complete a survey before using Auto-tune Best.",
+                tone="warning"
             )
             return
 
@@ -171,11 +155,11 @@ class SurveyController:
         ]
 
         if recommended_frequency is None:
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "AUTO TUNE BLOCKED\n\n"
-                "No valid recommended\n"
-                "frequency available."
+            show_survey_notice(
+                self.survey_label,
+                "Auto-tune unavailable",
+                "No valid recommended frequency is available.",
+                tone="warning"
             )
             return
 
@@ -184,36 +168,11 @@ class SurveyController:
             len(survey.heatmap_history)
         )
 
-        self.recommended_line.setData(
-            [recommended_frequency, recommended_frequency],
-            [0, heatmap_height]
+        self.recommended_line.setPos(
+            recommended_frequency
         )
 
-        self.recommended_text.setText(
-            "RCMND"
-        )
-
-        self.recommended_arrow.setText(
-            "▼"
-        )
-
-
-        text_y = heatmap_height * 1.22
-        arrow_y = heatmap_height * 1.13
-
-        self.recommended_text.setPos(
-            recommended_frequency,
-            text_y
-        )
-
-        self.recommended_arrow.setPos(
-            recommended_frequency,
-            arrow_y
-        )
-
-        self.recommended_text.show()
-
-        self.recommended_arrow.show()
+        self.recommended_line.show()
 
         self.heatmap_plot.setYRange(
             0,
@@ -244,11 +203,11 @@ class SurveyController:
             return
 
         if self.survey_timer.isActive():
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "SURVEY ALREADY RUNNING\n\n"
-                "Wait for completion or\n"
-                "press Clear Survey."
+            show_survey_notice(
+                self.survey_label,
+                "Survey already running",
+                "Wait for completion or select Clear Survey.",
+                tone="warning"
             )
             return
 
@@ -266,29 +225,29 @@ class SurveyController:
             )
 
         except ValueError:
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "INVALID INPUT\n\n"
-                "Start, Stop, and Step\n"
-                "must be numbers."
+            show_survey_notice(
+                self.survey_label,
+                "Invalid survey input",
+                "Start, stop, and step values must be numbers.",
+                tone="error"
             )
             return
 
         if step_mhz <= 0:
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "INVALID STEP\n\n"
-                "Step must be greater\n"
-                "than 0 MHz."
+            show_survey_notice(
+                self.survey_label,
+                "Invalid step size",
+                "Step size must be greater than 0 MHz.",
+                tone="error"
             )
             return
 
         if stop_mhz <= start_mhz:
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "INVALID RANGE\n\n"
-                "Stop frequency must be\n"
-                "greater than Start."
+            show_survey_notice(
+                self.survey_label,
+                "Invalid frequency range",
+                "Stop frequency must be greater than start frequency.",
+                tone="error"
             )
             return
 
@@ -299,11 +258,11 @@ class SurveyController:
         )
 
         if len(new_frequencies) == 0:
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "INVALID SURVEY\n\n"
-                "No frequencies were\n"
-                "generated."
+            show_survey_notice(
+                self.survey_label,
+                "Invalid survey",
+                "The selected settings generated no frequencies.",
+                tone="error"
             )
             return
 
@@ -329,17 +288,15 @@ class SurveyController:
 
         self.latest_survey_results_html = ""
 
+        self.survey_results_button.setVisible(
+            False
+        )
+
         if self.survey_popup is not None:
             self.survey_popup.close()
             self.survey_popup = None
 
-        self.recommended_line.setData(
-            [],
-            []
-        )
-
-        self.recommended_text.hide()
-        self.recommended_arrow.hide()
+        self.recommended_line.hide()
 
         survey.best_frequency = None
         survey.best_occupancy = 0
@@ -360,14 +317,12 @@ class SurveyController:
             new_frequencies
         )
 
-        self.survey_label.setText(
-            f"SURVEY STATUS\n\n"
-            f"Frequency:\n"
-            f"{survey.survey_frequencies[0]:.1f} MHz\n\n"
-            f"Point:\n"
-            f"0 / {len(survey.survey_frequencies)}\n\n"
-            f"Progress:\n"
-            f"0%"
+        show_survey_progress(
+            self.survey_label,
+            survey.survey_frequencies[0],
+            0,
+            len(survey.survey_frequencies),
+            0
         )
 
         self.survey_timer.start(
@@ -395,10 +350,6 @@ class SurveyController:
             * 100
         )
 
-        progress_bar = build_progress_bar(
-            progress_percent
-        )
-
         print(
             "Survey point:",
             survey.current_survey_index + 1,
@@ -410,11 +361,10 @@ class SurveyController:
             frequency,
             survey.current_survey_index + 1,
             len(survey.survey_frequencies),
-            progress_percent,
-            progress_bar
+            progress_percent
         )
 
-        self.survey_label.setText(
+        self.survey_label.setHtml(
             survey_text
         )
 
@@ -464,12 +414,12 @@ class SurveyController:
         ):
             self.survey_timer.stop()
 
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "MEASUREMENT ERROR\n\n"
-                "Survey stopped because\n"
-                "RF measurements are\n"
-                "not available."
+            show_survey_notice(
+                self.survey_label,
+                "Measurement error",
+                "Survey stopped because RF measurements "
+                "are not available.",
+                tone="error"
             )
             return
 
@@ -525,11 +475,11 @@ class SurveyController:
         self.survey_timer.stop()
 
         if len(survey.survey_results) == 0:
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "SURVEY INCOMPLETE\n\n"
-                "No valid measurements\n"
-                "were collected."
+            show_survey_notice(
+                self.survey_label,
+                "Survey incomplete",
+                "No valid RF measurements were collected.",
+                tone="warning"
             )
             return
 
@@ -570,11 +520,11 @@ class SurveyController:
         ]
 
         if recommended_frequency is None:
-            self.survey_label.setText(
-                "SURVEY STATUS\n\n"
-                "NO RECOMMENDATION\n\n"
-                "No valid frequency\n"
-                "could be selected."
+            show_survey_notice(
+                self.survey_label,
+                "No recommendation",
+                "No valid frequency could be selected.",
+                tone="warning"
             )
             return
 
@@ -601,27 +551,16 @@ class SurveyController:
             results_html
         )
 
-        self.auto_tune_best()
-
-        progress_bar = build_progress_bar(
-            100
+        self.survey_results_button.setVisible(
+            True
         )
 
-        self.survey_label.setText(
-            "SURVEY STATUS\n\n"
-            "✓ COMPLETE\n\n"
+        self.auto_tune_best()
 
-            f"RECOMMENDED:\n\n"
-            f"{recommended_frequency:.1f} MHz\n\n"
-
-            f"Points:\n"
-            f"{len(survey.survey_results)}\n\n"
-
-            "Progress:\n"
-            f"{progress_bar}\n"
-            "100%\n\n"
-
-            "[ VIEW RESULTS ]\n"
+        show_survey_complete(
+            self.survey_label,
+            recommended_frequency,
+            len(survey.survey_results)
         )
 
         return
@@ -727,19 +666,17 @@ class SurveyController:
         self.latest_survey_results_html = ""
         self.last_survey_settings = None
 
+        self.survey_results_button.setVisible(
+            False
+        )
+
         if self.survey_popup is not None:
             self.survey_popup.close()
             self.survey_popup = None
 
         self.heatmap_img.clear()
 
-        self.recommended_line.setData(
-            [],
-            []
-        )
-
-        self.recommended_text.hide()
-        self.recommended_arrow.hide()
+        self.recommended_line.hide()
 
         show_empty_survey_history(
             self.top_frequencies_label

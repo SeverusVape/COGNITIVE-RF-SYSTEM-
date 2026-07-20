@@ -1,6 +1,7 @@
 # UI/heatmap_panel.py
 
 import pyqtgraph as pg
+from PyQt6.QtGui import QFont
 
 from UI.graph_style import (
     set_axis_label,
@@ -70,19 +71,47 @@ def create_heatmap_panel(
         "Occupancy (%)"
     )
 
-    recommended_line = pg.PlotDataItem(
-        [],
-        [],
+    recommended_line = pg.InfiniteLine(
+        pos=0,
+        angle=90,
+        movable=False,
+        span=(0, 0.80),
         pen=pg.mkPen(
-            color=(255, 0, 0),
+            color="#fb7185",
             width=2,
             style=pg.QtCore.Qt.PenStyle.DashLine
-        )
+        ),
+        label="RECOMMENDED",
+        labelOpts={
+            "position": 0.98,
+            "color": "#fb7185",
+            "fill": (0, 0, 0, 180),
+            "anchors": [
+                (0.5, 1.0),
+                (0.5, 1.0)
+            ]
+        }
+    )
+
+    recommendation_font = QFont()
+
+    recommendation_font.setPointSize(
+        8
+    )
+
+    recommendation_font.setBold(
+        True
+    )
+
+    recommended_line.label.setFont(
+        recommendation_font
     )
 
     heatmap_plot.addItem(
         recommended_line
     )
+
+    recommended_line.hide()
 
     win.nextRow()
     win.addItem(
