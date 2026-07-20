@@ -1,4 +1,6 @@
 import sys
+from collections import deque
+
 import numpy as np
 
 from PyQt6.QtWidgets import (
@@ -419,6 +421,9 @@ current_measurement = {
     "max_power": 0,
     "average_power": 0
 }
+measurement_buffer = deque(
+    maxlen=SURVEY_MEASUREMENT_BUFFER_SIZE
+)
 tune_error_active = False
 
 # ==================================================
@@ -470,6 +475,7 @@ def tune_frequency(
 
         tune_error_active = True
         current_measurement = None
+        measurement_buffer.clear()
 
         if show_status:
             status_label.setText(
@@ -631,6 +637,11 @@ def process_samples(samples):
         "max_power": round(float(np.max(power_db)), 1),
         "average_power": round(float(np.mean(power_db)), 1)
     }
+
+    if not tune_error_active:
+        measurement_buffer.append(
+            current_measurement.copy()
+        )
 
     update_signal_panel(
         signals_table,
