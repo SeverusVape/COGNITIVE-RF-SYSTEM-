@@ -21,7 +21,7 @@ import pyqtgraph as pg
 
 import SURVEY.survey_manager as survey
 from SURVEY.survey_controller import SurveyController
-from SDR.sdr_manager import SDRManager
+from SDR.sdr_worker import SDRWorker
 from SDR.fft_processing import compute_fft
 from SDR.detection import detect_peaks
 from UTILS.config import *
@@ -88,16 +88,6 @@ from UTILS.frequency_axis import (
 
 # GLOBALS ----->
 feature_store = FeatureStore()
-
-
-# ==================================================
-# SDR INITIALIZATION
-# ==================================================
-sdr_manager = SDRManager(
-    SAMPLE_RATE,
-    CENTER_FREQ,
-    GAIN
-)
 
 
 # ==================================================
@@ -449,6 +439,7 @@ def tune_frequency():
     global freqs
     global freqs_mhz
     global tune_error_active
+    global current_measurement
 
     tune_error_active = False
 
@@ -475,40 +466,20 @@ def tune_frequency():
 
         new_freq = freq_mhz * 1e6
 
-        if not sdr_manager.tune(new_freq):
-            tune_error_active = True
+        tune_error_active = True
+        current_measurement = None
 
-            status_label.setText(
-                "SYSTEM STATUS\n\n"
-                "TUNE ERROR\n\n"
-                "Unable to tune SDR."
+        status_label.setText(
+            "SYSTEM STATUS\n\n"
+            "TUNING\n\n"
+            f"Requested {freq_mhz:.1f} MHz."
+        )
+
+        if not sdr_worker.request_tune(new_freq):
+            handle_tune_failure(
+                new_freq,
+                "SDR worker is not running."
             )
-            return
-
-        frequency_display.setText(
-            f"{freq_mhz:.1f} MHz"
-        )
-
-        freqs, freqs_mhz = build_frequency_axis(
-            NUM_SAMPLES,
-            SAMPLE_RATE,
-            new_freq
-        )
-
-        waterfall_plot.setXRange(
-            freqs_mhz[0],
-            freqs_mhz[-1],
-            padding=0
-        )
-
-        waterfall_img.setRect(
-            QRectF(
-                freqs_mhz[0],
-                0,
-                freqs_mhz[-1] - freqs_mhz[0],
-                WATERFALL_HISTORY
-            )
-        )
 
     except ValueError:
         tune_error_active = True
@@ -529,36 +500,84 @@ def tune_frequency():
         )
 
 
+def handle_tune_success(freq_hz):
+    global freqs
+    global freqs_mhz
+    global tune_error_active
+
+    freq_mhz = freq_hz / 1e6
+
+    freqs, freqs_mhz = build_frequency_axis(
+        NUM_SAMPLES,
+        SAMPLE_RATE,
+        freq_hz
+    )
+
+    frequency_display.setText(
+        f"{freq_mhz:.1f} MHz"
+    )
+
+    waterfall_plot.setXRange(
+        freqs_mhz[0],
+        freqs_mhz[-1],
+        padding=0
+    )
+
+    waterfall_img.setRect(
+        QRectF(
+            freqs_mhz[0],
+            0,
+            freqs_mhz[-1] - freqs_mhz[0],
+            WATERFALL_HISTORY
+        )
+    )
+
+    tune_error_active = False
+
+
+def handle_tune_failure(
+        freq_hz,
+        message
+):
+    global tune_error_active
+    global current_measurement
+
+    tune_error_active = True
+    current_measurement = None
+
+    status_label.setText(
+        "SYSTEM STATUS\n\n"
+        "TUNE ERROR\n\n"
+        + message
+    )
+
+
+def handle_sdr_error(message):
+    global current_measurement
+
+    current_measurement = None
+
+    status_label.setText(
+        "SYSTEM STATUS\n\n"
+        "SDR NOT CONNECTED\n\n"
+        + message
+    )
+
+
 # ==================================================
-# REAL-TIME SDR UPDATE LOOP
+# REAL-TIME SAMPLE PROCESSING
 # ==================================================
-def update():
+def process_samples(samples):
     global occupancy_percent
     global current_measurement
+    global smoothed_fft
 
     reset_cycle_tracking()
     increment_history_update_count()
 
-    samples = sdr_manager.read_samples(
-        NUM_SAMPLES
-    )
-
-    if samples is None:
-        current_measurement = None
-
-        status_label.setText(
-            "SYSTEM STATUS\n\n"
-            "SDR NOT CONNECTED\n\n"
-            "Check USB connection\n"
-            "and restart device."
-        )
-        return
-
     power_db = compute_fft(
         samples
     )
-
-    global smoothed_fft
 
     if smoothed_fft is None:
 
@@ -628,6 +647,7 @@ def update():
         WATERFALL_HISTORY
     )
 
+
 # ==================================================
 # SURVEY AUTOMATION
 # ==================================================
@@ -680,17 +700,32 @@ survey_timer.timeout.connect(
         survey_controller.survey_step
     )
 # ==================================================
-# TIMER SETUP MAIN
+# SDR WORKER SETUP
 # ==================================================
-timer = QTimer()
-
-timer.timeout.connect(
-    update
+sdr_worker = SDRWorker(
+    SAMPLE_RATE,
+    CENTER_FREQ,
+    GAIN,
+    NUM_SAMPLES
 )
 
-timer.start(
-    100
+sdr_worker.samples_ready.connect(
+    process_samples
 )
+
+sdr_worker.connection_error.connect(
+    handle_sdr_error
+)
+
+sdr_worker.tune_succeeded.connect(
+    handle_tune_success
+)
+
+sdr_worker.tune_failed.connect(
+    handle_tune_failure
+)
+
+sdr_worker.start()
 
 
 # ==================================================
@@ -730,4 +765,8 @@ app.exec()
 # CLEANUP
 # ==================================================
 
-sdr_manager.close()
+sdr_worker.requestInterruption()
+
+if not sdr_worker.wait(1000):
+    sdr_worker.terminate()
+    sdr_worker.wait()
