@@ -230,6 +230,15 @@ class SurveyController:
 
     def start_survey(self):
 
+        if self.survey_timer.isActive():
+            self.survey_label.setText(
+                "SURVEY STATUS\n\n"
+                "SURVEY ALREADY RUNNING\n\n"
+                "Wait for completion or\n"
+                "press Clear Survey."
+            )
+            return
+
         try:
             start_mhz = float(
                 self.start_freq_input.text()
