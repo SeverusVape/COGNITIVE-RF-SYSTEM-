@@ -77,7 +77,13 @@ from UI.status_panel import (
     update_status_panel
 )
 from UI.survey_panel import create_survey_panel
+from UI.survey_history_panel import (
+    create_survey_history_panel
+)
 from UI.theme import (
+    RIGHT_INFO_PANEL_MARGINS,
+    RIGHT_INFO_PANEL_SPACING,
+    RIGHT_INFO_PANEL_STYLESHEET,
     SURVEY_CONTROL_PANEL_MARGINS,
     SURVEY_CONTROL_PANEL_SPACING,
     SURVEY_CONTROL_PANEL_STYLESHEET
@@ -157,7 +163,27 @@ control_layout.setSpacing(
     SURVEY_CONTROL_PANEL_SPACING
 )
 
-info_layout = QVBoxLayout()
+info_panel = QWidget()
+
+info_panel.setObjectName(
+    "rightInfoPanel"
+)
+
+info_panel.setStyleSheet(
+    RIGHT_INFO_PANEL_STYLESHEET
+)
+
+info_layout = QVBoxLayout(
+    info_panel
+)
+
+info_layout.setContentsMargins(
+    *RIGHT_INFO_PANEL_MARGINS
+)
+
+info_layout.setSpacing(
+    RIGHT_INFO_PANEL_SPACING
+)
 
 (
     freq_label,
@@ -196,19 +222,8 @@ signals_panel, signals_table = create_signal_panel()
 status_label = create_status_panel()
 survey_label = create_survey_panel()
 
-top_frequencies_label = QLabel(
-    "PERSISTENT FREQUENCIES\n\n"
-    "No survey data"
-)
-
-top_frequencies_label.setStyleSheet(
-    """
-    background-color: #111111;
-    border: 1px solid #333333;
-    padding: 8px;
-    color: #00ff88;
-    font-family: Courier New;
-    """
+top_frequencies_label = (
+    create_survey_history_panel()
 )
 
 # ==================================================
@@ -413,8 +428,8 @@ main_layout.addLayout(
     8
 )
 
-main_layout.addLayout(
-    info_layout,
+main_layout.addWidget(
+    info_panel,
     2
 )
 

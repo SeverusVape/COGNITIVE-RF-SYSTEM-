@@ -175,6 +175,78 @@ QTextEdit#surveyResultsCard {{
 
 
 # ==================================================
+# RIGHT INFORMATION PANEL
+# ==================================================
+
+RIGHT_INFO_PANEL_MARGINS = (
+    12,
+    12,
+    12,
+    12
+)
+
+RIGHT_INFO_PANEL_SPACING = 12
+
+RIGHT_INFO_PANEL_STYLESHEET = f"""
+QWidget#rightInfoPanel {{
+    background-color: {WINDOW_BACKGROUND};
+    border: 1px solid {BORDER};
+    border-radius: 10px;
+}}
+
+QWidget#signalPanel {{
+    background-color: transparent;
+    border: none;
+}}
+
+QTableWidget#signalTable {{
+    color: {TEXT_PRIMARY};
+    background-color: {REPORT_SURFACE};
+    alternate-background-color: {TABLE_ALTERNATE_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 8px;
+    outline: 0;
+}}
+
+QTableWidget#signalTable QHeaderView::section {{
+    color: {TEXT_PRIMARY};
+    background-color: {TABLE_HEADER_SURFACE};
+    border: none;
+    padding: 5px 4px;
+    font-size: 10px;
+    font-weight: 700;
+}}
+
+QLabel#signalLegend {{
+    color: {ACCENT_LIGHT};
+    background-color: {RECOMMENDATION_SURFACE};
+    border: 1px solid {ACCENT_BORDER};
+    border-radius: 8px;
+    padding: 9px;
+    font-size: 10px;
+    font-weight: 600;
+}}
+
+QTextEdit#systemStatusCard {{
+    color: {TEXT_PRIMARY};
+    background-color: {REPORT_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 8px;
+    padding: 10px;
+    selection-background-color: {ACCENT};
+}}
+
+QLabel#surveyHistoryCard {{
+    color: {TEXT_PRIMARY};
+    background-color: {REPORT_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 8px;
+    padding: 12px;
+}}
+"""
+
+
+# ==================================================
 # SURVEY REPORT POPUP
 # ==================================================
 

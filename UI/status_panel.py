@@ -5,6 +5,10 @@ def create_status_panel():
 
     status_label = QTextEdit()
 
+    status_label.setObjectName(
+        "systemStatusCard"
+    )
+
     status_label.setReadOnly(
         True
     )

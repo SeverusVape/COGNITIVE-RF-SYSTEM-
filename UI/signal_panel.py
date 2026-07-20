@@ -9,7 +9,6 @@ from PyQt6.QtWidgets import (
 
 from PyQt6.QtCore import Qt
 
-from PyQt6.QtGui import QFont
 from PyQt6.QtGui import QColor
 
 from SIGNALS.signal_history import (
@@ -25,6 +24,14 @@ from SIGNALS.feature_extractor import (
 def create_signal_panel():
 
     table = QTableWidget()
+
+    table.setObjectName(
+        "signalTable"
+    )
+
+    table.setAlternatingRowColors(
+        True
+    )
 
     table.setColumnCount(4)
 
@@ -61,18 +68,6 @@ def create_signal_panel():
         False
     )
 
-    table.horizontalHeader().setStyleSheet(
-        """
-        QHeaderView::section {
-            background-color: #222222;
-            color: white;
-            border: none;
-            padding: 4px;
-            font-weight: bold;
-        }
-        """
-    )
-
     table.setFixedHeight(110)
     table.horizontalHeader().setStretchLastSection(True)
     table.horizontalHeader().setSectionResizeMode(
@@ -86,33 +81,28 @@ def create_signal_panel():
     )
 
     panel = QWidget()
+    panel.setObjectName(
+        "signalPanel"
+    )
+
     layout = QVBoxLayout(panel)
-    layout.setSpacing(0)
+    layout.setSpacing(10)
     layout.setContentsMargins(0, 0, 0, 0)
     layout.addWidget(table)
     legend = QLabel(
-        "[ SIGNAL LEGEND ]\n"
-        "W=Weak   M=Medium   S=Strong\n"
-        "A=Active   P=Persistent   L=Long   N=New"
+        "SIGNAL LEGEND\n"
+        "W Weak   ·   M Medium   ·   S Strong\n"
+        "A Active   ·   P Persistent   ·   L Long   ·   N New"
+    )
+
+    legend.setObjectName(
+        "signalLegend"
     )
 
     legend.setAlignment(
         Qt.AlignmentFlag.AlignCenter
     )
 
-    legend.setStyleSheet(
-        """
-        QLabel {
-            color: #3da5ff;
-            background-color: #111111;
-            border: 2px solid #0078ff;
-            border-radius: 6px;
-            padding: 8px;
-            font-size: 10px;
-            font-weight: bold;
-        }
-        """
-    )
     layout.addWidget(legend)
     legend.setMaximumHeight(80)
     #panel.setMaximumHeight(150)

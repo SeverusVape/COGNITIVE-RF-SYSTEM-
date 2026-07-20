@@ -21,6 +21,10 @@ from SURVEY.decision_engine import (
 )
 
 from UI.survey_popup import SurveyPopup
+from UI.survey_history_panel import (
+    show_empty_survey_history,
+    update_survey_history
+)
 
 
 class SurveyController:
@@ -344,9 +348,8 @@ class SurveyController:
             survey.heatmap_history.clear()
             self.heatmap_img.clear()
 
-            self.top_frequencies_label.setText(
-                "PERSISTENT FREQUENCIES\n\n"
-                "No survey data"
+            show_empty_survey_history(
+                self.top_frequencies_label
             )
 
         self.last_survey_settings = (
@@ -651,31 +654,21 @@ class SurveyController:
             average_by_frequency
         )[-3:][::-1]
 
-        persistent_text = (
-            "MOST ACTIVE (HISTORY)\n\n"
-        )
+        top_frequencies = [
+            survey.survey_frequencies[index]
+            for index in top_indices
+        ]
 
-        for rank, index in enumerate(
-                top_indices,
-                start=1
-        ):
-            freq = survey.survey_frequencies[
-                index
-            ]
+        top_occupancies = [
+            average_by_frequency[index]
+            for index in top_indices
+        ]
 
-            avg_occ = round(
-                average_by_frequency[index],
-                1
-            )
-
-            persistent_text += (
-                f"{rank}. "
-                f"{freq:.1f} MHz   "
-                f"{avg_occ}%\n"
-            )
-
-        self.top_frequencies_label.setText(
-            persistent_text
+        update_survey_history(
+            self.top_frequencies_label,
+            top_frequencies,
+            top_occupancies,
+            len(survey.heatmap_history)
         )
 
         self.heatmap_img.setImage(
@@ -748,9 +741,8 @@ class SurveyController:
         self.recommended_text.hide()
         self.recommended_arrow.hide()
 
-        self.top_frequencies_label.setText(
-            "PERSISTENT FREQUENCIES\n\n"
-            "No survey data"
+        show_empty_survey_history(
+            self.top_frequencies_label
         )
 
         clear_survey(
