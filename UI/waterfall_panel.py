@@ -2,6 +2,11 @@ import pyqtgraph as pg
 from PyQt6.QtCore import QRectF
 import numpy as np
 
+from UTILS.frequency_axis import (
+    build_frequency_edges
+)
+
+
 def create_waterfall_panel(
         win
 ):
@@ -76,11 +81,17 @@ def update_waterfall_panel(
         ]
     )
 
+    left_edge, right_edge = (
+        build_frequency_edges(
+            freqs_mhz
+        )
+    )
+
     waterfall_img.setRect(
         QRectF(
-            freqs_mhz[0],
+            left_edge,
             0,
-            freqs_mhz[-1] - freqs_mhz[0],
+            right_edge - left_edge,
             waterfall_history
         )
     )

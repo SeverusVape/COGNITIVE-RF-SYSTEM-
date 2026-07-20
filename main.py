@@ -83,7 +83,8 @@ from UTILS.occupancy import (
     calculate_occupancy
 )
 from UTILS.frequency_axis import (
-    build_frequency_axis
+    build_frequency_axis,
+    build_frequency_edges
 )
 
 # GLOBALS ----->
@@ -392,9 +393,15 @@ freqs = freqs + CENTER_FREQ
 
 freqs_mhz = freqs / 1e6
 
+waterfall_left, waterfall_right = (
+    build_frequency_edges(
+        freqs_mhz
+    )
+)
+
 waterfall_plot.setXRange(
-    freqs_mhz[0],
-    freqs_mhz[-1],
+    waterfall_left,
+    waterfall_right,
     padding=0
 )
 
@@ -520,17 +527,23 @@ def handle_tune_success(freq_hz):
         f"{freq_mhz:.1f} MHz"
     )
 
+    waterfall_left, waterfall_right = (
+        build_frequency_edges(
+            freqs_mhz
+        )
+    )
+
     waterfall_plot.setXRange(
-        freqs_mhz[0],
-        freqs_mhz[-1],
+        waterfall_left,
+        waterfall_right,
         padding=0
     )
 
     waterfall_img.setRect(
         QRectF(
-            freqs_mhz[0],
+            waterfall_left,
             0,
-            freqs_mhz[-1] - freqs_mhz[0],
+            waterfall_right - waterfall_left,
             WATERFALL_HISTORY
         )
     )
