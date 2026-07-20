@@ -84,6 +84,42 @@ class FeatureStore:
             - feature.last_seen
         )
 
+    def prune_stale(
+            self,
+            max_age_seconds
+    ):
+        if max_age_seconds < 0:
+            raise ValueError(
+                "Maximum feature age cannot be negative."
+            )
+
+        current_time = time.monotonic()
+
+        stale_keys = [
+            frequency
+            for frequency, feature in self.features.items()
+            if (
+                    current_time
+                    - feature.last_seen
+                    > max_age_seconds
+            )
+        ]
+
+        for frequency in stale_keys:
+            self.features.pop(
+                frequency,
+                None
+            )
+
+            self.bandwidth_history.pop(
+                frequency,
+                None
+            )
+
+        return len(
+            stale_keys
+        )
+
     def get_all(self):
         return self.features
 
