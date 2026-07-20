@@ -45,7 +45,12 @@ def clear_survey(
     survey_results.clear()
 
     survey_label.setText(
-        "Survey Results"
+        "\n"
+        "No Survey Data Available\n\n"
+        "Run a survey to generate\n"
+        "occupancy statistics,\n"
+        "recommendations, and\n"
+        "heatmap history."
     )
 
 # ==================================================

@@ -74,11 +74,6 @@ from UI.status_panel import (
 )
 from UI.survey_panel import create_survey_panel
 
-# POPUP -------->
-from UI.survey_popup import (
-    SurveyPopup
-)
-
 from UTILS.occupancy import (
     calculate_occupancy
 )
@@ -418,9 +413,6 @@ waterfall = np.zeros(
 
 smoothed_fft = None
 occupancy_percent = 0
-survey_popup = None
-latest_survey_results_text = ""
-last_survey_settings = None
 current_measurement = {
     "occupancy": 0,
     "max_power": 0,
@@ -665,28 +657,6 @@ def process_samples(samples):
 
 
 # ==================================================
-# SURVEY AUTOMATION
-# ==================================================
-
-def open_survey_popup():
-
-    if (
-            survey_controller.latest_survey_results_text
-            == ""
-    ):
-        print("No survey results available")
-        return
-
-    popup = SurveyPopup(
-        survey_controller.latest_survey_results_text
-    )
-
-    popup.show()
-
-    global popup_ref
-    popup_ref = popup
-
-# ==================================================
 # SURVEY TIMER SETUP
 # ==================================================
 survey_timer = QTimer()
@@ -770,7 +740,8 @@ start_survey_button.clicked.connect(
 )
 
 survey_label.mousePressEvent = (
-    lambda event: open_survey_popup()
+    lambda event:
+    survey_controller.show_results_popup()
 )
 
 # ==================================================

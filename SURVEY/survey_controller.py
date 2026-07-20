@@ -99,6 +99,19 @@ class SurveyController:
             decision_mode_combo
         )
 
+    def show_results_popup(self):
+        if self.latest_survey_results_text == "":
+            return
+
+        if self.survey_popup is not None:
+            self.survey_popup.close()
+
+        self.survey_popup = SurveyPopup(
+            self.latest_survey_results_text
+        )
+
+        self.survey_popup.show()
+
     def auto_tune_best(self):
 
         try:
@@ -512,10 +525,6 @@ class SurveyController:
             results_text
         )
 
-        self.survey_popup = SurveyPopup(
-            self.latest_survey_results_text
-        )
-
         self.auto_tune_best()
 
         progress_bar = build_progress_bar(
@@ -642,8 +651,34 @@ class SurveyController:
 
         survey.survey_frequencies = []
         survey.survey_results.clear()
+        survey.survey_metrics.clear()
         survey.current_survey_index = 0
+        survey.heatmap_history.clear()
+        survey.occupancy_percent = 0
+        survey.best_frequency = None
+        survey.best_occupancy = 0
 
+        self.latest_survey_results_text = ""
+        self.last_survey_settings = None
+
+        if self.survey_popup is not None:
+            self.survey_popup.close()
+            self.survey_popup = None
+
+        self.heatmap_img.clear()
+
+        self.recommended_line.setData(
+            [],
+            []
+        )
+
+        self.recommended_text.hide()
+        self.recommended_arrow.hide()
+
+        self.top_frequencies_label.setText(
+            "PERSISTENT FREQUENCIES\n\n"
+            "No survey data"
+        )
 
         clear_survey(
             self.survey_label
