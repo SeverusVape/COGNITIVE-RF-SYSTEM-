@@ -181,39 +181,76 @@ def smart_recommendation(
         average_power = metrics["average_power"]
         score = 0
 
-        feature = find_nearest_feature(
-            frequency,
-            feature_store
+        feature_snapshot_available = (
+            "feature_snapshot" in metrics
         )
+
+        feature_snapshot = metrics.get(
+            "feature_snapshot"
+        )
+
+        feature = None
+
+        if not feature_snapshot_available:
+            feature = find_nearest_feature(
+                frequency,
+                feature_store
+            )
 
         persistence_bonus = 0
         age_bonus = 0
         strength_bonus = 0
 
-        if feature is not None:
+        if feature_snapshot is not None:
+            persistence = feature_snapshot.get(
+                "persistence"
+            )
 
-            if feature.persistence == "A":
+            age_seconds = feature_snapshot.get(
+                "age_seconds",
+                0
+            )
+
+            strength = feature_snapshot.get(
+                "strength"
+            )
+
+        elif feature is not None:
+            persistence = feature.persistence
+            age_seconds = feature.age_seconds
+            strength = feature.strength
+
+        else:
+            persistence = None
+            age_seconds = 0
+            strength = None
+
+        if (
+                feature_snapshot is not None
+                or feature is not None
+        ):
+            if persistence == "A":
                 persistence_bonus = 5
 
-            elif feature.persistence == "P":
+            elif persistence == "P":
                 persistence_bonus = 10
 
-            elif feature.persistence == "L":
+            elif persistence == "L":
                 persistence_bonus = 15
 
-            if feature.age_seconds >= 30:
+            if age_seconds >= 30:
                 age_bonus = 10
 
-            elif feature.age_seconds >= 15:
+            elif age_seconds >= 15:
                 age_bonus = 6
 
-            elif feature.age_seconds >= 5:
+            elif age_seconds >= 5:
                 age_bonus = 3
 
-            if feature.strength == "M":
+            if strength == "M":
                 strength_bonus = 3
 
-            elif feature.strength == "S":
+            elif strength == "S":
                 strength_bonus = 6
 
 
