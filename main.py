@@ -24,7 +24,7 @@ import pyqtgraph as pg
 import SURVEY.survey_manager as survey
 from SURVEY.survey_controller import SurveyController
 from SDR.sdr_worker import SDRWorker
-from SDR.fft_processing import compute_fft
+from SDR.fft_processing import compute_windowed_fft
 from SDR.detection import detect_peaks
 from UTILS.config import *
 from LOGGING.signal_logger import log_signals
@@ -612,7 +612,7 @@ def process_samples(samples):
     reset_cycle_tracking()
     increment_history_update_count()
 
-    power_db = compute_fft(
+    power_db = compute_windowed_fft(
         samples
     )
 
