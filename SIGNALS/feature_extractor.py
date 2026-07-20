@@ -49,11 +49,18 @@ class FeatureStore:
         )
 
         self.features[
-            feature.frequency
+            freq_key
         ] = feature
 
     def get(self, frequency):
-        return self.features.get(frequency)
+        freq_key = round(
+            frequency,
+            2
+        )
+
+        return self.features.get(
+            freq_key
+        )
 
     def get_all(self):
         return self.features
