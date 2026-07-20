@@ -112,6 +112,31 @@ def estimate_local_noise_floor(
     )
 
 
+def build_local_detection_threshold(
+        power_db,
+        freqs_mhz,
+        margin_db=10.0,
+        window_khz=250.0,
+        percentile=30.0
+):
+    if (
+            not np.isfinite(margin_db)
+            or margin_db < 0
+    ):
+        raise ValueError(
+            "Detection margin must be non-negative."
+        )
+
+    noise_floor = estimate_local_noise_floor(
+        power_db,
+        freqs_mhz,
+        window_khz=window_khz,
+        percentile=percentile
+    )
+
+    return noise_floor + margin_db
+
+
 def detect_peaks(
     power_db,
     freqs_mhz

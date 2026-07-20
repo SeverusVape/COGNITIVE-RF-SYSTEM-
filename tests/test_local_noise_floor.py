@@ -3,11 +3,110 @@ import unittest
 import numpy as np
 
 from SDR.detection import (
+    build_local_detection_threshold,
     estimate_local_noise_floor
 )
 
 
 class LocalNoiseFloorTests(unittest.TestCase):
+
+    def test_local_threshold_adds_detection_margin(self):
+        freqs_mhz = np.linspace(
+            99.0,
+            101.0,
+            2001
+        )
+        power_db = np.full(
+            len(freqs_mhz),
+            20.0
+        )
+
+        threshold = build_local_detection_threshold(
+            power_db,
+            freqs_mhz,
+            margin_db=8.0
+        )
+
+        np.testing.assert_allclose(
+            threshold,
+            28.0
+        )
+
+    def test_local_threshold_handles_uneven_baseline(
+            self
+    ):
+        freqs_mhz = np.linspace(
+            99.0,
+            101.0,
+            2001
+        )
+        baseline = (
+            20.0
+            + 20.0
+            * (
+                freqs_mhz - 100.0
+            ) ** 2
+        )
+        power_db = baseline.copy()
+
+        signal_index = int(
+            np.argmin(
+                np.abs(
+                    freqs_mhz - 100.0
+                )
+            )
+        )
+        power_db[signal_index] += 15.0
+
+        global_threshold = (
+            np.mean(power_db)
+            + 10.0
+        )
+        local_threshold = (
+            build_local_detection_threshold(
+                power_db,
+                freqs_mhz,
+                margin_db=10.0
+            )
+        )
+
+        self.assertLess(
+            power_db[signal_index],
+            global_threshold
+        )
+        self.assertGreater(
+            power_db[signal_index],
+            local_threshold[signal_index]
+        )
+
+    def test_local_threshold_rejects_invalid_margin(self):
+        freqs_mhz = np.array([
+            100.0,
+            100.1,
+            100.2
+        ])
+        power_db = np.array([
+            20.0,
+            21.0,
+            22.0
+        ])
+
+        for invalid_margin in (
+                -1,
+                np.nan,
+                np.inf
+        ):
+            with self.subTest(
+                    invalid_margin=invalid_margin
+            ):
+                with self.assertRaises(
+                        ValueError
+                ):
+                    build_local_detection_threshold(
+                        power_db,
+                        freqs_mhz,
+                        margin_db=invalid_margin
+                    )
 
     def test_constant_floor_is_preserved(self):
         freqs_mhz = np.linspace(
