@@ -3,6 +3,8 @@ import unittest
 from collections import OrderedDict
 
 from SURVEY.decision_engine import (
+    find_active_signal,
+    find_free_channel,
     smart_recommendation
 )
 from UTILS.config import SMART_MAX_SCORE
@@ -38,6 +40,49 @@ def make_smart_decision(
 
 
 class SmartDecisionTests(unittest.TestCase):
+
+    def test_free_and_active_modes_select_opposites(self):
+        survey_results = {
+            100.0: 10.0,
+            101.0: 30.0,
+            102.0: 20.0
+        }
+
+        self.assertEqual(
+            find_free_channel(
+                survey_results
+            )["frequency"],
+            100.0
+        )
+
+        self.assertEqual(
+            find_active_signal(
+                survey_results
+            )["frequency"],
+            101.0
+        )
+
+    def test_smart_mode_without_metrics_falls_back_to_free(
+            self
+    ):
+        decision = smart_recommendation(
+            {
+                100.0: 20.0,
+                101.0: 10.0
+            },
+            {},
+            [],
+            None
+        )
+
+        self.assertEqual(
+            decision["mode"],
+            "FREE"
+        )
+        self.assertEqual(
+            decision["frequency"],
+            101.0
+        )
 
     def test_occupancy_score_uses_full_range(self):
         expected_scores = {
