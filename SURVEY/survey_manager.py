@@ -1,3 +1,6 @@
+from UTILS.config import SMART_MAX_SCORE
+
+
 # ==================================================
 # SURVEY STATE
 # ==================================================
@@ -177,8 +180,6 @@ def build_results_text(
         "reason"
     ]
 
-    max_possible_score = 111
-
     results_text = (
         "========== SURVEY COMPLETE ==========\n\n"
 
@@ -202,7 +203,7 @@ def build_results_text(
 
             "\n"
             "Overall Score:\n"
-            f"{recommended_score:.1f} / {max_possible_score}\n\n"
+            f"{recommended_score:.1f} / {SMART_MAX_SCORE}\n\n"
 
         )
 
@@ -215,7 +216,7 @@ def build_results_text(
             "Runner-Up:\n"
             f"{runner_up_frequency:.3f} MHz\n"
             f"Score: {runner_up_score:.1f} "
-            f"/ {max_possible_score}\n\n"
+            f"/ {SMART_MAX_SCORE}\n\n"
             "Decision Margin:\n"
             f"{score_margin:.1f} points\n\n"
         )

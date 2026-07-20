@@ -1,5 +1,20 @@
 from statistics import median
 
+from UTILS.config import (
+    SMART_AGE_5_SECONDS_SCORE,
+    SMART_AGE_15_SECONDS_SCORE,
+    SMART_AGE_30_SECONDS_SCORE,
+    SMART_OCCUPANCY_MAX_SCORE,
+    SMART_PERSISTENCE_ACTIVE_SCORE,
+    SMART_PERSISTENCE_LONG_SCORE,
+    SMART_PERSISTENCE_PERSISTENT_SCORE,
+    SMART_POWER_MAX_SCORE,
+    SMART_POWER_SCORE_MIDPOINT,
+    SMART_POWER_SCORE_PER_DB,
+    SMART_STRENGTH_MEDIUM_SCORE,
+    SMART_STRENGTH_STRONG_SCORE
+)
+
 
 # ==================================================
 # BUILD RECOMMENDATION
@@ -244,28 +259,44 @@ def smart_recommendation(
                 or feature is not None
         ):
             if persistence == "A":
-                persistence_bonus = 5
+                persistence_bonus = (
+                    SMART_PERSISTENCE_ACTIVE_SCORE
+                )
 
             elif persistence == "P":
-                persistence_bonus = 10
+                persistence_bonus = (
+                    SMART_PERSISTENCE_PERSISTENT_SCORE
+                )
 
             elif persistence == "L":
-                persistence_bonus = 15
+                persistence_bonus = (
+                    SMART_PERSISTENCE_LONG_SCORE
+                )
 
             if age_seconds >= 30:
-                age_bonus = 10
+                age_bonus = (
+                    SMART_AGE_30_SECONDS_SCORE
+                )
 
             elif age_seconds >= 15:
-                age_bonus = 6
+                age_bonus = (
+                    SMART_AGE_15_SECONDS_SCORE
+                )
 
             elif age_seconds >= 5:
-                age_bonus = 3
+                age_bonus = (
+                    SMART_AGE_5_SECONDS_SCORE
+                )
 
             if strength == "M":
-                strength_bonus = 3
+                strength_bonus = (
+                    SMART_STRENGTH_MEDIUM_SCORE
+                )
 
             elif strength == "S":
-                strength_bonus = 6
+                strength_bonus = (
+                    SMART_STRENGTH_STRONG_SCORE
+                )
 
 
         # ----------------------------------
@@ -274,14 +305,14 @@ def smart_recommendation(
         # ----------------------------------
 
         occupancy_score = min(
-            50,
+            SMART_OCCUPANCY_MAX_SCORE,
             max(
                 0,
                 (
                     100 - occupancy
                 )
                 / 100
-                * 50
+                * SMART_OCCUPANCY_MAX_SCORE
             )
         )
 
@@ -290,19 +321,16 @@ def smart_recommendation(
         # Stronger signal = higher score
         # ----------------------------------
 
-        power_score_midpoint = 15.0
-        power_score_per_db = 0.3
-
         power_score = min(
-            30,
+            SMART_POWER_MAX_SCORE,
             max(
                 0,
-                power_score_midpoint
+                SMART_POWER_SCORE_MIDPOINT
                 + (
                     max_power
                     - survey_median_power
                 )
-                * power_score_per_db
+                * SMART_POWER_SCORE_PER_DB
             )
         )
 
