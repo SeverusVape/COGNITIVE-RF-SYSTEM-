@@ -110,7 +110,8 @@ def find_active_signal(
 def find_nearest_feature(
         survey_frequency,
         feature_store,
-        max_distance_mhz=0.5
+        max_distance_mhz=0.5,
+        max_age_seconds=None
 ):
 
     if feature_store is None:
@@ -123,6 +124,18 @@ def find_nearest_feature(
     nearest_distance = float("inf")
 
     for feature_frequency, feature in feature_store.features.items():
+        if max_age_seconds is not None:
+            seconds_since_seen = (
+                feature_store.get_seconds_since_seen(
+                    feature_frequency
+                )
+            )
+
+            if (
+                    seconds_since_seen is None
+                    or seconds_since_seen > max_age_seconds
+            ):
+                continue
 
         distance = abs(
             feature_frequency - survey_frequency
