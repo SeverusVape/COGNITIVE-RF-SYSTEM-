@@ -4,6 +4,7 @@ import numpy as np
 
 from SDR.detection import (
     build_local_detection_threshold,
+    detect_peaks,
     estimate_local_noise_floor
 )
 
@@ -77,6 +78,24 @@ class LocalNoiseFloorTests(unittest.TestCase):
         self.assertGreater(
             power_db[signal_index],
             local_threshold[signal_index]
+        )
+
+        peaks, detection_threshold = detect_peaks(
+            power_db,
+            freqs_mhz
+        )
+
+        self.assertEqual(
+            detection_threshold.shape,
+            power_db.shape
+        )
+        self.assertTrue(
+            any(
+                abs(
+                    peak[0] - 100.0
+                ) < 0.001
+                for peak in peaks
+            )
         )
 
     def test_local_threshold_rejects_invalid_margin(self):

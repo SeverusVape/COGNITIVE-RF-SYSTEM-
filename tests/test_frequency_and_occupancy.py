@@ -73,6 +73,27 @@ class OccupancyTests(unittest.TestCase):
                 threshold=10.0
             )
 
+    def test_occupancy_accepts_per_bin_thresholds(self):
+        occupancy, _ = calculate_occupancy(
+            np.array([
+                10.0,
+                20.0,
+                30.0,
+                40.0
+            ]),
+            threshold=np.array([
+                5.0,
+                25.0,
+                25.0,
+                45.0
+            ])
+        )
+
+        self.assertEqual(
+            occupancy,
+            50.0
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

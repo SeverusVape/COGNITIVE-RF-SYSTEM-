@@ -38,7 +38,7 @@ def update_status_panel(
         f"Sample Rate: {sample_rate / 1e6:.3f} MSPS<br>"
         f"Range: {freqs_mhz[0]:.3f} - {freqs_mhz[-1]:.3f} MHz<br>"
         f"Signals Found: {len(peaks)}<br>"
-        f"Threshold: {threshold:.1f} dB<br>"
+        f"Median Threshold: {threshold:.1f} dB<br>"
         f"Occupancy: {meter}&nbsp;&nbsp;{occupancy:.0f}%<br>"
     )
 

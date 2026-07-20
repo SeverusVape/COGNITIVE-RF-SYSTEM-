@@ -646,6 +646,12 @@ def process_samples(samples):
         threshold
     )
 
+    displayed_threshold = float(
+        np.median(
+            threshold
+        )
+    )
+
     current_measurement = {
         "occupancy": round(float(occupancy_percent), 1),
         "max_power": round(float(np.max(power_db)), 1),
@@ -671,7 +677,7 @@ def process_samples(samples):
             SAMPLE_RATE,
             freqs_mhz,
             peaks,
-            threshold,
+            displayed_threshold,
             meter,
             occupancy_percent
         )

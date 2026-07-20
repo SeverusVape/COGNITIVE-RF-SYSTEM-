@@ -161,7 +161,10 @@ def detect_peaks(
         )
     )
 
-    threshold = np.mean(power_db) + 10
+    threshold = build_local_detection_threshold(
+        power_db,
+        freqs_mhz
+    )
 
     peaks, properties = find_peaks(
         power_db,
