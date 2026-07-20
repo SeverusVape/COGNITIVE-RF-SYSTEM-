@@ -7,6 +7,7 @@ import time
 
 signal_history = {}
 signal_first_seen = {}
+signal_last_seen = {}
 
 history_update_count = 0
 seen_this_cycle = set()
@@ -21,6 +22,10 @@ def update_signal_history(
         frequency,
         1
     )
+
+    signal_last_seen[
+        frequency
+    ] = time.monotonic()
 
     if frequency in seen_this_cycle:
         age_seconds = int(
@@ -74,6 +79,27 @@ def update_signal_history(
             frequency
         ],
         age_seconds
+    )
+
+def get_seconds_since_seen(
+        frequency
+):
+    frequency = round(
+        frequency,
+        1
+    )
+
+    last_seen = signal_last_seen.get(
+        frequency
+    )
+
+    if last_seen is None:
+        return None
+
+    return max(
+        0.0,
+        time.monotonic()
+        - last_seen
     )
 
 def increment_history_update_count():
