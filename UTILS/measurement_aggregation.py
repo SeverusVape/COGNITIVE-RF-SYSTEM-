@@ -9,9 +9,22 @@ REQUIRED_MEASUREMENTS = (
 
 
 def aggregate_measurements(
-        measurements
+        measurements,
+        minimum_count=1
 ):
-    if not measurements:
+    if (
+            not isinstance(minimum_count, int)
+            or isinstance(minimum_count, bool)
+            or minimum_count < 1
+    ):
+        raise ValueError(
+            "Minimum measurement count must be a positive integer."
+        )
+
+    if (
+            not measurements
+            or len(measurements) < minimum_count
+    ):
         return None
 
     normalized_measurements = {

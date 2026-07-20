@@ -586,6 +586,9 @@ def get_survey_measurement():
     return aggregate_measurements(
         list(
             measurement_buffer
+        ),
+        minimum_count=(
+            SURVEY_MIN_MEASUREMENT_FRAMES
         )
     )
 
