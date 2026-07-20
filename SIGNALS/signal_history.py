@@ -102,6 +102,50 @@ def get_seconds_since_seen(
         - last_seen
     )
 
+def prune_stale_history(
+        max_age_seconds
+):
+    if max_age_seconds < 0:
+        raise ValueError(
+            "Maximum signal history age cannot be negative."
+        )
+
+    current_time = time.monotonic()
+
+    stale_frequencies = [
+        frequency
+        for frequency, last_seen in signal_last_seen.items()
+        if (
+                current_time
+                - last_seen
+                > max_age_seconds
+        )
+    ]
+
+    for frequency in stale_frequencies:
+        signal_history.pop(
+            frequency,
+            None
+        )
+
+        signal_first_seen.pop(
+            frequency,
+            None
+        )
+
+        signal_last_seen.pop(
+            frequency,
+            None
+        )
+
+        seen_this_cycle.discard(
+            frequency
+        )
+
+    return len(
+        stale_frequencies
+    )
+
 def increment_history_update_count():
     global history_update_count
     history_update_count += 1
