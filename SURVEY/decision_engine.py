@@ -259,9 +259,16 @@ def smart_recommendation(
         # Lower occupancy = higher score
         # ----------------------------------
 
-        occupancy_score = max(
-            0,
-            50 - occupancy
+        occupancy_score = min(
+            50,
+            max(
+                0,
+                (
+                    100 - occupancy
+                )
+                / 100
+                * 50
+            )
         )
 
         # ----------------------------------
