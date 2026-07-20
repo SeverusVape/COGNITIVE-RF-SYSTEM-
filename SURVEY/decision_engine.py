@@ -1,3 +1,6 @@
+from statistics import median
+
+
 # ==================================================
 # BUILD RECOMMENDATION
 # ==================================================
@@ -173,6 +176,11 @@ def smart_recommendation(
             survey_results
         )
 
+    survey_median_power = median(
+        metrics["max_power"]
+        for metrics in survey_metrics.values()
+    )
+
     frequency_scores = {}
 
     for frequency, metrics in survey_metrics.items():
@@ -276,11 +284,19 @@ def smart_recommendation(
         # Stronger signal = higher score
         # ----------------------------------
 
+        power_score_midpoint = 15.0
+        power_score_per_db = 0.3
+
         power_score = min(
             30,
             max(
                 0,
-                max_power / 100 * 30
+                power_score_midpoint
+                + (
+                    max_power
+                    - survey_median_power
+                )
+                * power_score_per_db
             )
         )
 
