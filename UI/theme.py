@@ -247,6 +247,114 @@ QLabel#surveyHistoryCard {{
 
 
 # ==================================================
+# CENTER TUNING PANEL
+# ==================================================
+
+TUNING_PANEL_MARGINS = (
+    16,
+    10,
+    16,
+    12
+)
+
+TUNING_PANEL_SPACING = 4
+
+TUNING_PANEL_STYLESHEET = f"""
+QWidget#tuningPanel {{
+    background-color: {WINDOW_BACKGROUND};
+    border: 1px solid {BORDER};
+    border-radius: 10px;
+}}
+
+QLabel#tuningEyebrow {{
+    color: {TEXT_MUTED};
+    font-size: 10px;
+    font-weight: 700;
+    border: none;
+}}
+
+QLabel#frequencyDisplay {{
+    color: {TEXT_STRONG};
+    font-size: 26px;
+    font-weight: 700;
+    border: none;
+}}
+
+QLabel#tuningSubtitle {{
+    color: {TEXT_SUBTLE};
+    font-size: 10px;
+    border: none;
+}}
+
+QLabel#tuningFieldLabel {{
+    color: {TEXT_MUTED};
+    font-size: 11px;
+    font-weight: 600;
+    border: none;
+}}
+
+QLineEdit#tuningInput {{
+    min-height: 30px;
+    padding: 0 10px;
+    color: {TEXT_PRIMARY};
+    background-color: {REPORT_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 6px;
+    selection-background-color: {ACCENT};
+}}
+
+QLineEdit#tuningInput:hover {{
+    border-color: {ACCENT_BORDER};
+}}
+
+QLineEdit#tuningInput:focus {{
+    border: 1px solid {ACCENT_LIGHT};
+}}
+
+QPushButton#tunePrimaryButton {{
+    min-height: 30px;
+    padding: 0 18px;
+    color: {TEXT_STRONG};
+    background-color: {ACCENT};
+    border: 1px solid {ACCENT_BORDER};
+    border-radius: 6px;
+    font-weight: 700;
+}}
+
+QPushButton#tunePrimaryButton:hover {{
+    background-color: {ACCENT_HOVER};
+}}
+
+QPushButton#tunePrimaryButton:pressed {{
+    background-color: {ACCENT_PRESSED};
+}}
+
+QPushButton#autoTuneButton {{
+    min-height: 30px;
+    padding: 0 16px;
+    color: {TEXT_PRIMARY};
+    background-color: {CARD_SURFACE};
+    border: 1px solid {BORDER};
+    border-radius: 6px;
+    font-weight: 600;
+}}
+
+QPushButton#autoTuneButton:hover {{
+    color: {TEXT_STRONG};
+    background-color: {TABLE_HEADER_SURFACE};
+    border-color: {ACCENT_BORDER};
+}}
+
+QPushButton#tunePrimaryButton:disabled,
+QPushButton#autoTuneButton:disabled {{
+    color: {TEXT_SUBTLE};
+    background-color: {REPORT_SURFACE};
+    border-color: {BORDER};
+}}
+"""
+
+
+# ==================================================
 # SURVEY REPORT POPUP
 # ==================================================
 

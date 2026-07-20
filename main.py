@@ -80,6 +80,9 @@ from UI.survey_panel import create_survey_panel
 from UI.survey_history_panel import (
     create_survey_history_panel
 )
+from UI.tuning_panel import (
+    create_tuning_panel
+)
 from UI.theme import (
     RIGHT_INFO_PANEL_MARGINS,
     RIGHT_INFO_PANEL_SPACING,
@@ -198,16 +201,12 @@ frequency_display = QLabel(
     "100.0 MHz"
 )
 
-frequency_display.setAlignment(
-    Qt.AlignmentFlag.AlignCenter
-)
-
-frequency_display.setStyleSheet(
-    """
-    font-size: 28px;
-    font-weight: bold;
-    color: white;
-    """
+tuning_panel = create_tuning_panel(
+    frequency_display,
+    freq_label,
+    freq_input,
+    tune_button,
+    auto_tune_button
 )
 
 (
@@ -387,36 +386,14 @@ main_layout.addWidget(
 # ==================================================
 center_layout = QVBoxLayout()
 
-tune_layout = QHBoxLayout()
-
-tune_layout.addStretch()
-
-tune_layout.addWidget(
-    freq_label
+center_layout.setSpacing(
+    10
 )
-
-tune_layout.addWidget(
-    freq_input
-)
-
-tune_layout.addWidget(
-    tune_button
-)
-
-tune_layout.addWidget(
-    auto_tune_button
-)
-
-tune_layout.addStretch()
 
 win = pg.GraphicsLayoutWidget()
 
 center_layout.addWidget(
-    frequency_display
-)
-
-center_layout.addLayout(
-    tune_layout
+    tuning_panel
 )
 
 center_layout.addWidget(
