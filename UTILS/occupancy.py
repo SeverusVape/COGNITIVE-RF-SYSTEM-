@@ -6,13 +6,25 @@ def calculate_occupancy(
     threshold
 ):
 
+    if len(power_db) == 0:
+        raise ValueError(
+            "Cannot calculate occupancy from empty FFT data."
+        )
+
     occupied_bins = np.sum(
         power_db > threshold
     )
 
-    occupancy = (
-        occupied_bins / len(power_db)
-    ) * 100
+    occupancy = float(
+        np.clip(
+            (
+                occupied_bins
+                / len(power_db)
+            ) * 100,
+            0,
+            100
+        )
+    )
 
     bars = int(
         occupancy / 10
