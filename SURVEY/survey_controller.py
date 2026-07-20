@@ -601,29 +601,32 @@ class SurveyController:
             autoLevels=False
         )
 
-        self.heatmap_img.setRect(
-            QRectF(
-                min(survey.survey_frequencies),
-                0,
-                max(survey.survey_frequencies)
-                -
-                min(survey.survey_frequencies),
-                len(survey.heatmap_history)
-            )
-        )
-
         self.heatmap_img.setLevels(
             (
                 0, 100
             )
         )
 
+        frequency_step = (
+            survey.survey_frequencies[1]
+            - survey.survey_frequencies[0]
+        )
+
+        left_edge = (
+            survey.survey_frequencies[0]
+            - frequency_step / 2
+        )
+
+        heatmap_width = (
+            frequency_step
+            * len(survey.survey_frequencies)
+        )
+
         self.heatmap_img.setRect(
             QRectF(
-                survey.survey_frequencies[0],
+                left_edge,
                 0,
-                survey.survey_frequencies[-1]
-                - survey.survey_frequencies[0],
+                heatmap_width,
                 len(survey.heatmap_history)
             )
         )

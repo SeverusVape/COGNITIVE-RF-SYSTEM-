@@ -434,7 +434,9 @@ def add_current_survey_point():
 # ==================================================
 # FREQUENCY TUNING FUNCTION
 # ==================================================
-def tune_frequency():
+def tune_frequency(
+        show_status=True
+):
 
     global freqs
     global freqs_mhz
@@ -469,11 +471,12 @@ def tune_frequency():
         tune_error_active = True
         current_measurement = None
 
-        status_label.setText(
-            "SYSTEM STATUS\n\n"
-            "TUNING\n\n"
-            f"Requested {freq_mhz:.1f} MHz."
-        )
+        if show_status:
+            status_label.setText(
+                "SYSTEM STATUS\n\n"
+                "TUNING\n\n"
+                f"Requested {freq_mhz:.1f} MHz."
+            )
 
         if not sdr_worker.request_tune(new_freq):
             handle_tune_failure(
@@ -687,7 +690,9 @@ survey_controller = SurveyController(
     heatmap_img,
     heatmap_plot,
     recommended_line,
-    tune_frequency,
+    lambda: tune_frequency(
+        show_status=False
+    ),
     lambda: current_measurement,
     feature_store
 )
@@ -732,7 +737,7 @@ sdr_worker.start()
 # BUTTON CONNECTIONS
 # ==================================================
 tune_button.clicked.connect(
-    tune_frequency
+    lambda: tune_frequency()
 )
 
 survey_button.clicked.connect(
