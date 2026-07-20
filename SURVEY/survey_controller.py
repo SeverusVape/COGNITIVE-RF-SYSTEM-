@@ -306,14 +306,39 @@ class SurveyController:
             step_mhz
         )
 
-        if (
+        settings_changed = (
                 self.last_survey_settings is not None
                 and
                 current_survey_settings
                 !=
                 self.last_survey_settings
-        ):
+        )
+
+        self.latest_survey_results_text = ""
+
+        if self.survey_popup is not None:
+            self.survey_popup.close()
+            self.survey_popup = None
+
+        self.recommended_line.setData(
+            [],
+            []
+        )
+
+        self.recommended_text.hide()
+        self.recommended_arrow.hide()
+
+        survey.best_frequency = None
+        survey.best_occupancy = 0
+
+        if settings_changed:
             survey.heatmap_history.clear()
+            self.heatmap_img.clear()
+
+            self.top_frequencies_label.setText(
+                "PERSISTENT FREQUENCIES\n\n"
+                "No survey data"
+            )
 
         self.last_survey_settings = (
             current_survey_settings
