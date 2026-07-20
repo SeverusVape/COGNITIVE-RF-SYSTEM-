@@ -161,9 +161,23 @@ def build_results_text(
         "score_details"
     )
 
+    runner_up_frequency = recommendation.get(
+        "runner_up_frequency"
+    )
+
+    runner_up_score = recommendation.get(
+        "runner_up_score"
+    )
+
+    score_margin = recommendation.get(
+        "score_margin"
+    )
+
     recommended_reason = recommendation[
         "reason"
     ]
+
+    max_possible_score = 111
 
     results_text = (
         "========== SURVEY COMPLETE ==========\n\n"
@@ -184,15 +198,26 @@ def build_results_text(
     )
 
     if recommended_score is not None:
-
-        max_possible_score = 111
-
         results_text += (
 
             "\n"
             "Overall Score:\n"
             f"{recommended_score:.1f} / {max_possible_score}\n\n"
 
+        )
+
+    if (
+            runner_up_frequency is not None
+            and runner_up_score is not None
+            and score_margin is not None
+    ):
+        results_text += (
+            "Runner-Up:\n"
+            f"{runner_up_frequency:.3f} MHz\n"
+            f"Score: {runner_up_score:.1f} "
+            f"/ {max_possible_score}\n\n"
+            "Decision Margin:\n"
+            f"{score_margin:.1f} points\n\n"
         )
 
     if score_details:
