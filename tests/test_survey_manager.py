@@ -118,6 +118,46 @@ class SurveyManagerTests(unittest.TestCase):
             results_html
         )
 
+    def test_results_html_applies_shared_theme(
+            self
+    ):
+        results_html = build_results_html(
+            sorted_results=[
+                (100.0, 10.0),
+                (101.0, 20.0)
+            ],
+            points_scanned=2,
+            average_occupancy=15.0,
+            recommendation={
+                "title": "SMART RECOMMENDATION",
+                "frequency": 100.0,
+                "occupancy": 10.0,
+                "score": 70.0,
+                "reason": [
+                    "Highest overall score"
+                ],
+                "runner_up_frequency": 101.0,
+                "runner_up_score": 65.0,
+                "score_margin": 5.0,
+                "decision_confidence": "MODERATE"
+            }
+        )
+
+        self.assertNotIn(
+            "{{",
+            results_html
+        )
+
+        self.assertIn(
+            'bgcolor="#1d2329"',
+            results_html
+        )
+
+        self.assertIn(
+            "#fbbf24",
+            results_html
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -8,6 +8,16 @@ from PyQt6.QtWidgets import (
 )
 
 from PyQt6.QtCore import Qt
+
+from UI.theme import (
+    SURVEY_POPUP_MARGINS,
+    SURVEY_POPUP_MINIMUM_SIZE,
+    SURVEY_POPUP_SIZE,
+    SURVEY_POPUP_SPACING,
+    SURVEY_POPUP_STYLESHEET
+)
+
+
 class SurveyPopup(QWidget):
 
     def __init__(
@@ -22,61 +32,15 @@ class SurveyPopup(QWidget):
         )
 
         self.resize(
-            720,
-            760
+            *SURVEY_POPUP_SIZE
         )
 
         self.setMinimumSize(
-            560,
-            520
+            *SURVEY_POPUP_MINIMUM_SIZE
         )
 
         self.setStyleSheet(
-            """
-            QWidget {
-                background-color: #202124;
-                color: #e8eaed;
-            }
-
-            QLabel#reportTitle {
-                color: #ffffff;
-                font-size: 22px;
-                font-weight: 700;
-            }
-
-            QLabel#reportSubtitle {
-                color: #9aa0a6;
-                font-size: 12px;
-            }
-
-            QTextEdit {
-                background-color: #111315;
-                color: #e8eaed;
-                border: 1px solid #3c4043;
-                border-radius: 8px;
-                padding: 16px;
-                selection-background-color: #1769aa;
-            }
-
-            QPushButton {
-                min-width: 96px;
-                min-height: 32px;
-                padding: 4px 16px;
-                color: #ffffff;
-                background-color: #1769aa;
-                border: 1px solid #2b7bbb;
-                border-radius: 6px;
-                font-weight: 600;
-            }
-
-            QPushButton:hover {
-                background-color: #1f7fc5;
-            }
-
-            QPushButton:pressed {
-                background-color: #135887;
-            }
-            """
+            SURVEY_POPUP_STYLESHEET
         )
 
         layout = QVBoxLayout(
@@ -84,14 +48,11 @@ class SurveyPopup(QWidget):
         )
 
         layout.setContentsMargins(
-            20,
-            18,
-            20,
-            18
+            *SURVEY_POPUP_MARGINS
         )
 
         layout.setSpacing(
-            12
+            SURVEY_POPUP_SPACING
         )
 
         title = QLabel(

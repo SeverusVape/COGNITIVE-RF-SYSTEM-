@@ -1,5 +1,9 @@
 from html import escape
 
+from UI.theme import (
+    apply_report_html_theme,
+    confidence_color
+)
 from UTILS.config import SMART_MAX_SCORE
 
 
@@ -187,14 +191,8 @@ def build_results_html(
         "reason"
     ]
 
-    confidence_color = {
-        "HIGH": "#4ade80",
-        "MODERATE": "#fbbf24",
-        "LOW": "#fb7185",
-        "N/A": "#9aa0a6"
-    }.get(
-        decision_confidence,
-        "#9aa0a6"
+    confidence_text_color = confidence_color(
+        decision_confidence
     )
 
     frequency_text = (
@@ -211,11 +209,11 @@ def build_results_html(
 
     report = [
         """
-        <div style="color:#e8eaed; font-size:13px;">
+        <div style="color:{{TEXT_PRIMARY}}; font-size:13px;">
         <table width="100%" cellspacing="8" cellpadding="14">
           <tr>
-            <td bgcolor="#1d2329">
-              <span style="color:#9aa0a6; font-size:10px;">
+            <td bgcolor="{{CARD_SURFACE}}">
+              <span style="color:{{TEXT_MUTED}}; font-size:10px;">
                 POINTS SCANNED
               </span><br>
               <span style="font-size:22px; font-weight:600;">
@@ -224,8 +222,8 @@ def build_results_html(
         """
               </span>
             </td>
-            <td bgcolor="#1d2329">
-              <span style="color:#9aa0a6; font-size:10px;">
+            <td bgcolor="{{CARD_SURFACE}}">
+              <span style="color:{{TEXT_MUTED}}; font-size:10px;">
                 AVERAGE OCCUPANCY
               </span><br>
               <span style="font-size:22px; font-weight:600;">
@@ -237,21 +235,21 @@ def build_results_html(
           </tr>
         </table>
 
-        <h2 style="color:#ffffff; margin-top:18px;">
+        <h2 style="color:{{TEXT_STRONG}}; margin-top:18px;">
           Recommendation
         </h2>
 
         <table width="100%" cellspacing="0" cellpadding="16">
           <tr>
-            <td bgcolor="#132631">
-              <span style="color:#7dd3fc; font-size:11px;">
+            <td bgcolor="{{RECOMMENDATION_SURFACE}}">
+              <span style="color:{{ACCENT_LIGHT}}; font-size:11px;">
         """,
         escape(
             recommendation_title.upper()
         ),
         """
               </span><br><br>
-              <span style="color:#ffffff; font-size:28px;
+              <span style="color:{{TEXT_STRONG}}; font-size:28px;
                            font-weight:700;">
         """,
         frequency_text,
@@ -263,8 +261,8 @@ def build_results_html(
 
         <table width="100%" cellspacing="8" cellpadding="10">
           <tr>
-            <td bgcolor="#1d2329">
-              <span style="color:#9aa0a6;">Occupancy</span><br>
+            <td bgcolor="{{CARD_SURFACE}}">
+              <span style="color:{{TEXT_MUTED}};">Occupancy</span><br>
               <b>
         """,
         occupancy_text,
@@ -277,8 +275,8 @@ def build_results_html(
     if recommended_score is not None:
         report.extend([
             """
-            <td bgcolor="#1d2329">
-              <span style="color:#9aa0a6;">Overall Score</span><br>
+            <td bgcolor="{{CARD_SURFACE}}">
+              <span style="color:{{TEXT_MUTED}};">Overall Score</span><br>
               <b>
             """,
             f"{recommended_score:.1f} / {SMART_MAX_SCORE}",
@@ -302,11 +300,11 @@ def build_results_html(
     ):
         report.extend([
             """
-            <h3 style="color:#ffffff; margin-top:16px;">
+            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
               Decision Comparison
             </h3>
             <table width="100%" cellspacing="0" cellpadding="8">
-              <tr bgcolor="#252a30">
+              <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
                 <td><b>Candidate</b></td>
                 <td><b>Frequency</b></td>
                 <td align="right"><b>Score</b></td>
@@ -324,7 +322,7 @@ def build_results_html(
             """
                 </td>
               </tr>
-              <tr bgcolor="#181b1f">
+              <tr bgcolor="{{TABLE_ALTERNATE_SURFACE}}">
                 <td>Runner-up</td>
                 <td>
             """,
@@ -341,21 +339,21 @@ def build_results_html(
 
             <table width="100%" cellspacing="8" cellpadding="10">
               <tr>
-                <td bgcolor="#1d2329">
-                  <span style="color:#9aa0a6;">Decision Margin</span><br>
+                <td bgcolor="{{CARD_SURFACE}}">
+                  <span style="color:{{TEXT_MUTED}};">Decision Margin</span><br>
                   <b>
             """,
             f"{score_margin:.1f} points",
             """
                   </b>
                 </td>
-                <td bgcolor="#1d2329">
-                  <span style="color:#9aa0a6;">
+                <td bgcolor="{{CARD_SURFACE}}">
+                  <span style="color:{{TEXT_MUTED}};">
                     Confidence (score separation)
                   </span><br>
                   <span style="font-weight:700; color:
             """,
-            confidence_color,
+            confidence_text_color,
             ';">',
             escape(
                 decision_confidence
@@ -365,7 +363,7 @@ def build_results_html(
                 </td>
               </tr>
             </table>
-            <p style="color:#7f8a93; font-size:10px;">
+            <p style="color:{{TEXT_SUBTLE}}; font-size:10px;">
               Confidence reflects winner/runner-up score separation,
               not statistical certainty.
             </p>
@@ -398,11 +396,11 @@ def build_results_html(
 
         report.append(
             """
-            <h3 style="color:#ffffff; margin-top:16px;">
+            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
               Score Breakdown
             </h3>
             <table width="100%" cellspacing="0" cellpadding="7">
-              <tr bgcolor="#252a30">
+              <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
                 <td><b>Component</b></td>
                 <td align="right"><b>Score</b></td>
               </tr>
@@ -414,9 +412,9 @@ def build_results_html(
                 value
         ) in enumerate(score_rows):
             row_color = (
-                "#181b1f"
+                "{{TABLE_ALTERNATE_SURFACE}}"
                 if index % 2
-                else "#111315"
+                else "{{REPORT_SURFACE}}"
             )
 
             report.extend([
@@ -430,13 +428,13 @@ def build_results_html(
         report.extend([
             """
             </table>
-            <p style="color:#9aa0a6;">
-              Max power: <b style="color:#e8eaed;">
+            <p style="color:{{TEXT_MUTED}};">
+              Max power: <b style="color:{{TEXT_PRIMARY}};">
             """,
             f"{score_details['max_power']:.1f} dB",
             """
               </b>&nbsp;&nbsp;&nbsp; Average power:
-              <b style="color:#e8eaed;">
+              <b style="color:{{TEXT_PRIMARY}};">
             """,
             f"{score_details['average_power']:.1f} dB",
             "</b></p>"
@@ -445,7 +443,7 @@ def build_results_html(
     if recommended_reason:
         report.append(
             """
-            <h3 style="color:#ffffff; margin-top:16px;">
+            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
               Decision Rationale
             </h3>
             <ul style="margin-top:4px;">
@@ -463,11 +461,11 @@ def build_results_html(
 
     report.append(
         """
-        <h3 style="color:#ffffff; margin-top:16px;">
+        <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
           Measured Occupancy
         </h3>
         <table width="100%" cellspacing="0" cellpadding="7">
-          <tr bgcolor="#252a30">
+          <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
             <td><b>Rank</b></td>
             <td><b>Frequency</b></td>
             <td align="right"><b>Occupancy</b></td>
@@ -483,9 +481,9 @@ def build_results_html(
         start=1
     ):
         row_color = (
-            "#181b1f"
+            "{{TABLE_ALTERNATE_SURFACE}}"
             if rank % 2 == 0
-            else "#111315"
+            else "{{REPORT_SURFACE}}"
         )
 
         report.extend([
@@ -503,7 +501,9 @@ def build_results_html(
         """
     )
 
-    return "".join(report)
+    return apply_report_html_theme(
+        "".join(report)
+    )
 
 # ==================================================
 # STATUS TEXT
