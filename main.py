@@ -44,6 +44,7 @@ from SIGNALS.signal_classifier import (
 from SIGNALS.signal_history import (
     update_signal_history,
     increment_history_update_count,
+    prune_stale_history,
     reset_cycle_tracking
 )
 from SIGNALS.feature_extractor import FeatureStore
@@ -582,6 +583,10 @@ def process_samples(samples):
 
     feature_store.prune_stale(
         FEATURE_MAX_AGE_SECONDS
+    )
+
+    prune_stale_history(
+        SIGNAL_HISTORY_MAX_AGE_SECONDS
     )
 
     reset_cycle_tracking()
