@@ -1,5 +1,12 @@
+import math
+from numbers import Real
+
 from SIGNALS.frequency_band import (
     classify_frequency_band
+)
+from UTILS.config import (
+    SIGNAL_STRENGTH_MEDIUM_PROMINENCE_DB,
+    SIGNAL_STRENGTH_STRONG_PROMINENCE_DB
 )
 
 
@@ -58,3 +65,53 @@ def classify_strength(
 
     else:
         return "W"
+
+
+def calculate_peak_prominence_db(
+        peak_power_db,
+        noise_floor_db
+):
+    for name, value in (
+            ("Peak power", peak_power_db),
+            ("Noise floor", noise_floor_db)
+    ):
+        if (
+                isinstance(value, bool)
+                or not isinstance(
+                    value,
+                    Real
+                )
+                or not math.isfinite(value)
+        ):
+            raise ValueError(
+                f"{name} must be a finite number."
+            )
+
+    return float(
+        peak_power_db
+        - noise_floor_db
+    )
+
+
+def classify_relative_strength(
+        peak_power_db,
+        noise_floor_db
+):
+    prominence_db = calculate_peak_prominence_db(
+        peak_power_db,
+        noise_floor_db
+    )
+
+    if (
+            prominence_db
+            >= SIGNAL_STRENGTH_STRONG_PROMINENCE_DB
+    ):
+        return "S"
+
+    if (
+            prominence_db
+            >= SIGNAL_STRENGTH_MEDIUM_PROMINENCE_DB
+    ):
+        return "M"
+
+    return "W"

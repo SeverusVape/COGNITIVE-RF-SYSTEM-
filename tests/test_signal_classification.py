@@ -1,8 +1,12 @@
 import unittest
 
+import numpy as np
+
 from SIGNALS.signal_classifier import (
+    calculate_peak_prominence_db,
     classify_signal,
     classify_persistence,
+    classify_relative_strength,
     classify_strength
 )
 from SIGNALS.frequency_band import (
@@ -34,6 +38,89 @@ class SignalClassificationTests(unittest.TestCase):
             classify_strength(60.1),
             "S"
         )
+
+    def test_relative_strength_boundaries(self):
+        self.assertEqual(
+            classify_relative_strength(
+                24.9,
+                10.0
+            ),
+            "W"
+        )
+        self.assertEqual(
+            classify_relative_strength(
+                25.0,
+                10.0
+            ),
+            "M"
+        )
+        self.assertEqual(
+            classify_relative_strength(
+                34.9,
+                10.0
+            ),
+            "M"
+        )
+        self.assertEqual(
+            classify_relative_strength(
+                35.0,
+                10.0
+            ),
+            "S"
+        )
+
+    def test_relative_strength_ignores_absolute_power_offset(self):
+        self.assertEqual(
+            classify_relative_strength(
+                40.0,
+                20.0
+            ),
+            "M"
+        )
+        self.assertEqual(
+            classify_relative_strength(
+                70.0,
+                50.0
+            ),
+            "M"
+        )
+
+    def test_peak_prominence_can_be_negative(self):
+        self.assertEqual(
+            calculate_peak_prominence_db(
+                20.0,
+                25.0
+            ),
+            -5.0
+        )
+
+    def test_relative_strength_accepts_numpy_scalars(self):
+        self.assertEqual(
+            classify_relative_strength(
+                np.float64(45.0),
+                np.float64(20.0)
+            ),
+            "S"
+        )
+
+    def test_relative_strength_rejects_invalid_values(self):
+        for peak_power, noise_floor in (
+                (float("nan"), 10.0),
+                (20.0, float("inf")),
+                ("20", 10.0),
+                (True, 10.0)
+        ):
+            with self.subTest(
+                    peak_power=peak_power,
+                    noise_floor=noise_floor
+            ):
+                with self.assertRaises(
+                        ValueError
+                ):
+                    classify_relative_strength(
+                        peak_power,
+                        noise_floor
+                    )
 
     def test_persistence_boundaries(self):
         expected = {
