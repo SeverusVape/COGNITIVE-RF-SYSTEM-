@@ -2,6 +2,7 @@ import unittest
 
 from SURVEY.survey_manager import (
     build_progress_bar,
+    build_results_text,
     generate_frequencies,
     rank_frequencies
 )
@@ -71,6 +72,38 @@ class SurveyManagerTests(unittest.TestCase):
                     bar.count("▮"),
                     filled
                 )
+
+    def test_results_text_labels_decision_confidence(
+            self
+    ):
+        results_text = build_results_text(
+            sorted_results=[
+                (100.0, 10.0),
+                (101.0, 20.0)
+            ],
+            points_scanned=2,
+            average_occupancy=15.0,
+            recommendation={
+                "title": "SMART RECOMMENDATION",
+                "frequency": 100.0,
+                "occupancy": 10.0,
+                "score": 70.0,
+                "reason": [
+                    "Highest overall score"
+                ],
+                "runner_up_frequency": 101.0,
+                "runner_up_score": 65.0,
+                "score_margin": 5.0,
+                "decision_confidence": "MODERATE"
+            }
+        )
+
+        self.assertIn(
+            "Decision Confidence "
+            "(score separation):\n"
+            "MODERATE",
+            results_text
+        )
 
 
 if __name__ == "__main__":

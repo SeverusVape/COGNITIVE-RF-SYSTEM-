@@ -176,6 +176,11 @@ def build_results_text(
         "score_margin"
     )
 
+    decision_confidence = recommendation.get(
+        "decision_confidence",
+        "N/A"
+    )
+
     recommended_reason = recommendation[
         "reason"
     ]
@@ -219,6 +224,13 @@ def build_results_text(
             f"/ {SMART_MAX_SCORE}\n\n"
             "Decision Margin:\n"
             f"{score_margin:.1f} points\n\n"
+        )
+
+    if recommended_score is not None:
+        results_text += (
+            "Decision Confidence "
+            "(score separation):\n"
+            f"{decision_confidence}\n\n"
         )
 
     if score_details:

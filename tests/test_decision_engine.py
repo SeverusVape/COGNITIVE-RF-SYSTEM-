@@ -268,6 +268,11 @@ class SmartDecisionTests(unittest.TestCase):
             5.0
         )
 
+        self.assertEqual(
+            decision["decision_confidence"],
+            "MODERATE"
+        )
+
     def test_tie_breaking_ignores_insertion_order(self):
         first_order = OrderedDict([
             (
@@ -317,6 +322,11 @@ class SmartDecisionTests(unittest.TestCase):
 
         self.assertIsNone(
             decision["score_margin"]
+        )
+
+        self.assertEqual(
+            decision["decision_confidence"],
+            "N/A"
         )
 
 

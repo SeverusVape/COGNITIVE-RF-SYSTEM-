@@ -87,7 +87,8 @@ def build_recommendation(
         score_details=None,
         runner_up_frequency=None,
         runner_up_score=None,
-        score_margin=None
+        score_margin=None,
+        decision_confidence="N/A"
 ):
 
     return {
@@ -101,7 +102,8 @@ def build_recommendation(
         "score_details": score_details,
         "runner_up_frequency": runner_up_frequency,
         "runner_up_score": runner_up_score,
-        "score_margin": score_margin
+        "score_margin": score_margin,
+        "decision_confidence": decision_confidence
 
     }
 # ==================================================
@@ -456,6 +458,12 @@ def smart_recommendation(
         best_frequency
     ]
 
+    decision_confidence = (
+        classify_decision_confidence(
+            score_margin
+        )
+    )
+
     return build_recommendation(
 
         frequency=best_frequency,
@@ -501,7 +509,9 @@ def smart_recommendation(
                 score_margin,
                 1
             )
-        )
+        ),
+
+        decision_confidence=decision_confidence
 
     )
 # ==================================================
