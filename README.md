@@ -17,7 +17,7 @@ hardware-tested with an RTL-SDR Blog V3 dongle on macOS.
 - Explainable SMART recommendation scoring
 - Runner-up, decision margin, and score-separation confidence
 - Professional Phase 1 user interface
-- 74 automated tests passing
+- 78 automated tests passing
 
 The application is receive-only. It does not transmit or control external RF
 equipment.
@@ -320,6 +320,7 @@ main.py
 |
 +-- SIGNALS/
 |   +-- peak_confirmation.py Temporal confirmation
+|   +-- frequency_band.py    Frequency-allocation context
 |   +-- signal_classifier.py Strength, persistence, and band context
 |   +-- feature_extractor.py Feature snapshots and freshness
 |   +-- signal_history.py    Observation history and stale pruning
@@ -381,7 +382,7 @@ python -m unittest discover -s tests -v
 Current verified result:
 
 ```text
-Ran 74 tests
+Ran 78 tests
 OK
 ```
 
@@ -494,4 +495,3 @@ tests and live hardware checks after every bounded change.
 Use the receiver in accordance with local laws and regulations. This project is
 intended for spectrum observation and engineering education. Do not use it to
 interfere with radio services or to disclose protected communications.
-
