@@ -327,9 +327,18 @@ def smart_recommendation(
 
     ranked_frequencies = sorted(
         frequency_scores,
-        key=lambda frequency: frequency_scores[
-            frequency
-        ]["score"],
+        key=lambda frequency: (
+            frequency_scores[
+                frequency
+            ]["score"],
+            -survey_metrics[
+                frequency
+            ]["occupancy"],
+            survey_metrics[
+                frequency
+            ]["max_power"],
+            -frequency
+        ),
         reverse=True
     )
 
