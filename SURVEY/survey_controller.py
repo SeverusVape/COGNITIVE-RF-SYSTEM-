@@ -16,6 +16,7 @@ from SURVEY.survey_manager import (
 )
 
 from SURVEY.decision_engine import (
+    find_nearest_feature,
     make_decision,
 )
 
@@ -476,6 +477,30 @@ class SurveyController:
                 100
             )
         )
+
+        feature = find_nearest_feature(
+            frequency,
+            self.feature_store,
+            max_age_seconds=2.0
+        )
+
+        if feature is None:
+            normalized_measurement[
+                "feature_snapshot"
+            ] = None
+        else:
+            normalized_measurement[
+                "feature_snapshot"
+            ] = {
+                "frequency": float(
+                    feature.frequency
+                ),
+                "persistence": feature.persistence,
+                "age_seconds": float(
+                    feature.age_seconds
+                ),
+                "strength": feature.strength
+            }
 
         current_occupancy = normalized_measurement[
             "occupancy"
