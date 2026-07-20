@@ -1,3 +1,5 @@
+from html import escape
+
 from UTILS.config import SMART_MAX_SCORE
 
 
@@ -137,7 +139,7 @@ def rank_frequencies(
 # RESULTS TEXT
 # ==================================================
 
-def build_results_text(
+def build_results_html(
 
         sorted_results,
         points_scanned,
@@ -185,101 +187,323 @@ def build_results_text(
         "reason"
     ]
 
-    results_text = (
-        "========== SURVEY COMPLETE ==========\n\n"
-
-        f"Points Scanned:\n"
-        f"{points_scanned}\n\n"
-
-        f"Average Occupancy:\n"
-        f"{average_occupancy:.1f}%\n\n"
-
-        "\n"
-        "========== RECOMMENDED ==========\n\n"
-        f"({recommendation_title})\n\n"
-        f"Frequency:\n"
-        f"{recommended_frequency:.3f} MHz\n\n"
-        f"Occupancy:\n"
-        f"{recommended_occupancy:.1f}%\n"
+    confidence_color = {
+        "HIGH": "#4ade80",
+        "MODERATE": "#fbbf24",
+        "LOW": "#fb7185",
+        "N/A": "#9aa0a6"
+    }.get(
+        decision_confidence,
+        "#9aa0a6"
     )
 
+    frequency_text = (
+        "N/A"
+        if recommended_frequency is None
+        else f"{recommended_frequency:.3f} MHz"
+    )
+
+    occupancy_text = (
+        "N/A"
+        if recommended_occupancy is None
+        else f"{recommended_occupancy:.1f}%"
+    )
+
+    report = [
+        """
+        <div style="color:#e8eaed; font-size:13px;">
+        <table width="100%" cellspacing="8" cellpadding="14">
+          <tr>
+            <td bgcolor="#1d2329">
+              <span style="color:#9aa0a6; font-size:10px;">
+                POINTS SCANNED
+              </span><br>
+              <span style="font-size:22px; font-weight:600;">
+        """,
+        str(points_scanned),
+        """
+              </span>
+            </td>
+            <td bgcolor="#1d2329">
+              <span style="color:#9aa0a6; font-size:10px;">
+                AVERAGE OCCUPANCY
+              </span><br>
+              <span style="font-size:22px; font-weight:600;">
+        """,
+        f"{average_occupancy:.1f}%",
+        """
+              </span>
+            </td>
+          </tr>
+        </table>
+
+        <h2 style="color:#ffffff; margin-top:18px;">
+          Recommendation
+        </h2>
+
+        <table width="100%" cellspacing="0" cellpadding="16">
+          <tr>
+            <td bgcolor="#132631">
+              <span style="color:#7dd3fc; font-size:11px;">
+        """,
+        escape(
+            recommendation_title.upper()
+        ),
+        """
+              </span><br><br>
+              <span style="color:#ffffff; font-size:28px;
+                           font-weight:700;">
+        """,
+        frequency_text,
+        """
+              </span>
+            </td>
+          </tr>
+        </table>
+
+        <table width="100%" cellspacing="8" cellpadding="10">
+          <tr>
+            <td bgcolor="#1d2329">
+              <span style="color:#9aa0a6;">Occupancy</span><br>
+              <b>
+        """,
+        occupancy_text,
+        """
+              </b>
+            </td>
+        """
+    ]
+
     if recommended_score is not None:
-        results_text += (
+        report.extend([
+            """
+            <td bgcolor="#1d2329">
+              <span style="color:#9aa0a6;">Overall Score</span><br>
+              <b>
+            """,
+            f"{recommended_score:.1f} / {SMART_MAX_SCORE}",
+            """
+              </b>
+            </td>
+            """
+        ])
 
-            "\n"
-            "Overall Score:\n"
-            f"{recommended_score:.1f} / {SMART_MAX_SCORE}\n\n"
-
-        )
+    report.append(
+        """
+          </tr>
+        </table>
+        """
+    )
 
     if (
             runner_up_frequency is not None
             and runner_up_score is not None
             and score_margin is not None
     ):
-        results_text += (
-            "Runner-Up:\n"
-            f"{runner_up_frequency:.3f} MHz\n"
-            f"Score: {runner_up_score:.1f} "
-            f"/ {SMART_MAX_SCORE}\n\n"
-            "Decision Margin:\n"
-            f"{score_margin:.1f} points\n\n"
-        )
+        report.extend([
+            """
+            <h3 style="color:#ffffff; margin-top:16px;">
+              Decision Comparison
+            </h3>
+            <table width="100%" cellspacing="0" cellpadding="8">
+              <tr bgcolor="#252a30">
+                <td><b>Candidate</b></td>
+                <td><b>Frequency</b></td>
+                <td align="right"><b>Score</b></td>
+              </tr>
+              <tr>
+                <td>Recommended</td>
+                <td>
+            """,
+            frequency_text,
+            """
+                </td>
+                <td align="right">
+            """,
+            f"{recommended_score:.1f} / {SMART_MAX_SCORE}",
+            """
+                </td>
+              </tr>
+              <tr bgcolor="#181b1f">
+                <td>Runner-up</td>
+                <td>
+            """,
+            f"{runner_up_frequency:.3f} MHz",
+            """
+                </td>
+                <td align="right">
+            """,
+            f"{runner_up_score:.1f} / {SMART_MAX_SCORE}",
+            """
+                </td>
+              </tr>
+            </table>
 
-    if recommended_score is not None:
-        results_text += (
-            "Decision Confidence "
-            "(score separation):\n"
-            f"{decision_confidence}\n\n"
-        )
+            <table width="100%" cellspacing="8" cellpadding="10">
+              <tr>
+                <td bgcolor="#1d2329">
+                  <span style="color:#9aa0a6;">Decision Margin</span><br>
+                  <b>
+            """,
+            f"{score_margin:.1f} points",
+            """
+                  </b>
+                </td>
+                <td bgcolor="#1d2329">
+                  <span style="color:#9aa0a6;">
+                    Confidence (score separation)
+                  </span><br>
+                  <span style="font-weight:700; color:
+            """,
+            confidence_color,
+            ';">',
+            escape(
+                decision_confidence
+            ),
+            """
+                  </span>
+                </td>
+              </tr>
+            </table>
+            <p style="color:#7f8a93; font-size:10px;">
+              Confidence reflects winner/runner-up score separation,
+              not statistical certainty.
+            </p>
+            """
+        ])
 
     if score_details:
-        results_text += (
-            "Score Breakdown:\n"
-            f"Occupancy Score:   "
-            f"{score_details['occupancy_score']:.1f}\n"
-            f"Power Score:       "
-            f"{score_details['power_score']:.1f}\n"
-            f"Persistence Score: "
-            f"{score_details['persistence_score']:.1f}\n"
-            f"Age Score:         "
-            f"{score_details['age_score']:.1f}\n"
-            f"Strength Score:    "
-            f"{score_details['strength_score']:.1f}\n"
-            f"Max Power:         "
-            f"{score_details['max_power']:.1f} dB\n"
-            f"Average Power:     "
-            f"{score_details['average_power']:.1f} dB\n\n"
+        score_rows = (
+            (
+                "Occupancy",
+                score_details["occupancy_score"]
+            ),
+            (
+                "Power",
+                score_details["power_score"]
+            ),
+            (
+                "Persistence",
+                score_details["persistence_score"]
+            ),
+            (
+                "Age",
+                score_details["age_score"]
+            ),
+            (
+                "Strength",
+                score_details["strength_score"]
+            )
         )
 
+        report.append(
+            """
+            <h3 style="color:#ffffff; margin-top:16px;">
+              Score Breakdown
+            </h3>
+            <table width="100%" cellspacing="0" cellpadding="7">
+              <tr bgcolor="#252a30">
+                <td><b>Component</b></td>
+                <td align="right"><b>Score</b></td>
+              </tr>
+            """
+        )
+
+        for index, (
+                label,
+                value
+        ) in enumerate(score_rows):
+            row_color = (
+                "#181b1f"
+                if index % 2
+                else "#111315"
+            )
+
+            report.extend([
+                f'<tr bgcolor="{row_color}"><td>',
+                escape(label),
+                '</td><td align="right">',
+                f"{value:.1f}",
+                "</td></tr>"
+            ])
+
+        report.extend([
+            """
+            </table>
+            <p style="color:#9aa0a6;">
+              Max power: <b style="color:#e8eaed;">
+            """,
+            f"{score_details['max_power']:.1f} dB",
+            """
+              </b>&nbsp;&nbsp;&nbsp; Average power:
+              <b style="color:#e8eaed;">
+            """,
+            f"{score_details['average_power']:.1f} dB",
+            "</b></p>"
+        ])
+
     if recommended_reason:
-
-        results_text += (
-            "\n"
-            "Decision Reason:\n"
-
+        report.append(
+            """
+            <h3 style="color:#ffffff; margin-top:16px;">
+              Decision Rationale
+            </h3>
+            <ul style="margin-top:4px;">
+            """
         )
 
         for reason in recommended_reason:
-            results_text += (
+            report.extend([
+                '<li style="margin-bottom:4px;">',
+                escape(reason),
+                "</li>"
+            ])
 
-                f"✓ {reason}\n"
+        report.append("</ul>")
 
-            )
-
-    results_text += (
-        "\n"
-        "Measured Occupancy\n\n"
+    report.append(
+        """
+        <h3 style="color:#ffffff; margin-top:16px;">
+          Measured Occupancy
+        </h3>
+        <table width="100%" cellspacing="0" cellpadding="7">
+          <tr bgcolor="#252a30">
+            <td><b>Rank</b></td>
+            <td><b>Frequency</b></td>
+            <td align="right"><b>Occupancy</b></td>
+          </tr>
+        """
     )
 
-    for freq, occupancy in sorted_results[:5]:
-        results_text += (
-            f"{freq:.3f} MHz"
-            f" -> "
-            f"{occupancy:.1f}%\n"
+    for rank, (
+            frequency,
+            occupancy
+    ) in enumerate(
+        sorted_results[:5],
+        start=1
+    ):
+        row_color = (
+            "#181b1f"
+            if rank % 2 == 0
+            else "#111315"
         )
 
-    return results_text
+        report.extend([
+            f'<tr bgcolor="{row_color}">',
+            f"<td>{rank}</td>",
+            f"<td>{frequency:.3f} MHz</td>",
+            f'<td align="right">{occupancy:.1f}%</td>',
+            "</tr>"
+        ])
+
+    report.append(
+        """
+        </table>
+        </div>
+        """
+    )
+
+    return "".join(report)
 
 # ==================================================
 # STATUS TEXT

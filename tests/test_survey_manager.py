@@ -2,7 +2,7 @@ import unittest
 
 from SURVEY.survey_manager import (
     build_progress_bar,
-    build_results_text,
+    build_results_html,
     generate_frequencies,
     rank_frequencies
 )
@@ -76,7 +76,7 @@ class SurveyManagerTests(unittest.TestCase):
     def test_results_text_labels_decision_confidence(
             self
     ):
-        results_text = build_results_text(
+        results_html = build_results_html(
             sorted_results=[
                 (100.0, 10.0),
                 (101.0, 20.0)
@@ -99,10 +99,23 @@ class SurveyManagerTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "Decision Confidence "
-            "(score separation):\n"
+            "Confidence (score separation)",
+            results_html
+        )
+
+        self.assertIn(
             "MODERATE",
-            results_text
+            results_html
+        )
+
+        self.assertIn(
+            "<table",
+            results_html
+        )
+
+        self.assertNotIn(
+            "==========",
+            results_html
         )
 
 

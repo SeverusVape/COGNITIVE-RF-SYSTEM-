@@ -12,7 +12,7 @@ from SURVEY.survey_manager import (
     generate_frequencies,
     rank_frequencies,
     build_status_text,
-    build_results_text
+    build_results_html
 )
 
 from SURVEY.decision_engine import (
@@ -58,7 +58,7 @@ class SurveyController:
         self.get_occupancy_callback = get_occupancy_callback
 
         self.survey_popup = None
-        self.latest_survey_results_text = ""
+        self.latest_survey_results_html = ""
         self.last_survey_settings = None
         self.occupancy_percent = 0
         self.shutting_down = False
@@ -106,14 +106,14 @@ class SurveyController:
         self.survey_timer.stop()
 
     def show_results_popup(self):
-        if self.latest_survey_results_text == "":
+        if self.latest_survey_results_html == "":
             return
 
         if self.survey_popup is not None:
             self.survey_popup.close()
 
         self.survey_popup = SurveyPopup(
-            self.latest_survey_results_text
+            self.latest_survey_results_html
         )
 
         self.survey_popup.show()
@@ -323,7 +323,7 @@ class SurveyController:
                 self.last_survey_settings
         )
 
-        self.latest_survey_results_text = ""
+        self.latest_survey_results_html = ""
 
         if self.survey_popup is not None:
             self.survey_popup.close()
@@ -587,15 +587,15 @@ class SurveyController:
             survey.survey_results
         )
 
-        results_text = build_results_text(
+        results_html = build_results_html(
             sorted_results,
             points_scanned,
             average_occupancy,
             recommendation
         )
 
-        self.latest_survey_results_text = (
-            results_text
+        self.latest_survey_results_html = (
+            results_html
         )
 
         self.auto_tune_best()
@@ -731,7 +731,7 @@ class SurveyController:
         survey.best_frequency = None
         survey.best_occupancy = 0
 
-        self.latest_survey_results_text = ""
+        self.latest_survey_results_html = ""
         self.last_survey_settings = None
 
         if self.survey_popup is not None:
