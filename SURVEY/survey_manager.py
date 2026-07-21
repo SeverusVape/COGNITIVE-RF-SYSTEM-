@@ -790,10 +790,10 @@ def build_results_html(
                 ]
             else:
                 observation_count = 0
-                evidence = "No peak snapshot"
-                frequency_behavior = "N/A"
-                bandwidth_behavior = "N/A"
-                activity_pattern = "N/A"
+                evidence = "No recent signal evidence"
+                frequency_behavior = "Collecting data"
+                bandwidth_behavior = "Collecting data"
+                activity_pattern = "Collecting data"
 
             row_color = (
                 "{{TABLE_ALTERNATE_SURFACE}}"

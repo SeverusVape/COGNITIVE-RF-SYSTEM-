@@ -345,7 +345,11 @@ class SurveyManagerTests(unittest.TestCase):
             results_html
         )
         self.assertIn(
-            "No peak snapshot",
+            "No recent signal evidence",
+            results_html
+        )
+        self.assertIn(
+            "Collecting data",
             results_html
         )
         self.assertIn(
