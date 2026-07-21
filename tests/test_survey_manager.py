@@ -178,7 +178,7 @@ class SurveyManagerTests(unittest.TestCase):
                 ]
             },
             diagnostic_snapshot={
-                "bandwidth_stability": 0.8,
+                "bandwidth_stability": 0.67,
                 "bandwidth_observations": 3,
                 "frequency_stability": 0.9,
                 "frequency_observations": 3,
@@ -191,12 +191,32 @@ class SurveyManagerTests(unittest.TestCase):
             "Signal Diagnostics",
             results_html
         )
-        self.assertIn("80.0%", results_html)
+        self.assertIn("67.0%", results_html)
         self.assertIn("90.0%", results_html)
         self.assertIn("2.5 kHz", results_html)
         self.assertIn("60.0%", results_html)
         self.assertIn(
             "Provisional (3 observations)",
+            results_html
+        )
+        self.assertIn(
+            "Observed Signal Behavior",
+            results_html
+        )
+        self.assertIn(
+            "Stable",
+            results_html
+        )
+        self.assertIn(
+            "Moderately stable",
+            results_html
+        )
+        self.assertIn(
+            "Intermittent",
+            results_html
+        )
+        self.assertIn(
+            "do not identify modulation or service",
             results_html
         )
         self.assertIn(

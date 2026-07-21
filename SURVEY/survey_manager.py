@@ -9,6 +9,9 @@ from UI.survey_panel import (
     show_empty_survey
 )
 from UTILS.config import SMART_MAX_SCORE
+from SIGNALS.behavior_profile import (
+    build_behavior_profile
+)
 
 
 # ==================================================
@@ -442,6 +445,9 @@ def build_results_html(
         ])
 
     if diagnostic_snapshot:
+        behavior_profile = build_behavior_profile(
+            diagnostic_snapshot
+        )
         bandwidth_stability = diagnostic_snapshot.get(
             "bandwidth_stability"
         )
@@ -564,6 +570,68 @@ def build_results_html(
             </p>
             """
         )
+
+        if behavior_profile:
+            behavior_rows = (
+                (
+                    "Frequency behavior",
+                    behavior_profile[
+                        "frequency_behavior"
+                    ]
+                ),
+                (
+                    "Bandwidth behavior",
+                    behavior_profile[
+                        "bandwidth_behavior"
+                    ]
+                ),
+                (
+                    "Activity pattern",
+                    behavior_profile[
+                        "activity_pattern"
+                    ]
+                )
+            )
+
+            report.append(
+                """
+                <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
+                  Observed Signal Behavior
+                </h3>
+                <table width="100%" cellspacing="0" cellpadding="7">
+                  <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
+                    <td><b>Characteristic</b></td>
+                    <td align="right"><b>Descriptor</b></td>
+                  </tr>
+                """
+            )
+
+            for index, (label, value) in enumerate(
+                    behavior_rows
+            ):
+                row_color = (
+                    "{{TABLE_ALTERNATE_SURFACE}}"
+                    if index % 2
+                    else "{{REPORT_SURFACE}}"
+                )
+
+                report.extend([
+                    f'<tr bgcolor="{row_color}"><td>',
+                    escape(label),
+                    '</td><td align="right">',
+                    escape(value),
+                    "</td></tr>"
+                ])
+
+            report.append(
+                """
+                </table>
+                <p style="color:{{TEXT_SUBTLE}}; font-size:10px;">
+                  Behavior descriptors summarize measured stability and
+                  activity only. They do not identify modulation or service.
+                </p>
+                """
+            )
 
     if recommended_reason:
         report.append(
