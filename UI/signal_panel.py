@@ -121,14 +121,7 @@ def update_signal_panel(
 
     seen_this_update = set()
 
-    for row, peak in enumerate(peaks):
-        freq, power, bandwidth_khz = peak[:3]
-        prominence_db = (
-            peak[3]
-            if len(peak) >= 4
-            else None
-        )
-
+    for row, (freq, power, bandwidth_khz) in enumerate(peaks):
         table.setItem(
             row,
             0,
@@ -153,8 +146,7 @@ def update_signal_panel(
             classify_signal(
                 power,
                 freq,
-                history_count,
-                prominence_db=prominence_db
+                history_count
             )
         )
 

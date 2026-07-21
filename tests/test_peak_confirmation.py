@@ -8,19 +8,13 @@ from SIGNALS.peak_confirmation import (
 def peak(
         frequency,
         power=50.0,
-        bandwidth=25.0,
-        prominence=None
+        bandwidth=25.0
 ):
-    values = (
+    return (
         frequency,
         power,
         bandwidth
     )
-
-    if prominence is not None:
-        values += (prominence,)
-
-    return values
 
 
 class PeakConfirmationTests(unittest.TestCase):
@@ -56,22 +50,6 @@ class PeakConfirmationTests(unittest.TestCase):
                 peak(101.0)
             ]),
             []
-        )
-
-    def test_prominence_is_preserved_after_confirmation(self):
-        confirmer = PeakConfirmer()
-
-        confirmer.update([
-            peak(100.0, prominence=18.0)
-        ])
-
-        self.assertEqual(
-            confirmer.update([
-                peak(100.0, prominence=21.0)
-            ]),
-            [
-                peak(100.0, prominence=21.0)
-            ]
         )
 
     def test_two_hits_can_span_one_missed_frame(self):

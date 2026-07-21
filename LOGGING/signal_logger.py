@@ -14,8 +14,7 @@ def log_signals(peaks):
 
     current_signals = set()
 
-    for peak in peaks:
-        freq, power = peak[:2]
+    for freq, power, bandwidth_khz in peaks:
 
         signal_id = round(freq * 2) / 2
 

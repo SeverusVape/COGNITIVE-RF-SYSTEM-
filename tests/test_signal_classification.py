@@ -1,18 +1,8 @@
 import unittest
 
-import numpy as np
-
 from SIGNALS.signal_classifier import (
-    calculate_peak_prominence_db,
-    classify_prominence_strength,
     classify_signal,
-    classify_persistence,
-    classify_relative_strength,
     classify_strength
-)
-from SIGNALS.frequency_band import (
-    classify_frequency_band,
-    get_frequency_band_context
 )
 from SIGNALS.signal_type_classifier import (
     classify_signal_type
@@ -40,118 +30,6 @@ class SignalClassificationTests(unittest.TestCase):
             "S"
         )
 
-    def test_relative_strength_boundaries(self):
-        self.assertEqual(
-            classify_relative_strength(
-                24.9,
-                10.0
-            ),
-            "W"
-        )
-        self.assertEqual(
-            classify_relative_strength(
-                25.0,
-                10.0
-            ),
-            "M"
-        )
-        self.assertEqual(
-            classify_relative_strength(
-                34.9,
-                10.0
-            ),
-            "M"
-        )
-        self.assertEqual(
-            classify_relative_strength(
-                35.0,
-                10.0
-            ),
-            "S"
-        )
-
-    def test_relative_strength_ignores_absolute_power_offset(self):
-        self.assertEqual(
-            classify_relative_strength(
-                40.0,
-                20.0
-            ),
-            "M"
-        )
-
-    def test_signal_classifier_uses_supplied_prominence(self):
-        self.assertEqual(
-            classify_signal(
-                70.0,
-                100.0,
-                prominence_db=12.0
-            )[1],
-            "W"
-        )
-        self.assertEqual(
-            classify_signal(
-                30.0,
-                100.0,
-                prominence_db=26.0
-            )[1],
-            "S"
-        )
-
-    def test_prominence_strength_rejects_invalid_values(self):
-        for value in (
-                float("nan"),
-                float("inf"),
-                "20",
-                True
-        ):
-            with self.subTest(value=value):
-                with self.assertRaises(ValueError):
-                    classify_prominence_strength(value)
-        self.assertEqual(
-            classify_relative_strength(
-                70.0,
-                50.0
-            ),
-            "M"
-        )
-
-    def test_peak_prominence_can_be_negative(self):
-        self.assertEqual(
-            calculate_peak_prominence_db(
-                20.0,
-                25.0
-            ),
-            -5.0
-        )
-
-    def test_relative_strength_accepts_numpy_scalars(self):
-        self.assertEqual(
-            classify_relative_strength(
-                np.float64(45.0),
-                np.float64(20.0)
-            ),
-            "S"
-        )
-
-    def test_relative_strength_rejects_invalid_values(self):
-        for peak_power, noise_floor in (
-                (float("nan"), 10.0),
-                (20.0, float("inf")),
-                ("20", 10.0),
-                (True, 10.0)
-        ):
-            with self.subTest(
-                    peak_power=peak_power,
-                    noise_floor=noise_floor
-            ):
-                with self.assertRaises(
-                        ValueError
-                ):
-                    classify_relative_strength(
-                        peak_power,
-                        noise_floor
-                    )
-
     def test_persistence_boundaries(self):
         expected = {
             1: "N",
@@ -163,9 +41,11 @@ class SignalClassificationTests(unittest.TestCase):
         for count, persistence in expected.items():
             with self.subTest(count=count):
                 self.assertEqual(
-                    classify_persistence(
+                    classify_signal(
+                        50,
+                        100.0,
                         count
-                    ),
+                    )[2],
                     persistence
                 )
 
@@ -174,12 +54,11 @@ class SignalClassificationTests(unittest.TestCase):
             100.0: "BC",
             120.0: "AIRBND",
             145.0: "2m",
-            146.5: "2m",
+            146.5: "2m-RPT",
             162.5: "NOAA",
             430.0: "70cm",
-            445.0: "70cm",
-            465.0: "GMRS",
-            468.0: "GMRS"
+            445.0: "70cm-RPT",
+            465.0: "GMRS"
         }
 
         for frequency, band in expected.items():
@@ -187,80 +66,12 @@ class SignalClassificationTests(unittest.TestCase):
                     frequency=frequency
             ):
                 self.assertEqual(
-                    classify_frequency_band(
+                    classify_signal(
+                        50,
                         frequency
-                    ),
+                    )[0],
                     band
                 )
-
-    def test_band_context_is_independent_of_strength(self):
-        weak_band = classify_signal(
-            30,
-            100.0
-        )[0]
-
-        strong_band = classify_signal(
-            70,
-            100.0
-        )[0]
-
-        self.assertEqual(
-            weak_band,
-            "BC"
-        )
-        self.assertEqual(
-            strong_band,
-            "BC"
-        )
-
-    def test_specific_noaa_context_precedes_weather_band(self):
-        self.assertEqual(
-            classify_frequency_band(162.5),
-            "NOAA"
-        )
-        self.assertEqual(
-            classify_frequency_band(162.2),
-            "WX"
-        )
-
-    def test_invalid_or_unmapped_frequency_is_unknown(self):
-        for frequency in (
-                None,
-                "invalid",
-                float("nan"),
-                200.0
-        ):
-            with self.subTest(
-                    frequency=frequency
-            ):
-                self.assertEqual(
-                    classify_frequency_band(
-                        frequency
-                    ),
-                    "Unknown"
-                )
-
-    def test_context_exposes_code_name_and_limits(self):
-        context = get_frequency_band_context(
-            120.0
-        )
-
-        self.assertEqual(
-            context.code,
-            "AIRBND"
-        )
-        self.assertEqual(
-            context.name,
-            "Airband"
-        )
-        self.assertEqual(
-            context.start_mhz,
-            118.0
-        )
-        self.assertEqual(
-            context.stop_mhz,
-            137.0
-        )
 
     def test_feature_signal_type_uses_frequency_band(self):
         sample = SignalFeatures(

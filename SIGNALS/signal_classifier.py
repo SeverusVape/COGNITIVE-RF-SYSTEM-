@@ -1,15 +1,3 @@
-import math
-from numbers import Real
-
-from SIGNALS.frequency_band import (
-    classify_frequency_band
-)
-from UTILS.config import (
-    SIGNAL_STRENGTH_MEDIUM_PROMINENCE_DB,
-    SIGNAL_STRENGTH_STRONG_PROMINENCE_DB
-)
-
-
 # ==================================================
 # SIGNAL CLASSIFIER
 # ==================================================
@@ -17,47 +5,68 @@ from UTILS.config import (
 def classify_signal(
         power,
         frequency=None,
-        history_count=1,
-        prominence_db=None
+        history_count=1
 ):
-    if prominence_db is None:
-        strength = classify_strength(
-            power
-        )
+    strength = classify_strength(
+        power
+    )
+
+    if history_count >= 20:
+        persistence = "L" # LONG TERM
+
+    elif history_count >= 10:
+        persistence = "P" # Persistent
+
+    elif history_count >= 5:
+        persistence = "A" # Active
+
     else:
-        strength = classify_prominence_strength(
-            prominence_db
-        )
+        persistence = "N"
 
-    persistence = classify_persistence(
-        history_count
-    )
+    band = None
 
-    band = classify_frequency_band(
-        frequency
-    )
+    if frequency is not None:
+
+        if 88 <= frequency <= 108:
+
+            if power > 60:
+                band = "BC-STR" # strong broadcast signal
+
+            else:
+                band = "BC" # broadcast signal
+
+        elif 118 <= frequency <= 137:
+            band = "AIRBND"
+
+        elif 144 <= frequency <= 148:
+            if frequency >= 146:
+                band = "2m-RPT"
+            else:
+                band = "2m"
+
+        elif 162.4 <= frequency <= 162.6:
+            band = "NOAA" # likely NOAA weather channel
+
+        elif 162 <= frequency <= 163:
+            band = "WX" # weather-band area but not exact NOAA frequency
+
+        elif 420 <= frequency <= 450:
+            if frequency >= 440:
+                band = "70cm-RPT" # likely repeater activity
+            else:
+                band = "70cm" # general 70cm activity
+
+        elif 462 <= frequency <= 468:
+            band = "GMRS"
+
+    if band is None:
+        band = "Unknown"
 
     return (
         band,
         strength,
         persistence
     )
-
-
-def classify_persistence(
-        history_count
-):
-    if history_count >= 20:
-        return "L"
-
-    if history_count >= 10:
-        return "P"
-
-    if history_count >= 5:
-        return "A"
-
-    return "N"
-
 
 def classify_strength(
         power
@@ -71,73 +80,3 @@ def classify_strength(
 
     else:
         return "W"
-
-
-def calculate_peak_prominence_db(
-        peak_power_db,
-        noise_floor_db
-):
-    for name, value in (
-            ("Peak power", peak_power_db),
-            ("Noise floor", noise_floor_db)
-    ):
-        if (
-                isinstance(value, bool)
-                or not isinstance(
-                    value,
-                    Real
-                )
-                or not math.isfinite(value)
-        ):
-            raise ValueError(
-                f"{name} must be a finite number."
-            )
-
-    return float(
-        peak_power_db
-        - noise_floor_db
-    )
-
-
-def classify_relative_strength(
-        peak_power_db,
-        noise_floor_db
-):
-    prominence_db = calculate_peak_prominence_db(
-        peak_power_db,
-        noise_floor_db
-    )
-
-    return classify_prominence_strength(
-        prominence_db
-    )
-
-
-def classify_prominence_strength(
-        prominence_db
-):
-    if (
-            isinstance(prominence_db, bool)
-            or not isinstance(
-                prominence_db,
-                Real
-            )
-            or not math.isfinite(prominence_db)
-    ):
-        raise ValueError(
-            "Peak prominence must be a finite number."
-        )
-
-    if (
-            prominence_db
-            >= SIGNAL_STRENGTH_STRONG_PROMINENCE_DB
-    ):
-        return "S"
-
-    if (
-            prominence_db
-            >= SIGNAL_STRENGTH_MEDIUM_PROMINENCE_DB
-    ):
-        return "M"
-
-    return "W"
