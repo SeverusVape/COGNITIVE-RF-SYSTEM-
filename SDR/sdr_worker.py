@@ -41,6 +41,13 @@ class SDRWorker(QThread):
 
         return True
 
+    def get_center_frequency(self):
+        if not self.isRunning():
+            return None
+
+        with self._tune_lock:
+            return self.center_freq
+
     def _take_pending_frequency(self):
         with self._tune_lock:
             frequency = self._pending_frequency
@@ -78,6 +85,9 @@ class SDRWorker(QThread):
                             "Unable to tune SDR."
                         )
                         return
+
+                    with self._tune_lock:
+                        self.center_freq = pending_frequency
 
                     self.tune_succeeded.emit(
                         pending_frequency

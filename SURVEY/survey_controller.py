@@ -1,6 +1,6 @@
 import numpy as np
 
-from PyQt6.QtCore import QRectF
+from PyQt6.QtCore import QTimer, QRectF
 from PyQt6.QtTest import QTest
 
 import SURVEY.survey_manager as survey
@@ -9,7 +9,6 @@ from SURVEY.survey_manager import (
     clear_survey,
     generate_frequencies,
     rank_frequencies,
-    build_status_text,
     build_results_html
 )
 
@@ -24,10 +23,14 @@ from UI.survey_history_panel import (
     update_survey_history
 )
 from UI.survey_panel import (
-    show_survey_complete,
+    SurveyStatusState,
     show_survey_notice,
-    show_survey_progress
+    show_survey_progress,
+    show_survey_status
 )
+
+
+SURVEY_STATUS_TIMEOUT_MS = 2500
 
 
 class SurveyController:
@@ -48,6 +51,7 @@ class SurveyController:
             recommended_line,
             tune_frequency_callback,
             get_occupancy_callback,
+            get_center_frequency_callback,
             feature_store,
     ):
         self.survey_timer = survey_timer
@@ -67,6 +71,9 @@ class SurveyController:
 
         self.tune_frequency_callback = tune_frequency_callback
         self.get_occupancy_callback = get_occupancy_callback
+        self.get_center_frequency_callback = (
+            get_center_frequency_callback
+        )
 
         self.survey_popup = None
         self.latest_survey_results_html = ""
@@ -77,6 +84,13 @@ class SurveyController:
         self.last_survey_settings = None
         self.occupancy_percent = 0
         self.shutting_down = False
+        self.pending_auto_tune_frequency = None
+        self.status_revision = 0
+
+        self.status_timer = QTimer()
+        self.status_timer.setSingleShot(
+            True
+        )
 
         self.feature_store = feature_store
 
@@ -92,6 +106,7 @@ class SurveyController:
     def begin_shutdown(self):
         self.shutting_down = True
         self.survey_timer.stop()
+        self._cancel_status_transition()
 
     def show_results_popup(self):
         if self.latest_survey_results_html == "":
@@ -107,26 +122,11 @@ class SurveyController:
         self.survey_popup.showMaximized()
 
     def auto_tune_best(self):
-
-        try:
-            current_frequency = float(
-                self.freq_input.text()
-            )
-        except ValueError:
-            show_survey_notice(
-                self.survey_label,
-                "Auto-tune error",
-                "Current frequency is not a valid number.",
-                tone="error"
-            )
-            return
+        self._cancel_status_transition()
 
         if len(survey.survey_results) == 0:
-            show_survey_notice(
-                self.survey_label,
-                "Auto-tune unavailable",
-                "Complete a survey before using Auto-tune Best.",
-                tone="warning"
+            self._show_temporary_status(
+                SurveyStatusState.AUTO_TUNE_UNAVAILABLE
             )
             return
 
@@ -155,13 +155,15 @@ class SurveyController:
         ]
 
         if recommended_frequency is None:
-            show_survey_notice(
-                self.survey_label,
-                "Auto-tune unavailable",
-                "No valid recommended frequency is available.",
-                tone="warning"
+            self._show_temporary_status(
+                SurveyStatusState.AUTO_TUNE_UNAVAILABLE,
+                message=(
+                    "No valid recommended frequency is available."
+                )
             )
             return
+
+        survey.best_frequency = recommended_frequency
 
         heatmap_height = max(
             1,
@@ -180,36 +182,230 @@ class SurveyController:
             padding=0
         )
 
-        if abs(
-                current_frequency
-                -
-                recommended_frequency
-        ) < 0.1:
-            show_survey_notice(
-                self.survey_label,
-                "Already at recommendation",
-                "Receiver center is already "
-                f"{recommended_frequency:.1f} MHz.",
-                tone="success"
+        confirmed_frequency_hz = (
+            self.get_center_frequency_callback()
+        )
+
+        if confirmed_frequency_hz is not None:
+            confirmed_frequency_mhz = (
+                confirmed_frequency_hz / 1e6
             )
 
-            return
+            if abs(
+                    confirmed_frequency_mhz
+                    - recommended_frequency
+            ) < 0.1:
+                self._show_temporary_status(
+                    SurveyStatusState.
+                    ALREADY_ON_RECOMMENDED_CHANNEL,
+                    current_frequency=(
+                        confirmed_frequency_mhz
+                    )
+                )
+                return
 
         self.freq_input.setText(
             str(recommended_frequency)
         )
 
-        show_survey_notice(
-            self.survey_label,
-            "Auto-tune requested",
-            "Tuning receiver to "
-            f"{recommended_frequency:.1f} MHz.",
-            tone="info"
+        self.pending_auto_tune_frequency = (
+            recommended_frequency
         )
 
         self.tune_frequency_callback()
 
+    def handle_tune_request(
+            self,
+            frequency_hz=None,
+            refresh_persistent=False
+    ):
+        self._cancel_status_transition()
+
+        if self.pending_auto_tune_frequency is None:
+            if refresh_persistent:
+                self._show_persistent_status()
+            return
+
+        if frequency_hz is None:
+            self.pending_auto_tune_frequency = None
+            if refresh_persistent:
+                self._show_persistent_status()
+            return
+
+        requested_frequency_mhz = frequency_hz / 1e6
+
+        if abs(
+                requested_frequency_mhz
+                - self.pending_auto_tune_frequency
+        ) >= 0.1:
+            self.pending_auto_tune_frequency = None
+
+        if refresh_persistent:
+            self._show_persistent_status()
+
+    def handle_tune_success(
+            self,
+            frequency_hz
+    ):
+        self._cancel_status_transition()
+
+        if self.survey_timer.isActive():
+            return
+
+        pending_frequency = (
+            self.pending_auto_tune_frequency
+        )
+
+        frequency_mhz = frequency_hz / 1e6
+
+        if pending_frequency is None:
+            self._show_persistent_status()
+            return
+
+        self.pending_auto_tune_frequency = None
+
+        if abs(
+                frequency_mhz
+                - pending_frequency
+        ) >= 0.1:
+            self._show_persistent_status()
+            return
+
+        self._show_temporary_status(
+            SurveyStatusState.AUTO_TUNE_COMPLETE,
+            current_frequency=frequency_mhz
+        )
+
+    def handle_auto_tune_failure(
+            self,
+            frequency_hz,
+            message
+    ):
+        self._cancel_status_transition()
+
+        pending_frequency = (
+            self.pending_auto_tune_frequency
+        )
+
+        if pending_frequency is None:
+            self._show_persistent_status()
+            return
+
+        self.pending_auto_tune_frequency = None
+
+        frequency_mhz = frequency_hz / 1e6
+
+        if abs(
+                frequency_mhz
+                - pending_frequency
+        ) >= 0.1:
+            self._show_persistent_status()
+            return
+
+        self._show_temporary_status(
+            SurveyStatusState.AUTO_TUNE_FAILED,
+            message=message
+        )
+
+    def handle_receiver_error(self):
+        self._cancel_status_transition()
+        self.pending_auto_tune_frequency = None
+        self._show_persistent_status()
+
+    def _show_persistent_status(self):
+        self._cancel_status_transition()
+
+        recommended_frequency = survey.best_frequency
+
+        if recommended_frequency is None:
+            show_survey_status(
+                self.survey_label,
+                SurveyStatusState.NO_SURVEY_DATA
+            )
+            return
+
+        confirmed_frequency_hz = (
+            self.get_center_frequency_callback()
+        )
+
+        if confirmed_frequency_hz is None:
+            show_survey_status(
+                self.survey_label,
+                SurveyStatusState.RECOMMENDATION_AVAILABLE,
+                recommended_frequency=recommended_frequency
+            )
+            return
+
+        confirmed_frequency_mhz = (
+            confirmed_frequency_hz / 1e6
+        )
+
+        if abs(
+                confirmed_frequency_mhz
+                - recommended_frequency
+        ) < 0.1:
+            state = (
+                SurveyStatusState.ON_RECOMMENDED_CHANNEL
+            )
+        else:
+            state = (
+                SurveyStatusState.OFF_RECOMMENDED_CHANNEL
+            )
+
+        show_survey_status(
+            self.survey_label,
+            state,
+            current_frequency=confirmed_frequency_mhz,
+            recommended_frequency=recommended_frequency
+        )
+
+    def _show_temporary_status(
+            self,
+            state,
+            **values
+    ):
+        self._cancel_status_transition()
+
+        show_survey_status(
+            self.survey_label,
+            state,
+            **values
+        )
+
+        revision = self.status_revision
+
+        self.status_timer.timeout.connect(
+            lambda: self._finish_temporary_status(
+                revision
+            )
+        )
+
+        self.status_timer.start(
+            SURVEY_STATUS_TIMEOUT_MS
+        )
+
+    def _finish_temporary_status(
+            self,
+            revision
+    ):
+        if revision != self.status_revision:
+            return
+
+        self._show_persistent_status()
+
+    def _cancel_status_transition(self):
+        self.status_timer.stop()
+        self.status_revision += 1
+
+        try:
+            self.status_timer.timeout.disconnect()
+        except TypeError:
+            pass
+
     def start_survey(self):
+
+        self._cancel_status_transition()
+        self.pending_auto_tune_frequency = None
 
         if self.shutting_down:
             return
@@ -369,15 +565,12 @@ class SurveyController:
             len(survey.survey_frequencies)
         )
 
-        survey_text = build_status_text(
+        show_survey_progress(
+            self.survey_label,
             frequency,
             survey.current_survey_index + 1,
             len(survey.survey_frequencies),
             progress_percent
-        )
-
-        self.survey_label.setHtml(
-            survey_text
         )
 
         self.freq_input.setText(
@@ -469,6 +662,7 @@ class SurveyController:
 
     def _handle_survey_completion(self):
         self.survey_timer.stop()
+        self._cancel_status_transition()
 
         if len(survey.survey_results) == 0:
             show_survey_notice(
@@ -524,6 +718,8 @@ class SurveyController:
             )
             return
 
+        survey.best_frequency = recommended_frequency
+
         self._update_heatmap_and_history()
 
         average_occupancy = round(
@@ -564,13 +760,9 @@ class SurveyController:
             True
         )
 
-        self.auto_tune_best()
+        self._show_persistent_status()
 
-        show_survey_complete(
-            self.survey_label,
-            recommended_frequency,
-            len(survey.survey_results)
-        )
+        self.auto_tune_best()
 
         return
 
@@ -662,6 +854,8 @@ class SurveyController:
 
     def clear_current_survey(self):
         self.survey_timer.stop()
+        self._cancel_status_transition()
+        self.pending_auto_tune_frequency = None
 
         survey.survey_frequencies = []
         survey.survey_results.clear()

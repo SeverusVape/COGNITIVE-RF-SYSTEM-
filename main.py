@@ -570,6 +570,9 @@ def tune_frequency(
                 or freq_mhz > MAX_CENTER_FREQ_MHZ
         ):
             tune_error_active = True
+            survey_controller.handle_tune_request(
+                refresh_persistent=show_status
+            )
 
             show_status_message(
                 status_label,
@@ -581,6 +584,11 @@ def tune_frequency(
             return
 
         new_freq = freq_mhz * 1e6
+
+        survey_controller.handle_tune_request(
+            new_freq,
+            refresh_persistent=show_status
+        )
 
         tune_error_active = True
         current_measurement = None
@@ -603,6 +611,9 @@ def tune_frequency(
 
     except ValueError:
         tune_error_active = True
+        survey_controller.handle_tune_request(
+            refresh_persistent=show_status
+        )
 
         show_status_message(
             status_label,
@@ -613,6 +624,9 @@ def tune_frequency(
 
     except Exception as error:
         tune_error_active = True
+        survey_controller.handle_tune_request(
+            refresh_persistent=show_status
+        )
 
         show_status_message(
             status_label,
@@ -665,6 +679,10 @@ def handle_tune_success(freq_hz):
 
     tune_error_active = False
 
+    survey_controller.handle_tune_success(
+        freq_hz
+    )
+
 
 def handle_tune_failure(
         freq_hz,
@@ -683,11 +701,17 @@ def handle_tune_failure(
         tone="error"
     )
 
+    survey_controller.handle_auto_tune_failure(
+        freq_hz,
+        message
+    )
+
 
 def handle_sdr_error(message):
     global current_measurement
 
     current_measurement = None
+    survey_controller.handle_receiver_error()
 
     show_status_message(
         status_label,
@@ -842,6 +866,7 @@ survey_controller = SurveyController(
         show_status=False
     ),
     get_survey_measurement,
+    lambda: sdr_worker.get_center_frequency(),
     feature_store
 )
 
