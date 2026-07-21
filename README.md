@@ -17,7 +17,7 @@ hardware-tested with an RTL-SDR Blog V3 dongle on macOS.
 - Explainable SMART recommendation scoring
 - Runner-up, decision margin, and score-separation confidence
 - Professional Phase 1 user interface
-- 83 automated tests passing
+- 88 automated tests passing
 
 The application is receive-only. It does not transmit or control external RF
 equipment.
@@ -37,6 +37,7 @@ equipment.
 
 - Local percentile-based noise-floor estimation
 - Per-bin adaptive detection threshold
+- Signal strength based on peak prominence above the local noise floor
 - Peak spacing expressed in physical frequency units
 - Bandwidth derived from FFT-bin spacing
 - Temporal confirmation to reject single-frame spikes
@@ -366,6 +367,8 @@ Important defaults in [`UTILS/config.py`](UTILS/config.py):
 | Minimum survey frames | 3 |
 | Peak-confirmation requirement | 2 hits in 3 frames |
 | Peak-confirmation tolerance | 25 kHz |
+| Medium signal prominence | 15 dB above local noise floor |
+| Strong signal prominence | 25 dB above local noise floor |
 
 Change one parameter at a time and rerun the complete test suite before
 accepting a new configuration baseline.
@@ -382,7 +385,7 @@ python -m unittest discover -s tests -v
 Current verified result:
 
 ```text
-Ran 83 tests
+Ran 88 tests
 OK
 ```
 
@@ -478,10 +481,11 @@ data-retention and rotation policy.
 ## Planned engineering sequence
 
 1. Preserve this README and the current application as the documentation
-   baseline.
-2. Upgrade signal classification by separating band context from measured
-   signal characteristics.
-3. Replace absolute strength thresholds with power above the local noise floor.
+   baseline. (Complete)
+2. Separate frequency-band context from measured signal characteristics.
+   (Complete)
+3. Classify signal strength by prominence above the local noise floor.
+   (Complete)
 4. Add time-based persistence, bandwidth stability, frequency drift, and duty
    cycle features.
 5. Validate detection and classification across additional RF bands.

@@ -60,21 +60,15 @@ class PeakConfirmer:
         validated = []
 
         for peak in peaks:
-            if len(peak) != 3:
+            if len(peak) not in (3, 4):
                 raise ValueError(
                     "Each peak must contain frequency, "
-                    "power, and bandwidth."
+                    "power, bandwidth, and optional prominence."
                 )
-
-            frequency, power, bandwidth = peak
 
             if not np.all(
                     np.isfinite(
-                        (
-                            frequency,
-                            power,
-                            bandwidth
-                        )
+                        peak
                     )
             ):
                 raise ValueError(
@@ -82,10 +76,9 @@ class PeakConfirmer:
                 )
 
             validated.append(
-                (
-                    float(frequency),
-                    float(power),
-                    float(bandwidth)
+                tuple(
+                    float(value)
+                    for value in peak
                 )
             )
 

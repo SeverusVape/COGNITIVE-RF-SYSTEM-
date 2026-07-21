@@ -4,6 +4,9 @@ from scipy.ndimage import percentile_filter
 from scipy.signal import find_peaks
 
 
+DETECTION_MARGIN_DB = 10.0
+
+
 def estimate_local_noise_floor(
         power_db,
         freqs_mhz,
@@ -115,7 +118,7 @@ def estimate_local_noise_floor(
 def build_local_detection_threshold(
         power_db,
         freqs_mhz,
-        margin_db=10.0,
+        margin_db=DETECTION_MARGIN_DB,
         window_khz=250.0,
         percentile=30.0
 ):
@@ -161,9 +164,14 @@ def detect_peaks(
         )
     )
 
-    threshold = build_local_detection_threshold(
+    noise_floor = estimate_local_noise_floor(
         power_db,
         freqs_mhz
+    )
+
+    threshold = (
+            noise_floor
+            + DETECTION_MARGIN_DB
     )
 
     peaks, properties = find_peaks(
@@ -216,11 +224,17 @@ def detect_peaks(
                 * bin_width_khz
         )
 
+        prominence_db = (
+                power
+                - noise_floor[peak]
+        )
+
         results.append(
             (
                 freq,
                 power,
-                bandwidth_khz
+                bandwidth_khz,
+                prominence_db
             )
         )
 

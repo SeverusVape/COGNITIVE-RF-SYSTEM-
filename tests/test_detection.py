@@ -140,6 +140,50 @@ class PeakDetectionTests(unittest.TestCase):
             places=6
         )
 
+    def test_peak_includes_local_prominence(self):
+        power_db, freqs_mhz = self._spectrum(
+            0.001,
+            (
+                (100.50, 30.0),
+            )
+        )
+
+        peaks, _ = detect_peaks(
+            power_db,
+            freqs_mhz
+        )
+
+        self.assertEqual(
+            len(peaks[0]),
+            4
+        )
+        self.assertAlmostEqual(
+            peaks[0][3],
+            30.0
+        )
+
+    def test_peak_prominence_ignores_absolute_power_offset(self):
+        power_db, freqs_mhz = self._spectrum(
+            0.001,
+            (
+                (100.50, 30.0),
+            )
+        )
+
+        original_peaks, _ = detect_peaks(
+            power_db,
+            freqs_mhz
+        )
+        shifted_peaks, _ = detect_peaks(
+            power_db + 40.0,
+            freqs_mhz
+        )
+
+        self.assertAlmostEqual(
+            shifted_peaks[0][3],
+            original_peaks[0][3]
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

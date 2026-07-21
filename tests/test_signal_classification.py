@@ -4,6 +4,7 @@ import numpy as np
 
 from SIGNALS.signal_classifier import (
     calculate_peak_prominence_db,
+    classify_prominence_strength,
     classify_signal,
     classify_persistence,
     classify_relative_strength,
@@ -77,6 +78,35 @@ class SignalClassificationTests(unittest.TestCase):
             ),
             "M"
         )
+
+    def test_signal_classifier_uses_supplied_prominence(self):
+        self.assertEqual(
+            classify_signal(
+                70.0,
+                100.0,
+                prominence_db=12.0
+            )[1],
+            "W"
+        )
+        self.assertEqual(
+            classify_signal(
+                30.0,
+                100.0,
+                prominence_db=26.0
+            )[1],
+            "S"
+        )
+
+    def test_prominence_strength_rejects_invalid_values(self):
+        for value in (
+                float("nan"),
+                float("inf"),
+                "20",
+                True
+        ):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    classify_prominence_strength(value)
         self.assertEqual(
             classify_relative_strength(
                 70.0,

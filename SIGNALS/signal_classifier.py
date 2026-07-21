@@ -17,11 +17,17 @@ from UTILS.config import (
 def classify_signal(
         power,
         frequency=None,
-        history_count=1
+        history_count=1,
+        prominence_db=None
 ):
-    strength = classify_strength(
-        power
-    )
+    if prominence_db is None:
+        strength = classify_strength(
+            power
+        )
+    else:
+        strength = classify_prominence_strength(
+            prominence_db
+        )
 
     persistence = classify_persistence(
         history_count
@@ -101,6 +107,26 @@ def classify_relative_strength(
         peak_power_db,
         noise_floor_db
     )
+
+    return classify_prominence_strength(
+        prominence_db
+    )
+
+
+def classify_prominence_strength(
+        prominence_db
+):
+    if (
+            isinstance(prominence_db, bool)
+            or not isinstance(
+                prominence_db,
+                Real
+            )
+            or not math.isfinite(prominence_db)
+    ):
+        raise ValueError(
+            "Peak prominence must be a finite number."
+        )
 
     if (
             prominence_db
