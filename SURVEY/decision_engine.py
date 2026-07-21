@@ -233,6 +233,52 @@ def find_nearest_feature(
 
     return nearest_feature
 
+
+def build_feature_snapshot(
+        survey_frequency,
+        feature_store,
+        max_distance_mhz=0.5,
+        max_age_seconds=None
+):
+    feature = find_nearest_feature(
+        survey_frequency,
+        feature_store,
+        max_distance_mhz=max_distance_mhz,
+        max_age_seconds=max_age_seconds
+    )
+
+    if feature is None:
+        return None
+
+    return {
+        "frequency": float(
+            feature.frequency
+        ),
+        "persistence": feature.persistence,
+        "age_seconds": float(
+            feature.age_seconds
+        ),
+        "strength": feature.strength,
+        "bandwidth_stability": (
+            feature.bandwidth_stability
+        ),
+        "bandwidth_observations": (
+            feature.bandwidth_observations
+        ),
+        "frequency_drift_khz": (
+            feature.frequency_drift_khz
+        ),
+        "frequency_stability": (
+            feature.frequency_stability
+        ),
+        "frequency_observations": (
+            feature.frequency_observations
+        ),
+        "duty_cycle_percent": float(
+            feature.duty_cycle_percent
+        )
+    }
+
 # ==================================================
 # SMART RECOMMENDATION
 # ==================================================

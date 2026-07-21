@@ -1,12 +1,18 @@
 import unittest
 
 from collections import OrderedDict
+from unittest.mock import patch
 
 from SURVEY.decision_engine import (
+    build_feature_snapshot,
     classify_decision_confidence,
     find_active_signal,
     find_free_channel,
     smart_recommendation
+)
+from SIGNALS.feature_extractor import (
+    FeatureStore,
+    SignalFeatures
 )
 from UTILS.config import SMART_MAX_SCORE
 
@@ -37,6 +43,24 @@ def make_smart_decision(
         survey_metrics,
         [],
         None
+    )
+
+
+def signal_feature(
+        frequency,
+        strength="M",
+        persistence="A"
+):
+    return SignalFeatures(
+        frequency=frequency,
+        peak_power=55.0,
+        average_power=25.0,
+        bandwidth_khz=20.0,
+        occupancy_percent=10.0,
+        age_seconds=4.0,
+        strength=strength,
+        persistence=persistence,
+        duty_cycle_percent=80.0
     )
 
 
@@ -121,6 +145,83 @@ class SmartDecisionTests(unittest.TestCase):
                 survey_results
             )["frequency"],
             101.0
+        )
+
+    def test_feature_snapshot_uses_fresh_nearby_feature(
+            self
+    ):
+        store = FeatureStore()
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=10.0
+        ):
+            for _ in range(3):
+                store.update(
+                    signal_feature(
+                        100.012,
+                        strength="S",
+                        persistence="P"
+                    )
+                )
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=10.5
+        ):
+            snapshot = build_feature_snapshot(
+                100.0,
+                store,
+                max_age_seconds=2.0
+            )
+
+        self.assertIsNotNone(
+            snapshot
+        )
+        self.assertEqual(
+            snapshot["strength"],
+            "S"
+        )
+        self.assertEqual(
+            snapshot["persistence"],
+            "P"
+        )
+        self.assertEqual(
+            snapshot["bandwidth_observations"],
+            3
+        )
+        self.assertEqual(
+            snapshot["frequency_observations"],
+            3
+        )
+
+    def test_feature_snapshot_ignores_stale_feature(
+            self
+    ):
+        store = FeatureStore()
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=10.0
+        ):
+            store.update(
+                signal_feature(
+                    100.0
+                )
+            )
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=13.0
+        ):
+            snapshot = build_feature_snapshot(
+                100.0,
+                store,
+                max_age_seconds=2.0
+            )
+
+        self.assertIsNone(
+            snapshot
         )
 
     def test_smart_mode_without_metrics_falls_back_to_free(
