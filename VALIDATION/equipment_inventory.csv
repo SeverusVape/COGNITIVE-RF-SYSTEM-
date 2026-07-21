@@ -1,10 +1,10 @@
 equipment_id,category,item,manufacturer_model,availability,validation_use,configuration_requirement,notes
-EQ-001,receiver,USB software-defined radio,RTL-SDR Blog V3,Available,All hardware validation,Record label and serial before first measurement,R820T tuner observed in application startup
+EQ-001,receiver,USB software-defined radio,RTL-SDR Blog V3 RTL2832U R860 1-PPM TCXO,Available,All hardware validation,Record serial if available before first measurement,SMA input with HF and bias-tee capability; validation remains receive-only
 EQ-002,computer,Host computer,Apple Silicon Mac,Available,Acquisition analysis and report generation,macOS 26.5.2 build 25F84 arm64,Project virtual environment uses Python 3.10.11
 EQ-003,software,RTL-SDR driver utilities,librtlsdr 2.0.2,Available,Device checks and optional independent captures,Do not run concurrently with application,rtl_test rtl_eeprom and rtl_power installed
-EQ-004,antenna,Receive antenna,UNCONFIRMED,Pending,Live RF frequency occupancy and survey tests,Record type orientation placement and connection,Must be confirmed before hardware data collection
-EQ-005,cable,RF cable and adapters,UNCONFIRMED,Pending,All antenna or controlled-source tests,Record connectors approximate length and adapters,Must be confirmed before hardware data collection
-EQ-006,attenuator,Known RF attenuation set,UNCONFIRMED,Pending,HV-AMP-01 relative-amplitude linearity,Record nominal values and tolerance,If unavailable omit linearity claim and run repeatability only
-EQ-007,termination,50-ohm input termination,UNCONFIRMED,Pending,HV-NF-01 terminated-input baseline,Record nominal impedance and frequency rating,If unavailable use antenna quiet-span comparison with limitation
-EQ-008,source,Controlled RF signal source,UNCONFIRMED,Pending,Frequency amplitude detector and occupancy hardware tests,Record source model output setting and reference basis,Receive-only legal operation required
-EQ-009,secondary_receiver,Independent receiver or frequency counter,UNCONFIRMED,Optional,Reference cross-check,Record model and accuracy if used,Not required for senior-project validation
+EQ-004,antenna,Two-element telescopic dipole antenna kit,RTL-SDR Blog supplied dipole base with approximately 100-cm elements,Available,Live RF frequency occupancy and survey tests,Record dipole angle element orientation mounting and placement for each configuration,Mount permits approximately 180 degrees of configuration freedom; use identical geometry throughout each comparison series
+EQ-005,cable,Supplied RF feedline and SMA connection,RTL-SDR Blog dipole-kit cable approximately 60 cm,Available,All antenna-connected tests,Keep routing and adapters unchanged within a comparison series,Approximate operator-reported length
+EQ-006,attenuator,Known RF attenuation set,None,Unavailable,HV-AMP-01 relative-amplitude linearity,Not applicable,Omit controlled linearity claim; run relative repeatability only
+EQ-007,termination,50-ohm input termination,None,Unavailable,HV-NF-01 terminated-input baseline,Not applicable,Use antenna-connected quiet and active spans and state the limitation
+EQ-008,source,Controlled RF signal source,None,Unavailable,Frequency amplitude detector and occupancy hardware tests,Not applicable,Use receive-only published signals and synthetic algorithm tests
+EQ-009,secondary_receiver,Independent receiver or frequency counter,None,Unavailable,Reference cross-check,Not applicable,Not required for senior-project validation

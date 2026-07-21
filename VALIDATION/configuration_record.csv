@@ -23,8 +23,8 @@ CFG-BASE,survey,settling_delay,500,ms,UTILS/config.py,Frozen,
 CFG-S01,synthetic,random_seed_policy,Base seed 3102026; trial seed = base seed + zero-based trial index,text,validation protocol,Frozen,Record the resolved trial seed in every output row
 CFG-S01,synthetic,noise_model,Circular complex Gaussian noise with E[abs(n)^2]=1 before optional SNR scaling,text,validation protocol,Frozen,Independent real and imaginary components each have variance 0.5; no filtering unless an experiment declares it
 CFG-S01,synthetic,snr_definition,10*log10(complex tone power / complex noise power) before windowing,text,validation protocol,Frozen,Tone power is abs(amplitude)^2 and expected complex noise power is 1 before scaling
-CFG-H01,hardware,receiver_model,RTL-SDR Blog V3,text,project hardware record,Available,Confirm label and record serial before first measurement
-CFG-H01,hardware,tuner,Rafael Micro R820T,text,receiver startup output,Available,Observed in prior application hardware runs
+CFG-H01,hardware,receiver_model,RTL-SDR Blog V3 RTL2832U with 1-PPM TCXO HF and bias tee,text,operator equipment confirmation,Recorded,Receive-only validation hardware; SMA input
+CFG-H01,hardware,tuner,Rafael Micro R860,text,receiver enclosure and operator confirmation,Recorded,librtlsdr may identify the compatible tuner family as R820T
 CFG-H01,hardware,receiver_serial,UNCONFIRMED,text,operator,Pending,USB identity was not available during configuration planning
 CFG-H01,hardware,host_os,macOS 26.5.2 build 25F84 arm64,text,environment,Recorded,Observed 2026-07-21
 CFG-H01,hardware,python_version,3.10.11,text,environment,Recorded,Project virtual environment
@@ -36,16 +36,16 @@ CFG-H01,software,pyqt6_version,6.11.0,text,Python environment,Recorded,
 CFG-H01,software,pyqtgraph_version,0.14.0,text,Python environment,Recorded,
 CFG-H01,hardware,gain_mode,auto,text,UTILS/config.py,Frozen baseline,Hardware amplitude experiments require a new fixed-gain configuration ID
 CFG-H01,hardware,gain,NA,dB,UTILS/config.py,Not applicable,Automatic gain has no single fixed dB value
-CFG-H01,hardware,antenna,UNCONFIRMED,text,operator,Pending,Record model type orientation and placement
-CFG-H01,hardware,cable,UNCONFIRMED,text,operator,Pending,Record type connectors and approximate length
-CFG-H01,hardware,attenuator_chain,UNCONFIRMED,dB,operator,Pending,Needed only for relative-amplitude linearity
-CFG-H01,hardware,input_termination,UNCONFIRMED,ohm,operator,Pending,Record 50-ohm device if available
-CFG-H01,hardware,signal_source,UNCONFIRMED,text,operator,Pending,Known carrier or controlled source
-CFG-H01,hardware,source_reference_basis,UNCONFIRMED,text,operator,Pending,Explain why expected frequency is credible
-CFG-H01,environment,location,UNCONFIRMED,text,operator,Pending,General indoor/outdoor and room description only; no personal address
+CFG-H01,hardware,antenna,RTL-SDR Blog two-element telescopic dipole; approximately 100 cm per element,text,operator equipment confirmation,Recorded,Mount supports approximately 180 degrees of configuration freedom; freeze and record orientation for each comparison series
+CFG-H01,hardware,cable,Supplied dipole-kit coaxial feedline and SMA connection; approximately 60 cm,text,operator equipment confirmation,Recorded,Keep routing unchanged within each comparison series
+CFG-H01,hardware,attenuator_chain,Unavailable,dB,operator equipment confirmation,Recorded,HV-AMP-01 controlled linearity claim is omitted
+CFG-H01,hardware,input_termination,Unavailable,ohm,operator equipment confirmation,Recorded,HV-NF-01 will use antenna-connected quiet and active spans
+CFG-H01,hardware,signal_source,Unavailable,text,operator equipment confirmation,Recorded,No controlled RF transmission or ON/OFF experiment
+CFG-H01,hardware,source_reference_basis,Published receive-only signal assignments plus synthetic references,text,validation protocol,Conditional,Exact live carriers must be selected and documented before frequency-accuracy testing
+CFG-H01,environment,location,Indoor fourth-floor residential room in Bay Ridge Brooklyn NY near the Verrazzano-Narrows Bridge,text,operator equipment confirmation,Recorded,Antenna may be placed near a window approximately 1.0-1.5 m above floor; exact placement must be frozen per comparison series
 CFG-H01,environment,receiver_warmup,15,minutes,validation protocol,Frozen,Except cold-start drift experiment HV-FREQ-02
 CFG-H01,environment,session_start,NOT_STARTED,ISO8601,operator,Pending,Enter immediately before first measurement with UTC offset
-CFG-H01,environment,source_geometry,NA,text,operator,Conditional,Required for controlled amplitude tests
+CFG-H01,environment,source_geometry,Receive antenna near window approximately 1.0-1.5 m above floor; exact dipole angle and element orientation recorded per series,text,operator,Conditional,No controlled transmitter source is available
 CFG-H01,survey,start_frequency,NA,MHz,operator,Conditional,Required for survey series
 CFG-H01,survey,stop_frequency,NA,MHz,operator,Conditional,Required for survey series
 CFG-H01,survey,step_size,NA,MHz,operator,Conditional,Required for survey series
