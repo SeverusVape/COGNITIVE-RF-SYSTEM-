@@ -1,11 +1,16 @@
 # IMPORTS =======================================
 import time
+import math
 
 from dataclasses import dataclass
 from collections import deque
+from numbers import Real
+from statistics import median
+
 from SIGNALS.signal_type_classifier import (
     classify_signal_type
 )
+from UTILS.config import BANDWIDTH_STABILITY_MIN_SAMPLES
 # ================================================
 
 @dataclass
@@ -20,6 +25,70 @@ class SignalFeatures:
     persistence: str
     signal_type: str = "Unknown"
     last_seen: float = 0.0
+    bandwidth_stability: float | None = None
+    bandwidth_observations: int = 0
+
+
+def calculate_bandwidth_stability(
+        bandwidth_values,
+        minimum_samples=BANDWIDTH_STABILITY_MIN_SAMPLES
+):
+    if (
+            isinstance(minimum_samples, bool)
+            or not isinstance(minimum_samples, int)
+            or minimum_samples < 2
+    ):
+        raise ValueError(
+            "Minimum bandwidth samples must be an integer "
+            "greater than or equal to two."
+        )
+
+    values = list(
+        bandwidth_values
+    )
+
+    for value in values:
+        if (
+                isinstance(value, bool)
+                or not isinstance(value, Real)
+                or not math.isfinite(value)
+                or value < 0
+        ):
+            raise ValueError(
+                "Bandwidth values must be finite, "
+                "non-negative numbers."
+            )
+
+    if len(values) < minimum_samples:
+        return None
+
+    median_bandwidth = float(
+        median(values)
+    )
+
+    if median_bandwidth == 0:
+        return (
+            1.0
+            if all(value == 0 for value in values)
+            else 0.0
+        )
+
+    median_deviation = float(
+        median(
+            abs(value - median_bandwidth)
+            for value in values
+        )
+    )
+
+    return max(
+        0.0,
+        1.0
+        - min(
+            median_deviation
+            / median_bandwidth,
+            1.0
+        )
+    )
 
 class FeatureStore:
     def __init__(self):
@@ -51,6 +120,16 @@ class FeatureStore:
 
         feature.bandwidth_khz = max(
             history
+        )
+
+        feature.bandwidth_observations = len(
+            history
+        )
+
+        feature.bandwidth_stability = (
+            calculate_bandwidth_stability(
+                history
+            )
         )
 
         self.features[

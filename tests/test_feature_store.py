@@ -3,6 +3,7 @@ import unittest
 from unittest.mock import patch
 
 from SIGNALS.feature_extractor import (
+    calculate_bandwidth_stability,
     FeatureStore,
     SignalFeatures
 )
@@ -62,6 +63,79 @@ class FeatureStoreTests(unittest.TestCase):
             store.get(100.0).bandwidth_khz,
             25.0
         )
+
+    def test_stability_requires_minimum_observations(self):
+        self.assertIsNone(
+            calculate_bandwidth_stability(
+                [25.0, 26.0, 24.0, 25.0]
+            )
+        )
+
+    def test_consistent_bandwidth_has_high_stability(self):
+        stability = calculate_bandwidth_stability(
+            [100.0, 102.0, 98.0, 101.0, 99.0]
+        )
+
+        self.assertGreaterEqual(
+            stability,
+            0.98
+        )
+
+    def test_variable_bandwidth_has_lower_stability(self):
+        stable = calculate_bandwidth_stability(
+            [100.0, 102.0, 98.0, 101.0, 99.0]
+        )
+        variable = calculate_bandwidth_stability(
+            [20.0, 50.0, 100.0, 150.0, 200.0]
+        )
+
+        self.assertLess(
+            variable,
+            stable
+        )
+
+    def test_store_records_bandwidth_stability(self):
+        store = FeatureStore()
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=10.0
+        ):
+            for bandwidth in (
+                    100.0,
+                    102.0,
+                    98.0,
+                    101.0,
+                    99.0
+            ):
+                store.update(
+                    feature(100.0, bandwidth)
+                )
+
+        stored = store.get(100.0)
+
+        self.assertEqual(
+            stored.bandwidth_observations,
+            5
+        )
+        self.assertGreaterEqual(
+            stored.bandwidth_stability,
+            0.98
+        )
+
+    def test_stability_rejects_invalid_bandwidth(self):
+        for value in (
+                -1.0,
+                float("nan"),
+                float("inf"),
+                "25",
+                True
+        ):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    calculate_bandwidth_stability(
+                        [25.0, 25.0, 25.0, 25.0, value]
+                    )
 
     def test_prune_stale_removes_feature_and_history(self):
         store = FeatureStore()
