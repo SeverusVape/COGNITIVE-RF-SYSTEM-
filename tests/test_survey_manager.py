@@ -1,6 +1,7 @@
 import unittest
 
 from SURVEY.survey_manager import (
+    build_diagnostic_evidence_text,
     build_progress_bar,
     build_results_html,
     generate_frequencies,
@@ -72,6 +73,46 @@ class SurveyManagerTests(unittest.TestCase):
                     bar.count("▮"),
                     filled
                 )
+
+    def test_diagnostic_evidence_text_uses_shared_statuses(
+            self
+    ):
+        self.assertEqual(
+            build_diagnostic_evidence_text(0),
+            "No recent signal evidence"
+        )
+        self.assertEqual(
+            build_diagnostic_evidence_text(3),
+            "Provisional (3 observations)"
+        )
+        self.assertEqual(
+            build_diagnostic_evidence_text(5),
+            "Established (5 observations)"
+        )
+        self.assertEqual(
+            build_diagnostic_evidence_text(
+                1,
+                include_observation_word=False
+            ),
+            "Provisional (1)"
+        )
+
+    def test_diagnostic_evidence_text_rejects_invalid_count(
+            self
+    ):
+        for invalid_count in (
+                -1,
+                1.5,
+                True,
+                "3"
+        ):
+            with self.subTest(
+                    invalid_count=invalid_count
+            ):
+                with self.assertRaises(ValueError):
+                    build_diagnostic_evidence_text(
+                        invalid_count
+                    )
 
     def test_results_text_labels_decision_confidence(
             self

@@ -1,4 +1,5 @@
 from html import escape
+from numbers import Integral
 
 from UI.theme import (
     apply_report_html_theme,
@@ -141,6 +142,46 @@ def rank_frequencies(
     )
 
     return sorted_results
+
+# ==================================================
+# DIAGNOSTIC STATUS
+# ==================================================
+
+def build_diagnostic_evidence_text(
+        observation_count,
+        include_observation_word=True
+):
+    if (
+            isinstance(observation_count, bool)
+            or not isinstance(observation_count, Integral)
+            or observation_count < 0
+    ):
+        raise ValueError(
+            "Observation count must be a non-negative integer."
+        )
+
+    if observation_count <= 0:
+        return "No recent signal evidence"
+
+    status = (
+        "Established"
+        if observation_count >= 5
+        else "Provisional"
+    )
+
+    noun = (
+        "observations"
+        if observation_count != 1
+        else "observation"
+    )
+
+    if include_observation_word:
+        return (
+            f"{status} "
+            f"({observation_count} {noun})"
+        )
+
+    return f"{status} ({observation_count})"
 
 # ==================================================
 # RESULTS TEXT
@@ -508,12 +549,6 @@ def build_results_html(
             frequency_observations
         )
 
-        diagnostic_maturity = (
-            "Provisional"
-            if diagnostic_observations < 5
-            else "Established"
-        )
-
         def percent_or_pending(value):
             return (
                 "Collecting data"
@@ -556,9 +591,8 @@ def build_results_html(
             ),
             (
                 "Diagnostic maturity",
-                (
-                    f"{diagnostic_maturity} "
-                    f"({diagnostic_observations} observations)"
+                build_diagnostic_evidence_text(
+                    diagnostic_observations
                 )
             )
         )
@@ -774,10 +808,9 @@ def build_results_html(
                         0
                     )
                 )
-                evidence = (
-                    "Established"
-                    if observation_count >= 5
-                    else "Provisional"
+                evidence = build_diagnostic_evidence_text(
+                    observation_count,
+                    include_observation_word=False
                 )
                 frequency_behavior = profile[
                     "frequency_behavior"
@@ -790,7 +823,10 @@ def build_results_html(
                 ]
             else:
                 observation_count = 0
-                evidence = "No recent signal evidence"
+                evidence = build_diagnostic_evidence_text(
+                    observation_count,
+                    include_observation_word=False
+                )
                 frequency_behavior = "Collecting data"
                 bandwidth_behavior = "Collecting data"
                 activity_pattern = "Collecting data"
@@ -810,11 +846,7 @@ def build_results_html(
                 f'<tr bgcolor="{row_color}"><td>',
                 escape(frequency_label),
                 "</td><td>",
-                escape(
-                    f"{evidence} ({observation_count})"
-                    if observation_count
-                    else evidence
-                ),
+                escape(evidence),
                 "</td><td>",
                 escape(frequency_behavior),
                 "</td><td>",
