@@ -7,6 +7,7 @@ from SURVEY.survey_controller import (
     SurveyController
 )
 from UI.survey_panel import SurveyStatusState
+from UTILS.config import SURVEY_SETTLING_DELAY_MS
 
 
 class SurveyControllerStatusTests(unittest.TestCase):
@@ -29,18 +30,52 @@ class SurveyControllerStatusTests(unittest.TestCase):
         )
         self.controller.feature_store = Mock()
         self.controller.pending_auto_tune_frequency = None
+        self.controller.survey_active = False
+        self.controller.shutting_down = False
         self.controller.status_revision = 0
         self.controller.status_timer = Mock()
         self.controller.survey_timer = Mock()
         self.controller.survey_timer.isActive.return_value = False
 
         self.previous_best_frequency = survey.best_frequency
+        self.previous_survey_frequencies = list(
+            survey.survey_frequencies
+        )
+        self.previous_survey_results = dict(
+            survey.survey_results
+        )
+        self.previous_survey_metrics = dict(
+            survey.survey_metrics
+        )
+        self.previous_survey_index = (
+            survey.current_survey_index
+        )
+
         survey.best_frequency = None
+        survey.survey_frequencies = []
+        survey.survey_results.clear()
+        survey.survey_metrics.clear()
+        survey.current_survey_index = 0
+
         self.addCleanup(
-            setattr,
-            survey,
-            "best_frequency",
-            self.previous_best_frequency
+            self._restore_survey_state
+        )
+
+    def _restore_survey_state(self):
+        survey.best_frequency = self.previous_best_frequency
+        survey.survey_frequencies = (
+            self.previous_survey_frequencies
+        )
+        survey.survey_results.clear()
+        survey.survey_results.update(
+            self.previous_survey_results
+        )
+        survey.survey_metrics.clear()
+        survey.survey_metrics.update(
+            self.previous_survey_metrics
+        )
+        survey.current_survey_index = (
+            self.previous_survey_index
         )
 
     @patch(
@@ -127,7 +162,10 @@ class SurveyControllerStatusTests(unittest.TestCase):
             self,
             show_survey_status
     ):
-        self.controller.survey_timer.isActive.return_value = True
+        self.controller.survey_timer.isActive.return_value = False
+        self.controller.survey_active = True
+        survey.survey_frequencies = [89.0]
+        survey.current_survey_index = 0
         survey.best_frequency = None
 
         self.controller.handle_tune_success(
@@ -135,6 +173,130 @@ class SurveyControllerStatusTests(unittest.TestCase):
         )
 
         show_survey_status.assert_not_called()
+        self.controller.survey_timer.start.assert_called_once_with(
+            SURVEY_SETTLING_DELAY_MS
+        )
+
+    def test_unrelated_tune_confirmation_does_not_start_settling(self):
+        self.controller.survey_active = True
+        self.controller.survey_timer.isActive.return_value = False
+        survey.survey_frequencies = [89.0]
+        survey.current_survey_index = 0
+
+        self.controller.handle_tune_success(
+            125e6
+        )
+
+        self.controller.survey_timer.start.assert_not_called()
+
+    def test_survey_step_requests_tune_without_measuring(self):
+        self.controller.survey_active = True
+        self.controller.get_occupancy_callback = Mock()
+        survey.survey_frequencies = [88.0]
+        survey.current_survey_index = 0
+
+        self.controller.survey_step()
+
+        self.controller.freq_input.setText.assert_called_once_with(
+            "88.0"
+        )
+        self.controller.tune_frequency_callback.assert_called_once_with()
+        self.controller.get_occupancy_callback.assert_not_called()
+
+    @patch(
+        "SURVEY.survey_controller.build_feature_snapshot",
+        return_value={}
+    )
+    def test_measurement_is_stored_before_next_tune(
+            self,
+            build_feature_snapshot
+    ):
+        self.controller.survey_active = True
+        self.controller.get_occupancy_callback = Mock(
+            return_value={
+                "occupancy": 12.5,
+                "max_power": 55.0,
+                "average_power": 24.0
+            }
+        )
+        self.controller.survey_step = Mock()
+        survey.survey_frequencies = [88.0, 89.0]
+        survey.current_survey_index = 0
+
+        self.controller.collect_survey_measurement()
+
+        self.assertEqual(
+            survey.survey_results[88.0],
+            12.5
+        )
+        self.assertIn(
+            88.0,
+            survey.survey_metrics
+        )
+        self.assertEqual(
+            survey.current_survey_index,
+            1
+        )
+        self.controller.survey_step.assert_called_once_with()
+
+    @patch(
+        "SURVEY.survey_controller.build_feature_snapshot",
+        return_value={}
+    )
+    def test_final_measurement_completes_before_another_tune(
+            self,
+            build_feature_snapshot
+    ):
+        self.controller.survey_active = True
+        self.controller.get_occupancy_callback = Mock(
+            return_value={
+                "occupancy": 8.0,
+                "max_power": 50.0,
+                "average_power": 20.0
+            }
+        )
+        self.controller._handle_survey_completion = Mock()
+        self.controller.survey_step = Mock()
+        survey.survey_frequencies = [88.0]
+        survey.current_survey_index = 0
+
+        self.controller.collect_survey_measurement()
+
+        self.assertEqual(
+            survey.survey_results[88.0],
+            8.0
+        )
+        self.assertEqual(
+            survey.current_survey_index,
+            1
+        )
+        self.controller._handle_survey_completion.assert_called_once_with()
+        self.controller.survey_step.assert_not_called()
+
+    @patch(
+        "SURVEY.survey_controller.show_survey_notice"
+    )
+    def test_survey_tune_failure_stops_sequence(
+            self,
+            show_survey_notice
+    ):
+        self.controller.survey_active = True
+
+        self.controller.handle_auto_tune_failure(
+            88e6,
+            "Unable to tune SDR."
+        )
+
+        self.assertFalse(
+            self.controller.survey_active
+        )
+        self.controller.survey_timer.stop.assert_called()
+        show_survey_notice.assert_called_once_with(
+            self.controller.survey_label,
+            "Survey tune failed",
+            "Unable to tune SDR.",
+            tone="error"
+        )
 
     @patch(
         "SURVEY.survey_controller.show_survey_status"
@@ -323,6 +485,8 @@ class SurveyControllerStatusTests(unittest.TestCase):
         self.controller.heatmap_img = Mock()
         self.controller.top_frequencies_label = Mock()
         self.controller.last_survey_settings = (88.0, 92.0, 1.0)
+        self.controller.get_occupancy_callback = Mock()
+        self.controller.survey_active = True
         survey.best_frequency = 88.0
 
         self.controller._show_temporary_status(
@@ -339,8 +503,11 @@ class SurveyControllerStatusTests(unittest.TestCase):
         self.controller._finish_temporary_status(
             stale_revision
         )
+        self.controller.collect_survey_measurement()
 
         self.assertIsNone(survey.best_frequency)
+        self.assertFalse(self.controller.survey_active)
+        self.controller.get_occupancy_callback.assert_not_called()
         self.assertEqual(
             self.controller.survey_label.setHtml.call_count,
             render_count
@@ -349,6 +516,15 @@ class SurveyControllerStatusTests(unittest.TestCase):
             "NO SURVEY DATA",
             self.controller.survey_label.setHtml.call_args.args[0]
         )
+
+    def test_shutdown_cancels_pending_survey_sequence(self):
+        self.controller.survey_active = True
+
+        self.controller.begin_shutdown()
+
+        self.assertTrue(self.controller.shutting_down)
+        self.assertFalse(self.controller.survey_active)
+        self.controller.survey_timer.stop.assert_called()
 
     @patch(
         "SURVEY.survey_controller.show_survey_status"

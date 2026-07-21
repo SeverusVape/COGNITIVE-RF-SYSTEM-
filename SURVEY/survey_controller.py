@@ -1,7 +1,6 @@
 import numpy as np
 
 from PyQt6.QtCore import QTimer, QRectF
-from PyQt6.QtTest import QTest
 
 import SURVEY.survey_manager as survey
 
@@ -28,6 +27,7 @@ from UI.survey_panel import (
     show_survey_progress,
     show_survey_status
 )
+from UTILS.config import SURVEY_SETTLING_DELAY_MS
 
 
 SURVEY_STATUS_TIMEOUT_MS = 2500
@@ -55,6 +55,9 @@ class SurveyController:
             feature_store,
     ):
         self.survey_timer = survey_timer
+        self.survey_timer.setSingleShot(
+            True
+        )
         self.survey_label = survey_label
         self.survey_results_button = (
             survey_results_button
@@ -84,6 +87,7 @@ class SurveyController:
         self.last_survey_settings = None
         self.occupancy_percent = 0
         self.shutting_down = False
+        self.survey_active = False
         self.pending_auto_tune_frequency = None
         self.status_revision = 0
 
@@ -105,6 +109,7 @@ class SurveyController:
 
     def begin_shutdown(self):
         self.shutting_down = True
+        self.survey_active = False
         self.survey_timer.stop()
         self._cancel_status_transition()
 
@@ -249,7 +254,31 @@ class SurveyController:
     ):
         self._cancel_status_transition()
 
-        if self.survey_timer.isActive():
+        if self.survey_active:
+            if survey.current_survey_index >= len(
+                    survey.survey_frequencies
+            ):
+                self._handle_survey_completion()
+                return
+
+            expected_frequency_mhz = (
+                survey.survey_frequencies[
+                    survey.current_survey_index
+                ]
+            )
+            confirmed_frequency_mhz = frequency_hz / 1e6
+
+            if abs(
+                    confirmed_frequency_mhz
+                    - expected_frequency_mhz
+            ) >= 0.1:
+                return
+
+            if not self.survey_timer.isActive():
+                self.survey_timer.start(
+                    SURVEY_SETTLING_DELAY_MS
+                )
+
             return
 
         pending_frequency = (
@@ -283,6 +312,17 @@ class SurveyController:
     ):
         self._cancel_status_transition()
 
+        if self.survey_active:
+            self.survey_active = False
+            self.survey_timer.stop()
+            show_survey_notice(
+                self.survey_label,
+                "Survey tune failed",
+                message,
+                tone="error"
+            )
+            return
+
         pending_frequency = (
             self.pending_auto_tune_frequency
         )
@@ -310,6 +350,11 @@ class SurveyController:
     def handle_receiver_error(self):
         self._cancel_status_transition()
         self.pending_auto_tune_frequency = None
+
+        if self.survey_active:
+            self.survey_active = False
+            self.survey_timer.stop()
+
         self._show_persistent_status()
 
     def _show_persistent_status(self):
@@ -410,7 +455,7 @@ class SurveyController:
         if self.shutting_down:
             return
 
-        if self.survey_timer.isActive():
+        if self.survey_active:
             show_survey_notice(
                 self.survey_label,
                 "Survey already running",
@@ -525,6 +570,8 @@ class SurveyController:
             new_frequencies
         )
 
+        self.survey_active = True
+
         show_survey_progress(
             self.survey_label,
             survey.survey_frequencies[0],
@@ -533,13 +580,11 @@ class SurveyController:
             0
         )
 
-        self.survey_timer.start(
-            3000
-        )
+        self.survey_step()
 
     def survey_step(self):
 
-        if self.shutting_down:
+        if self.shutting_down or not self.survey_active:
             return
 
         if survey.current_survey_index >= len(
@@ -579,12 +624,20 @@ class SurveyController:
 
         self.tune_frequency_callback()
 
-        QTest.qWait(
-            500
-        )
+    def collect_survey_measurement(self):
 
-        if self.shutting_down:
+        if self.shutting_down or not self.survey_active:
             return
+
+        if survey.current_survey_index >= len(
+                survey.survey_frequencies
+        ):
+            self._handle_survey_completion()
+            return
+
+        frequency = survey.survey_frequencies[
+            survey.current_survey_index
+        ]
 
         measurement = (
             self.get_occupancy_callback()
@@ -617,6 +670,7 @@ class SurveyController:
                     for value in normalized_measurement.values()
                 )
         ):
+            self.survey_active = False
             self.survey_timer.stop()
 
             show_survey_notice(
@@ -660,7 +714,16 @@ class SurveyController:
 
         survey.current_survey_index += 1
 
+        if survey.current_survey_index >= len(
+                survey.survey_frequencies
+        ):
+            self._handle_survey_completion()
+            return
+
+        self.survey_step()
+
     def _handle_survey_completion(self):
+        self.survey_active = False
         self.survey_timer.stop()
         self._cancel_status_transition()
 
@@ -853,6 +916,7 @@ class SurveyController:
         )
 
     def clear_current_survey(self):
+        self.survey_active = False
         self.survey_timer.stop()
         self._cancel_status_transition()
         self.pending_auto_tune_frequency = None

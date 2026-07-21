@@ -875,8 +875,8 @@ survey_controller = SurveyController(
 # =========================================
 
 survey_timer.timeout.connect(
-        survey_controller.survey_step
-    )
+        survey_controller.collect_survey_measurement
+)
 # ==================================================
 # SDR WORKER SETUP
 # ==================================================
