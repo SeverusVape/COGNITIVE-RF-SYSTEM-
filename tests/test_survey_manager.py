@@ -4,6 +4,7 @@ from SURVEY.survey_manager import (
     build_diagnostic_evidence_text,
     build_progress_bar,
     build_results_html,
+    format_diagnostic_value,
     generate_frequencies,
     rank_frequencies
 )
@@ -112,6 +113,49 @@ class SurveyManagerTests(unittest.TestCase):
                 with self.assertRaises(ValueError):
                     build_diagnostic_evidence_text(
                         invalid_count
+                    )
+
+    def test_diagnostic_value_formatter_preserves_units(
+            self
+    ):
+        self.assertEqual(
+            format_diagnostic_value(
+                0.667,
+                unit="%",
+                scale=100.0
+            ),
+            "66.7%"
+        )
+        self.assertEqual(
+            format_diagnostic_value(
+                2.24,
+                unit=" kHz"
+            ),
+            "2.2 kHz"
+        )
+        self.assertEqual(
+            format_diagnostic_value(
+                None,
+                missing_text="N/A"
+            ),
+            "N/A"
+        )
+
+    def test_diagnostic_value_formatter_rejects_invalid_value(
+            self
+    ):
+        for invalid_value in (
+                True,
+                float("nan"),
+                float("inf"),
+                "2.4"
+        ):
+            with self.subTest(
+                    invalid_value=invalid_value
+            ):
+                with self.assertRaises(ValueError):
+                    format_diagnostic_value(
+                        invalid_value
                     )
 
     def test_results_text_labels_decision_confidence(

@@ -185,14 +185,26 @@ class SurveyController:
                 -
                 recommended_frequency
         ) < 0.1:
-            print(
-                "Already on best frequency"
+            show_survey_notice(
+                self.survey_label,
+                "Already at recommendation",
+                "Receiver center is already "
+                f"{recommended_frequency:.1f} MHz.",
+                tone="success"
             )
 
             return
 
         self.freq_input.setText(
             str(recommended_frequency)
+        )
+
+        show_survey_notice(
+            self.survey_label,
+            "Auto-tune requested",
+            "Tuning receiver to "
+            f"{recommended_frequency:.1f} MHz.",
+            tone="info"
         )
 
         self.tune_frequency_callback()

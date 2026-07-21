@@ -1,5 +1,6 @@
 from html import escape
-from numbers import Integral
+from math import isfinite
+from numbers import Integral, Real
 
 from UI.theme import (
     apply_report_html_theme,
@@ -182,6 +183,27 @@ def build_diagnostic_evidence_text(
         )
 
     return f"{status} ({observation_count})"
+
+
+def format_diagnostic_value(
+        value,
+        unit="",
+        scale=1.0,
+        missing_text="Collecting data"
+):
+    if value is None:
+        return missing_text
+
+    if (
+            isinstance(value, bool)
+            or not isinstance(value, Real)
+            or not isfinite(value)
+    ):
+        raise ValueError(
+            "Diagnostic value must be a finite number or None."
+        )
+
+    return f"{value * scale:.1f}{unit}"
 
 # ==================================================
 # RESULTS TEXT
@@ -549,45 +571,37 @@ def build_results_html(
             frequency_observations
         )
 
-        def percent_or_pending(value):
-            return (
-                "Collecting data"
-                if value is None
-                else f"{value * 100:.1f}%"
-            )
-
-        drift_text = (
-            "Collecting data"
-            if frequency_drift_khz is None
-            else f"{frequency_drift_khz:.1f} kHz"
-        )
-
-        duty_cycle_text = (
-            "N/A"
-            if duty_cycle_percent is None
-            else f"{duty_cycle_percent:.1f}%"
-        )
-
         diagnostic_rows = (
             (
                 "Bandwidth stability",
-                percent_or_pending(
-                    bandwidth_stability
+                format_diagnostic_value(
+                    bandwidth_stability,
+                    unit="%",
+                    scale=100.0
                 )
             ),
             (
                 "Frequency stability",
-                percent_or_pending(
-                    frequency_stability
+                format_diagnostic_value(
+                    frequency_stability,
+                    unit="%",
+                    scale=100.0
                 )
             ),
             (
                 "Frequency drift",
-                drift_text
+                format_diagnostic_value(
+                    frequency_drift_khz,
+                    unit=" kHz"
+                )
             ),
             (
                 "Recent duty cycle",
-                duty_cycle_text
+                format_diagnostic_value(
+                    duty_cycle_percent,
+                    unit="%",
+                    missing_text="N/A"
+                )
             ),
             (
                 "Diagnostic maturity",
