@@ -1,0 +1,1 @@
+validation_id,configuration_id,session_id,observation_id,timestamp,source_name,source_frequency_hz,gain_db,applied_attenuation_db,peak_relative_db,local_floor_db,peak_above_floor_db,observed_change_db,residual_error_db,valid,notes

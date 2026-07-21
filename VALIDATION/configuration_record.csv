@@ -1,0 +1,48 @@
+configuration_id,domain,parameter,value,unit,source,status,notes
+CFG-BASE,software,git_commit,73f06b9,hash,git,Frozen,Event-driven survey baseline
+CFG-BASE,software,test_command,python -m unittest discover -s tests -v,command,repository,Frozen,Run before each validation session
+CFG-BASE,software,verified_test_count,138,tests,planning verification,Observed,Update only with a recorded test run
+CFG-BASE,processing,sample_rate,2048000,Hz,UTILS/config.py,Frozen,
+CFG-BASE,processing,fft_size,8192,samples,UTILS/config.py,Frozen,
+CFG-BASE,processing,fft_bin_spacing,250,Hz,derived,Frozen,Sample rate divided by FFT size
+CFG-BASE,processing,fft_window,Hann with coherent-gain compensation,text,SDR/fft_processing.py,Frozen,
+CFG-BASE,detection,noise_floor_window,250,kHz,SDR/detection.py,Frozen,
+CFG-BASE,detection,noise_floor_percentile,30,percentile,SDR/detection.py,Frozen,
+CFG-BASE,detection,threshold_margin,10,dB,SDR/detection.py,Frozen,Relative threshold margin
+CFG-BASE,detection,minimum_peak_spacing,75,kHz,SDR/detection.py,Frozen,
+CFG-BASE,detection,bandwidth_drop,15,dB,SDR/detection.py,Frozen,Heuristic minus-15 dB width
+CFG-BASE,confirmation,required_hits,2,hits,UTILS/config.py,Frozen,
+CFG-BASE,confirmation,window_frames,3,frames,UTILS/config.py,Frozen,
+CFG-BASE,confirmation,tolerance,25,kHz,UTILS/config.py,Frozen,
+CFG-BASE,features,tracking_tolerance,25,kHz,UTILS/config.py,Frozen,
+CFG-BASE,features,frequency_stability_reference,25,kHz,UTILS/config.py,Frozen,
+CFG-BASE,features,duty_cycle_window,10,seconds,UTILS/config.py,Frozen,
+CFG-BASE,survey,measurement_buffer_size,10,frames,UTILS/config.py,Frozen,
+CFG-BASE,survey,minimum_measurement_frames,3,frames,UTILS/config.py,Frozen,
+CFG-BASE,survey,settling_delay,500,ms,UTILS/config.py,Frozen,
+CFG-S01,synthetic,random_seed_policy,NA,text,operator,Required,Record base seed and per-trial seeds
+CFG-S01,synthetic,noise_model,NA,text,operator,Required,State distribution scaling and any filtering
+CFG-S01,synthetic,snr_definition,NA,text,operator,Required,Freeze before running SNR sweep
+CFG-H01,hardware,receiver_model,RTL-SDR Blog V3,text,hardware,Required,Record serial if available
+CFG-H01,hardware,tuner,Rafael Micro R820T,text,hardware,Required,
+CFG-H01,hardware,receiver_serial,NA,text,operator,Required,
+CFG-H01,hardware,host_os,macOS,text,operator,Required,Record version
+CFG-H01,hardware,python_version,3.10.11,text,environment,Required,Verify active environment
+CFG-H01,hardware,librtlsdr_version,NA,text,environment,Required,
+CFG-H01,hardware,pyrtlsdr_version,NA,text,environment,Required,
+CFG-H01,hardware,gain_mode,NA,text,operator,Required,Use fixed gain for amplitude validation
+CFG-H01,hardware,gain,NA,dB,operator,Required,Use NA only when documented auto gain is intentional
+CFG-H01,hardware,antenna,NA,text,operator,Required,Model type orientation and placement
+CFG-H01,hardware,cable,NA,text,operator,Required,Type and approximate length
+CFG-H01,hardware,attenuator_chain,NA,dB,operator,Conditional,Required for linearity validation
+CFG-H01,hardware,input_termination,NA,ohm,operator,Conditional,Record 50 ohm device if used
+CFG-H01,hardware,signal_source,NA,text,operator,Required,Known carrier or controlled source
+CFG-H01,hardware,source_reference_basis,NA,text,operator,Required,Explain expected frequency credibility
+CFG-H01,environment,location,NA,text,operator,Required,Enough detail for repeatability without personal address
+CFG-H01,environment,receiver_warmup,NA,minutes,operator,Required,10 to 15 minutes except warm-up experiment
+CFG-H01,environment,session_start,NA,ISO8601,operator,Required,Include UTC offset
+CFG-H01,environment,source_geometry,NA,text,operator,Conditional,Required for controlled amplitude tests
+CFG-H01,survey,start_frequency,NA,MHz,operator,Conditional,Required for survey series
+CFG-H01,survey,stop_frequency,NA,MHz,operator,Conditional,Required for survey series
+CFG-H01,survey,step_size,NA,MHz,operator,Conditional,Required for survey series
+CFG-H01,survey,decision_mode,SMART,text,operator,Conditional,Freeze within repeatability series

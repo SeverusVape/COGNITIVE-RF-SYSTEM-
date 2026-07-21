@@ -1,0 +1,1 @@
+validation_id,configuration_id,survey_run_id,point_index,requested_frequency_hz,tune_request_timestamp,confirmed_frequency_hz,tune_confirm_timestamp,confirmation_error_hz,settling_delay_ms,measurement_timestamp,valid_frame_count,result_stored,status,notes

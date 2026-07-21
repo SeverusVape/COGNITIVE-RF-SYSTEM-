@@ -1,0 +1,1 @@
+validation_id,configuration_id,session_id,observation_id,timestamp,elapsed_seconds,reference_name,reference_basis,expected_frequency_hz,measured_frequency_hz,error_hz,error_khz,error_ppm,peak_relative_db,peak_above_floor_db,valid,notes

@@ -1,0 +1,1 @@
+validation_id,configuration_id,session_id,observation_id,timestamp,condition,center_frequency_hz,span_hz,gain_mode,gain_db,median_noise_floor_db,median_threshold_db,occupancy_percent,raw_peak_count,confirmed_peak_count,source_state,valid,notes
