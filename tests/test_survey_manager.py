@@ -158,6 +158,46 @@ class SurveyManagerTests(unittest.TestCase):
             results_html
         )
 
+    def test_results_html_shows_observational_diagnostics(
+            self
+    ):
+        results_html = build_results_html(
+            sorted_results=[
+                (100.0, 10.0),
+                (101.0, 20.0)
+            ],
+            points_scanned=2,
+            average_occupancy=15.0,
+            recommendation={
+                "title": "SMART RECOMMENDATION",
+                "frequency": 100.0,
+                "occupancy": 10.0,
+                "score": 70.0,
+                "reason": [
+                    "Highest overall score"
+                ]
+            },
+            diagnostic_snapshot={
+                "bandwidth_stability": 0.8,
+                "frequency_stability": 0.9,
+                "frequency_drift_khz": 2.5,
+                "duty_cycle_percent": 60.0
+            }
+        )
+
+        self.assertIn(
+            "Signal Diagnostics",
+            results_html
+        )
+        self.assertIn("80.0%", results_html)
+        self.assertIn("90.0%", results_html)
+        self.assertIn("2.5 kHz", results_html)
+        self.assertIn("60.0%", results_html)
+        self.assertIn(
+            "not yet\n              included in recommendation scoring",
+            results_html
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

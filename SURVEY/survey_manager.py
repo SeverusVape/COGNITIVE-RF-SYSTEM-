@@ -148,7 +148,8 @@ def build_results_html(
         sorted_results,
         points_scanned,
         average_occupancy,
-        recommendation
+        recommendation,
+        diagnostic_snapshot=None
 ):
     recommendation_title = recommendation[
         "title"
@@ -439,6 +440,102 @@ def build_results_html(
             f"{score_details['average_power']:.1f} dB",
             "</b></p>"
         ])
+
+    if diagnostic_snapshot:
+        bandwidth_stability = diagnostic_snapshot.get(
+            "bandwidth_stability"
+        )
+        frequency_stability = diagnostic_snapshot.get(
+            "frequency_stability"
+        )
+        frequency_drift_khz = diagnostic_snapshot.get(
+            "frequency_drift_khz"
+        )
+        duty_cycle_percent = diagnostic_snapshot.get(
+            "duty_cycle_percent"
+        )
+
+        def percent_or_pending(value):
+            return (
+                "Collecting data"
+                if value is None
+                else f"{value * 100:.1f}%"
+            )
+
+        drift_text = (
+            "Collecting data"
+            if frequency_drift_khz is None
+            else f"{frequency_drift_khz:.1f} kHz"
+        )
+
+        duty_cycle_text = (
+            "N/A"
+            if duty_cycle_percent is None
+            else f"{duty_cycle_percent:.1f}%"
+        )
+
+        diagnostic_rows = (
+            (
+                "Bandwidth stability",
+                percent_or_pending(
+                    bandwidth_stability
+                )
+            ),
+            (
+                "Frequency stability",
+                percent_or_pending(
+                    frequency_stability
+                )
+            ),
+            (
+                "Frequency drift",
+                drift_text
+            ),
+            (
+                "Recent duty cycle",
+                duty_cycle_text
+            )
+        )
+
+        report.append(
+            """
+            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
+              Signal Diagnostics
+            </h3>
+            <table width="100%" cellspacing="0" cellpadding="7">
+              <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
+                <td><b>Measurement</b></td>
+                <td align="right"><b>Observed value</b></td>
+              </tr>
+            """
+        )
+
+        for index, (label, value) in enumerate(
+                diagnostic_rows
+        ):
+            row_color = (
+                "{{TABLE_ALTERNATE_SURFACE}}"
+                if index % 2
+                else "{{REPORT_SURFACE}}"
+            )
+
+            report.extend([
+                f'<tr bgcolor="{row_color}"><td>',
+                escape(label),
+                '</td><td align="right">',
+                escape(value),
+                "</td></tr>"
+            ])
+
+        report.append(
+            """
+            </table>
+            <p style="color:{{TEXT_SUBTLE}}; font-size:10px;">
+              Diagnostic measurements are observational and are not yet
+              included in recommendation scoring.
+            </p>
+            """
+        )
 
     if recommended_reason:
         report.append(

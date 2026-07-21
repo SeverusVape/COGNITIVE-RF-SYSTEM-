@@ -452,7 +452,25 @@ class SurveyController:
                 "age_seconds": float(
                     feature.age_seconds
                 ),
-                "strength": feature.strength
+                "strength": feature.strength,
+                "bandwidth_stability": (
+                    feature.bandwidth_stability
+                ),
+                "bandwidth_observations": (
+                    feature.bandwidth_observations
+                ),
+                "frequency_drift_khz": (
+                    feature.frequency_drift_khz
+                ),
+                "frequency_stability": (
+                    feature.frequency_stability
+                ),
+                "frequency_observations": (
+                    feature.frequency_observations
+                ),
+                "duty_cycle_percent": float(
+                    feature.duty_cycle_percent
+                )
             }
 
         current_occupancy = normalized_measurement[
@@ -544,7 +562,13 @@ class SurveyController:
             sorted_results,
             points_scanned,
             average_occupancy,
-            recommendation
+            recommendation,
+            diagnostic_snapshot=(
+                survey.survey_metrics.get(
+                    recommended_frequency,
+                    {}
+                ).get("feature_snapshot")
+            )
         )
 
         self.latest_survey_results_html = (
