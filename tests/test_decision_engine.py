@@ -246,6 +246,110 @@ class SmartDecisionTests(unittest.TestCase):
             101.0
         )
 
+    def test_smart_mode_uses_feature_store_when_snapshot_absent(
+            self
+    ):
+        store = FeatureStore()
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=10.0
+        ):
+            store.update(
+                signal_feature(
+                    100.0,
+                    strength="S",
+                    persistence="P"
+                )
+            )
+
+        survey_results = {
+            100.0: 20.0,
+            101.0: 20.0
+        }
+
+        survey_metrics = {
+            100.0: {
+                "occupancy": 20.0,
+                "max_power": 50.0,
+                "average_power": 30.0
+            },
+            101.0: {
+                "occupancy": 20.0,
+                "max_power": 50.0,
+                "average_power": 30.0
+            }
+        }
+
+        decision = smart_recommendation(
+            survey_results,
+            survey_metrics,
+            [],
+            store
+        )
+
+        self.assertEqual(
+            decision["frequency"],
+            100.0
+        )
+        self.assertEqual(
+            decision["score_details"][
+                "persistence_score"
+            ],
+            10
+        )
+        self.assertEqual(
+            decision["score_details"][
+                "strength_score"
+            ],
+            6
+        )
+
+    def test_explicit_empty_snapshot_blocks_feature_store_fallback(
+            self
+    ):
+        store = FeatureStore()
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=10.0
+        ):
+            store.update(
+                signal_feature(
+                    100.0,
+                    strength="S",
+                    persistence="P"
+                )
+            )
+
+        decision = smart_recommendation(
+            {
+                100.0: 20.0
+            },
+            {
+                100.0: build_metric(
+                    20.0,
+                    50.0,
+                    feature_snapshot=None
+                )
+            },
+            [],
+            store
+        )
+
+        self.assertEqual(
+            decision["score_details"][
+                "persistence_score"
+            ],
+            0
+        )
+        self.assertEqual(
+            decision["score_details"][
+                "strength_score"
+            ],
+            0
+        )
+
     def test_occupancy_score_uses_full_range(self):
         expected_scores = {
             0: 50,

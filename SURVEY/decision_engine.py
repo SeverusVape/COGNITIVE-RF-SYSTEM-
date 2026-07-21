@@ -322,10 +322,8 @@ def smart_recommendation(
             "feature_snapshot"
         )
 
-        feature = None
-
         if not feature_snapshot_available:
-            feature = find_nearest_feature(
+            feature_snapshot = build_feature_snapshot(
                 frequency,
                 feature_store
             )
@@ -348,20 +346,12 @@ def smart_recommendation(
                 "strength"
             )
 
-        elif feature is not None:
-            persistence = feature.persistence
-            age_seconds = feature.age_seconds
-            strength = feature.strength
-
         else:
             persistence = None
             age_seconds = 0
             strength = None
 
-        if (
-                feature_snapshot is not None
-                or feature is not None
-        ):
+        if feature_snapshot is not None:
             if persistence == "A":
                 persistence_bonus = (
                     SMART_PERSISTENCE_ACTIVE_SCORE
