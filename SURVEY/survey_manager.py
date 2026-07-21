@@ -152,7 +152,8 @@ def build_results_html(
         points_scanned,
         average_occupancy,
         recommendation,
-        diagnostic_snapshot=None
+        diagnostic_snapshot=None,
+        diagnostic_snapshots=None
 ):
     recommendation_title = recommendation[
         "title"
@@ -687,9 +688,121 @@ def build_results_html(
             "</tr>"
         ])
 
+    report.append("</table>")
+
+    if diagnostic_snapshots:
+        ordered_frequencies = []
+
+        if recommended_frequency in diagnostic_snapshots:
+            ordered_frequencies.append(
+                recommended_frequency
+            )
+
+        for frequency, _ in sorted_results:
+            if frequency not in ordered_frequencies:
+                ordered_frequencies.append(
+                    frequency
+                )
+
+        report.append(
+            """
+            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
+              Survey Diagnostic Coverage
+            </h3>
+            <table width="100%" cellspacing="0" cellpadding="7">
+              <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
+                <td><b>Frequency</b></td>
+                <td><b>Evidence</b></td>
+                <td><b>Frequency</b></td>
+                <td><b>Bandwidth</b></td>
+                <td align="right"><b>Activity</b></td>
+              </tr>
+            """
+        )
+
+        for index, frequency in enumerate(
+                ordered_frequencies[:5]
+        ):
+            snapshot = diagnostic_snapshots.get(
+                frequency
+            )
+
+            if snapshot:
+                profile = build_behavior_profile(
+                    snapshot
+                )
+                observation_count = min(
+                    snapshot.get(
+                        "bandwidth_observations",
+                        0
+                    ),
+                    snapshot.get(
+                        "frequency_observations",
+                        0
+                    )
+                )
+                evidence = (
+                    "Established"
+                    if observation_count >= 5
+                    else "Provisional"
+                )
+                frequency_behavior = profile[
+                    "frequency_behavior"
+                ]
+                bandwidth_behavior = profile[
+                    "bandwidth_behavior"
+                ]
+                activity_pattern = profile[
+                    "activity_pattern"
+                ]
+            else:
+                observation_count = 0
+                evidence = "No peak snapshot"
+                frequency_behavior = "N/A"
+                bandwidth_behavior = "N/A"
+                activity_pattern = "N/A"
+
+            row_color = (
+                "{{TABLE_ALTERNATE_SURFACE}}"
+                if index % 2
+                else "{{REPORT_SURFACE}}"
+            )
+
+            frequency_label = f"{frequency:.3f} MHz"
+
+            if frequency == recommended_frequency:
+                frequency_label += " (recommended)"
+
+            report.extend([
+                f'<tr bgcolor="{row_color}"><td>',
+                escape(frequency_label),
+                "</td><td>",
+                escape(
+                    f"{evidence} ({observation_count})"
+                    if observation_count
+                    else evidence
+                ),
+                "</td><td>",
+                escape(frequency_behavior),
+                "</td><td>",
+                escape(bandwidth_behavior),
+                '</td><td align="right">',
+                escape(activity_pattern),
+                "</td></tr>"
+            ])
+
+        report.append(
+            """
+            </table>
+            <p style="color:{{TEXT_SUBTLE}}; font-size:10px;">
+              The recommended frequency is shown first; remaining rows follow
+              measured-occupancy order. Coverage remains diagnostic-only.
+            </p>
+            """
+        )
+
     report.append(
         """
-        </table>
         </div>
         """
     )

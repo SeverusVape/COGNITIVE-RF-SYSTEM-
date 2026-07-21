@@ -224,6 +224,68 @@ class SurveyManagerTests(unittest.TestCase):
             results_html
         )
 
+    def test_results_html_compares_candidate_diagnostic_coverage(
+            self
+    ):
+        snapshot = {
+            "bandwidth_stability": 0.67,
+            "bandwidth_observations": 6,
+            "frequency_stability": 0.91,
+            "frequency_observations": 6,
+            "frequency_drift_khz": 2.5,
+            "duty_cycle_percent": 60.0
+        }
+
+        results_html = build_results_html(
+            sorted_results=[
+                (101.0, 20.0),
+                (100.0, 10.0)
+            ],
+            points_scanned=2,
+            average_occupancy=15.0,
+            recommendation={
+                "title": "SMART RECOMMENDATION",
+                "frequency": 100.0,
+                "occupancy": 10.0,
+                "score": 70.0,
+                "reason": []
+            },
+            diagnostic_snapshot=snapshot,
+            diagnostic_snapshots={
+                100.0: snapshot,
+                101.0: None
+            }
+        )
+
+        self.assertIn(
+            "Survey Diagnostic Coverage",
+            results_html
+        )
+        coverage_html = results_html[
+            results_html.index(
+                "Survey Diagnostic Coverage"
+            ):
+        ]
+
+        self.assertLess(
+            coverage_html.index(
+                "100.000 MHz (recommended)"
+            ),
+            coverage_html.index("101.000 MHz")
+        )
+        self.assertIn(
+            "Established (6)",
+            results_html
+        )
+        self.assertIn(
+            "No peak snapshot",
+            results_html
+        )
+        self.assertIn(
+            "Coverage remains diagnostic-only",
+            results_html
+        )
+
 
 if __name__ == "__main__":
     unittest.main()

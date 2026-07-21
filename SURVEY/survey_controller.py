@@ -568,7 +568,14 @@ class SurveyController:
                     recommended_frequency,
                     {}
                 ).get("feature_snapshot")
-            )
+            ),
+            diagnostic_snapshots={
+                frequency: metrics.get(
+                    "feature_snapshot"
+                )
+                for frequency, metrics
+                in survey.survey_metrics.items()
+            }
         )
 
         self.latest_survey_results_html = (
