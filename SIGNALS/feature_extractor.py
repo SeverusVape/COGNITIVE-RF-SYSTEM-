@@ -10,7 +10,11 @@ from statistics import median
 from SIGNALS.signal_type_classifier import (
     classify_signal_type
 )
-from UTILS.config import BANDWIDTH_STABILITY_MIN_SAMPLES
+from UTILS.config import (
+    BANDWIDTH_STABILITY_MIN_SAMPLES,
+    FREQUENCY_STABILITY_MIN_SAMPLES,
+    FREQUENCY_STABILITY_REFERENCE_KHZ
+)
 # ================================================
 
 @dataclass
@@ -27,6 +31,9 @@ class SignalFeatures:
     last_seen: float = 0.0
     bandwidth_stability: float | None = None
     bandwidth_observations: int = 0
+    frequency_drift_khz: float | None = None
+    frequency_stability: float | None = None
+    frequency_observations: int = 0
 
 
 def calculate_bandwidth_stability(
@@ -90,10 +97,84 @@ def calculate_bandwidth_stability(
         )
     )
 
+
+def calculate_frequency_stability(
+        frequency_values,
+        minimum_samples=FREQUENCY_STABILITY_MIN_SAMPLES,
+        reference_khz=FREQUENCY_STABILITY_REFERENCE_KHZ
+):
+    if (
+            isinstance(minimum_samples, bool)
+            or not isinstance(minimum_samples, int)
+            or minimum_samples < 2
+    ):
+        raise ValueError(
+            "Minimum frequency samples must be an integer "
+            "greater than or equal to two."
+        )
+
+    if (
+            isinstance(reference_khz, bool)
+            or not isinstance(reference_khz, Real)
+            or not math.isfinite(reference_khz)
+            or reference_khz <= 0
+    ):
+        raise ValueError(
+            "Frequency stability reference must be a finite, "
+            "positive number."
+        )
+
+    values = list(
+        frequency_values
+    )
+
+    for value in values:
+        if (
+                isinstance(value, bool)
+                or not isinstance(value, Real)
+                or not math.isfinite(value)
+                or value <= 0
+        ):
+            raise ValueError(
+                "Frequency values must be finite, "
+                "positive numbers."
+            )
+
+    if len(values) < minimum_samples:
+        return None
+
+    median_frequency = float(
+        median(values)
+    )
+
+    drift_khz = float(
+        median(
+            abs(value - median_frequency)
+            for value in values
+        )
+        * 1000
+    )
+
+    stability = max(
+        0.0,
+        1.0
+        - min(
+            drift_khz
+            / reference_khz,
+            1.0
+        )
+    )
+
+    return (
+        round(drift_khz, 6),
+        round(stability, 6)
+    )
+
 class FeatureStore:
     def __init__(self):
         self.features = {}
         self.bandwidth_history = {}
+        self.frequency_history = {}
 
     def update(self, feature):
         feature.last_seen = time.monotonic()
@@ -108,10 +189,21 @@ class FeatureStore:
                 maxlen=20
             )
 
+        if freq_key not in self.frequency_history:
+            self.frequency_history[freq_key] = deque(
+                maxlen=20
+            )
+
         self.bandwidth_history[
             freq_key
         ].append(
             feature.bandwidth_khz
+        )
+
+        self.frequency_history[
+            freq_key
+        ].append(
+            feature.frequency
         )
 
         history = self.bandwidth_history[
@@ -131,6 +223,24 @@ class FeatureStore:
                 history
             )
         )
+
+        frequency_history = self.frequency_history[
+            freq_key
+        ]
+
+        feature.frequency_observations = len(
+            frequency_history
+        )
+
+        frequency_stability = calculate_frequency_stability(
+            frequency_history
+        )
+
+        if frequency_stability is not None:
+            (
+                feature.frequency_drift_khz,
+                feature.frequency_stability
+            ) = frequency_stability
 
         self.features[
             freq_key
@@ -191,6 +301,11 @@ class FeatureStore:
             )
 
             self.bandwidth_history.pop(
+                frequency,
+                None
+            )
+
+            self.frequency_history.pop(
                 frequency,
                 None
             )

@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from SIGNALS.feature_extractor import (
     calculate_bandwidth_stability,
+    calculate_frequency_stability,
     FeatureStore,
     SignalFeatures
 )
@@ -137,6 +138,88 @@ class FeatureStoreTests(unittest.TestCase):
                         [25.0, 25.0, 25.0, 25.0, value]
                     )
 
+    def test_frequency_stability_requires_observations(self):
+        self.assertIsNone(
+            calculate_frequency_stability(
+                [100.0, 100.001, 99.999, 100.0]
+            )
+        )
+
+    def test_consistent_frequency_has_high_stability(self):
+        drift_khz, stability = calculate_frequency_stability(
+            [100.000, 100.002, 99.998, 100.001, 99.999]
+        )
+
+        self.assertAlmostEqual(
+            drift_khz,
+            1.0
+        )
+        self.assertGreaterEqual(
+            stability,
+            0.96
+        )
+
+    def test_frequency_drift_reduces_stability(self):
+        _, stable = calculate_frequency_stability(
+            [100.000, 100.002, 99.998, 100.001, 99.999]
+        )
+        _, drifting = calculate_frequency_stability(
+            [99.960, 99.980, 100.000, 100.020, 100.040]
+        )
+
+        self.assertLess(
+            drifting,
+            stable
+        )
+
+    def test_store_records_frequency_stability(self):
+        store = FeatureStore()
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=10.0
+        ):
+            for frequency in (
+                    100.000,
+                    100.002,
+                    99.998,
+                    100.001,
+                    99.999
+            ):
+                store.update(
+                    feature(frequency, 25.0)
+                )
+
+        stored = store.get(100.0)
+
+        self.assertEqual(
+            stored.frequency_observations,
+            5
+        )
+        self.assertAlmostEqual(
+            stored.frequency_drift_khz,
+            1.0
+        )
+        self.assertGreaterEqual(
+            stored.frequency_stability,
+            0.96
+        )
+
+    def test_frequency_stability_rejects_invalid_values(self):
+        for value in (
+                0.0,
+                -100.0,
+                float("nan"),
+                float("inf"),
+                "100",
+                True
+        ):
+            with self.subTest(value=value):
+                with self.assertRaises(ValueError):
+                    calculate_frequency_stability(
+                        [100.0, 100.0, 100.0, 100.0, value]
+                    )
+
     def test_prune_stale_removes_feature_and_history(self):
         store = FeatureStore()
 
@@ -160,6 +243,10 @@ class FeatureStoreTests(unittest.TestCase):
         self.assertEqual(store.features, {})
         self.assertEqual(
             store.bandwidth_history,
+            {}
+        )
+        self.assertEqual(
+            store.frequency_history,
             {}
         )
 

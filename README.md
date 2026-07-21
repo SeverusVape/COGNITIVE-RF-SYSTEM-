@@ -17,7 +17,7 @@ hardware-tested with an RTL-SDR Blog V3 dongle on macOS.
 - Explainable SMART recommendation scoring
 - Runner-up, decision margin, and score-separation confidence
 - Professional Phase 1 user interface
-- 85 automated tests passing
+- 90 automated tests passing
 
 The application is receive-only. It does not transmit or control external RF
 equipment.
@@ -40,6 +40,7 @@ equipment.
 - Peak spacing expressed in physical frequency units
 - Bandwidth derived from FFT-bin spacing
 - Robust bandwidth-stability tracking after five observations
+- Robust frequency-drift tracking after five observations
 - Temporal confirmation to reject single-frame spikes
 - Small peak-frequency drift tolerance
 
@@ -366,6 +367,8 @@ Important defaults in [`UTILS/config.py`](UTILS/config.py):
 | Continuous-detection gap tolerance | 0.5 seconds |
 | Persistence thresholds | Active 2 s, Persistent 5 s, Long 15 s |
 | Minimum bandwidth-stability samples | 5 |
+| Minimum frequency-stability samples | 5 |
+| Frequency-stability reference | 25 kHz |
 | Survey measurement buffer | 10 frames |
 | Minimum survey frames | 3 |
 | Peak-confirmation requirement | 2 hits in 3 frames |
@@ -386,7 +389,7 @@ python -m unittest discover -s tests -v
 Current verified result:
 
 ```text
-Ran 85 tests
+Ran 90 tests
 OK
 ```
 
