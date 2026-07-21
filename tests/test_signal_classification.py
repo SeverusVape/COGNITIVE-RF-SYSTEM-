@@ -37,10 +37,10 @@ class SignalClassificationTests(unittest.TestCase):
 
     def test_persistence_boundaries(self):
         expected = {
-            1: "N",
-            5: "A",
-            10: "P",
-            20: "L"
+            0.0: "N",
+            2.0: "A",
+            5.0: "P",
+            15.0: "L"
         }
 
         for count, persistence in expected.items():
@@ -51,6 +51,18 @@ class SignalClassificationTests(unittest.TestCase):
                     ),
                     persistence
                 )
+
+    def test_persistence_rejects_invalid_duration(self):
+        for duration in (
+                -1,
+                float("nan"),
+                float("inf"),
+                "5",
+                True
+        ):
+            with self.subTest(duration=duration):
+                with self.assertRaises(ValueError):
+                    classify_persistence(duration)
 
     def test_known_frequency_bands(self):
         expected = {

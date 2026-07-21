@@ -1,5 +1,13 @@
+import math
+from numbers import Real
+
 from SIGNALS.frequency_band import (
     classify_frequency_band
+)
+from UTILS.config import (
+    SIGNAL_PERSISTENCE_ACTIVE_SECONDS,
+    SIGNAL_PERSISTENCE_LONG_SECONDS,
+    SIGNAL_PERSISTENCE_PERSISTENT_SECONDS
 )
 
 
@@ -10,14 +18,14 @@ from SIGNALS.frequency_band import (
 def classify_signal(
         power,
         frequency=None,
-        history_count=1
+        observed_seconds=0.0
 ):
     strength = classify_strength(
         power
     )
 
     persistence = classify_persistence(
-        history_count
+        observed_seconds
     )
 
     band = classify_frequency_band(
@@ -32,15 +40,32 @@ def classify_signal(
 
 
 def classify_persistence(
-        history_count
+        observed_seconds
 ):
-    if history_count >= 20:
+    if (
+            isinstance(observed_seconds, bool)
+            or not isinstance(
+                observed_seconds,
+                Real
+            )
+            or not math.isfinite(observed_seconds)
+            or observed_seconds < 0
+    ):
+        raise ValueError(
+            "Observed duration must be a finite, "
+            "non-negative number."
+        )
+
+    if observed_seconds >= SIGNAL_PERSISTENCE_LONG_SECONDS:
         return "L"
 
-    if history_count >= 10:
+    if (
+            observed_seconds
+            >= SIGNAL_PERSISTENCE_PERSISTENT_SECONDS
+    ):
         return "P"
 
-    if history_count >= 5:
+    if observed_seconds >= SIGNAL_PERSISTENCE_ACTIVE_SECONDS:
         return "A"
 
     return "N"

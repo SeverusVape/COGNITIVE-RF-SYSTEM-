@@ -130,7 +130,7 @@ def update_signal_panel(
             )
         )
 
-        history_count, age_seconds = (
+        _, age_seconds = (
             update_signal_history(
                 freq
             )
@@ -146,7 +146,7 @@ def update_signal_panel(
             classify_signal(
                 power,
                 freq,
-                history_count
+                age_seconds
             )
         )
 

@@ -1,5 +1,7 @@
 import time
 
+from UTILS.config import SIGNAL_CONTINUITY_GAP_SECONDS
+
 
 # ==================================================
 # SIGNAL HISTORY
@@ -23,17 +25,31 @@ def update_signal_history(
         1
     )
 
+    current_time = time.monotonic()
+    previous_last_seen = signal_last_seen.get(
+        frequency
+    )
+
+    if (
+            previous_last_seen is None
+            or current_time - previous_last_seen
+            > SIGNAL_CONTINUITY_GAP_SECONDS
+    ):
+        signal_first_seen[
+            frequency
+        ] = current_time
+
     signal_last_seen[
         frequency
-    ] = time.monotonic()
+    ] = current_time
 
     if frequency in seen_this_cycle:
         age_seconds = int(
-            time.time()
+            current_time
             -
             signal_first_seen.get(
                 frequency,
-                time.time()
+                current_time
             )
         )
 
@@ -49,11 +65,6 @@ def update_signal_history(
         frequency
     )
 
-    if frequency not in signal_first_seen:
-        signal_first_seen[
-            frequency
-        ] = time.time()
-
     if frequency not in signal_history:
 
         signal_history[
@@ -67,7 +78,7 @@ def update_signal_history(
         ] += 1
 
     age_seconds = int(
-        time.time()
+        current_time
         -
         signal_first_seen[
             frequency

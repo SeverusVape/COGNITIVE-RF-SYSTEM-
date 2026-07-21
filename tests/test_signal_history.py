@@ -16,9 +16,6 @@ class SignalHistoryTests(unittest.TestCase):
 
     def test_same_signal_counts_once_per_update_cycle(self):
         with patch(
-                "SIGNALS.signal_history.time.time",
-                return_value=100.0
-        ), patch(
                 "SIGNALS.signal_history.time.monotonic",
                 return_value=50.0
         ):
@@ -35,11 +32,8 @@ class SignalHistoryTests(unittest.TestCase):
         history.reset_cycle_tracking()
 
         with patch(
-                "SIGNALS.signal_history.time.time",
-                return_value=101.0
-        ), patch(
                 "SIGNALS.signal_history.time.monotonic",
-                return_value=51.0
+                return_value=50.1
         ):
             next_cycle = (
                 history.update_signal_history(
@@ -48,7 +42,30 @@ class SignalHistoryTests(unittest.TestCase):
             )
 
         self.assertEqual(next_cycle[0], 2)
-        self.assertEqual(next_cycle[1], 1)
+        self.assertEqual(next_cycle[1], 0)
+
+    def test_detection_gap_starts_new_observation_session(self):
+        with patch(
+                "SIGNALS.signal_history.time.monotonic",
+                return_value=50.0
+        ):
+            history.update_signal_history(100.0)
+
+        history.reset_cycle_tracking()
+
+        with patch(
+                "SIGNALS.signal_history.time.monotonic",
+                return_value=52.0
+        ):
+            _, age_seconds = history.update_signal_history(
+                100.0
+            )
+
+        self.assertEqual(age_seconds, 0)
+        self.assertEqual(
+            history.signal_first_seen[100.0],
+            52.0
+        )
 
     def test_occupancy_uses_history_update_count(self):
         history.signal_history[100.0] = 3

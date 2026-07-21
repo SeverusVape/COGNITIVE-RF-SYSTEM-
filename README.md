@@ -17,7 +17,7 @@ hardware-tested with an RTL-SDR Blog V3 dongle on macOS.
 - Explainable SMART recommendation scoring
 - Runner-up, decision margin, and score-separation confidence
 - Professional Phase 1 user interface
-- 78 automated tests passing
+- 80 automated tests passing
 
 The application is receive-only. It does not transmit or control external RF
 equipment.
@@ -362,6 +362,8 @@ Important defaults in [`UTILS/config.py`](UTILS/config.py):
 | Gain | Automatic |
 | Waterfall history | 200 frames |
 | Feature/history stale age | 30 seconds |
+| Continuous-detection gap tolerance | 0.5 seconds |
+| Persistence thresholds | Active 2 s, Persistent 5 s, Long 15 s |
 | Survey measurement buffer | 10 frames |
 | Minimum survey frames | 3 |
 | Peak-confirmation requirement | 2 hits in 3 frames |
@@ -382,7 +384,7 @@ python -m unittest discover -s tests -v
 Current verified result:
 
 ```text
-Ran 78 tests
+Ran 80 tests
 OK
 ```
 
