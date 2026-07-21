@@ -1,5 +1,5 @@
 configuration_id,domain,parameter,value,unit,source,status,notes
-CFG-BASE,software,git_commit,73f06b9,hash,git,Frozen,Event-driven survey baseline
+CFG-BASE,software,git_commit,4cf57b6b965166163de58ddcbd983adbcc6cbef6,hash,git,Frozen,Validation-planning baseline; application behavior baseline remains 73f06b9
 CFG-BASE,software,test_command,python -m unittest discover -s tests -v,command,repository,Frozen,Run before each validation session
 CFG-BASE,software,verified_test_count,138,tests,planning verification,Observed,Update only with a recorded test run
 CFG-BASE,processing,sample_rate,2048000,Hz,UTILS/config.py,Frozen,
@@ -20,27 +20,31 @@ CFG-BASE,features,duty_cycle_window,10,seconds,UTILS/config.py,Frozen,
 CFG-BASE,survey,measurement_buffer_size,10,frames,UTILS/config.py,Frozen,
 CFG-BASE,survey,minimum_measurement_frames,3,frames,UTILS/config.py,Frozen,
 CFG-BASE,survey,settling_delay,500,ms,UTILS/config.py,Frozen,
-CFG-S01,synthetic,random_seed_policy,NA,text,operator,Required,Record base seed and per-trial seeds
-CFG-S01,synthetic,noise_model,NA,text,operator,Required,State distribution scaling and any filtering
-CFG-S01,synthetic,snr_definition,NA,text,operator,Required,Freeze before running SNR sweep
-CFG-H01,hardware,receiver_model,RTL-SDR Blog V3,text,hardware,Required,Record serial if available
-CFG-H01,hardware,tuner,Rafael Micro R820T,text,hardware,Required,
-CFG-H01,hardware,receiver_serial,NA,text,operator,Required,
-CFG-H01,hardware,host_os,macOS,text,operator,Required,Record version
-CFG-H01,hardware,python_version,3.10.11,text,environment,Required,Verify active environment
-CFG-H01,hardware,librtlsdr_version,NA,text,environment,Required,
-CFG-H01,hardware,pyrtlsdr_version,NA,text,environment,Required,
-CFG-H01,hardware,gain_mode,NA,text,operator,Required,Use fixed gain for amplitude validation
-CFG-H01,hardware,gain,NA,dB,operator,Required,Use NA only when documented auto gain is intentional
-CFG-H01,hardware,antenna,NA,text,operator,Required,Model type orientation and placement
-CFG-H01,hardware,cable,NA,text,operator,Required,Type and approximate length
-CFG-H01,hardware,attenuator_chain,NA,dB,operator,Conditional,Required for linearity validation
-CFG-H01,hardware,input_termination,NA,ohm,operator,Conditional,Record 50 ohm device if used
-CFG-H01,hardware,signal_source,NA,text,operator,Required,Known carrier or controlled source
-CFG-H01,hardware,source_reference_basis,NA,text,operator,Required,Explain expected frequency credibility
-CFG-H01,environment,location,NA,text,operator,Required,Enough detail for repeatability without personal address
-CFG-H01,environment,receiver_warmup,NA,minutes,operator,Required,10 to 15 minutes except warm-up experiment
-CFG-H01,environment,session_start,NA,ISO8601,operator,Required,Include UTC offset
+CFG-S01,synthetic,random_seed_policy,Base seed 3102026; trial seed = base seed + zero-based trial index,text,validation protocol,Frozen,Record the resolved trial seed in every output row
+CFG-S01,synthetic,noise_model,Circular complex Gaussian noise with E[abs(n)^2]=1 before optional SNR scaling,text,validation protocol,Frozen,Independent real and imaginary components each have variance 0.5; no filtering unless an experiment declares it
+CFG-S01,synthetic,snr_definition,10*log10(complex tone power / complex noise power) before windowing,text,validation protocol,Frozen,Tone power is abs(amplitude)^2 and expected complex noise power is 1 before scaling
+CFG-H01,hardware,receiver_model,RTL-SDR Blog V3,text,project hardware record,Available,Confirm label and record serial before first measurement
+CFG-H01,hardware,tuner,Rafael Micro R820T,text,receiver startup output,Available,Observed in prior application hardware runs
+CFG-H01,hardware,receiver_serial,UNCONFIRMED,text,operator,Pending,USB identity was not available during configuration planning
+CFG-H01,hardware,host_os,macOS 26.5.2 build 25F84 arm64,text,environment,Recorded,Observed 2026-07-21
+CFG-H01,hardware,python_version,3.10.11,text,environment,Recorded,Project virtual environment
+CFG-H01,hardware,librtlsdr_version,2.0.2,text,Homebrew,Recorded,rtl_test rtl_eeprom and rtl_power available in /opt/homebrew/bin
+CFG-H01,hardware,pyrtlsdr_version,0.2.93,text,Python environment,Recorded,
+CFG-H01,software,numpy_version,2.2.6,text,Python environment,Recorded,
+CFG-H01,software,scipy_version,1.15.3,text,Python environment,Recorded,
+CFG-H01,software,pyqt6_version,6.11.0,text,Python environment,Recorded,
+CFG-H01,software,pyqtgraph_version,0.14.0,text,Python environment,Recorded,
+CFG-H01,hardware,gain_mode,auto,text,UTILS/config.py,Frozen baseline,Hardware amplitude experiments require a new fixed-gain configuration ID
+CFG-H01,hardware,gain,NA,dB,UTILS/config.py,Not applicable,Automatic gain has no single fixed dB value
+CFG-H01,hardware,antenna,UNCONFIRMED,text,operator,Pending,Record model type orientation and placement
+CFG-H01,hardware,cable,UNCONFIRMED,text,operator,Pending,Record type connectors and approximate length
+CFG-H01,hardware,attenuator_chain,UNCONFIRMED,dB,operator,Pending,Needed only for relative-amplitude linearity
+CFG-H01,hardware,input_termination,UNCONFIRMED,ohm,operator,Pending,Record 50-ohm device if available
+CFG-H01,hardware,signal_source,UNCONFIRMED,text,operator,Pending,Known carrier or controlled source
+CFG-H01,hardware,source_reference_basis,UNCONFIRMED,text,operator,Pending,Explain why expected frequency is credible
+CFG-H01,environment,location,UNCONFIRMED,text,operator,Pending,General indoor/outdoor and room description only; no personal address
+CFG-H01,environment,receiver_warmup,15,minutes,validation protocol,Frozen,Except cold-start drift experiment HV-FREQ-02
+CFG-H01,environment,session_start,NOT_STARTED,ISO8601,operator,Pending,Enter immediately before first measurement with UTC offset
 CFG-H01,environment,source_geometry,NA,text,operator,Conditional,Required for controlled amplitude tests
 CFG-H01,survey,start_frequency,NA,MHz,operator,Conditional,Required for survey series
 CFG-H01,survey,stop_frequency,NA,MHz,operator,Conditional,Required for survey series

@@ -1,7 +1,8 @@
 # RF Validation Evidence Package
 
 This directory defines the validation plan for the COGNITIVE-RF-SYSTEM
-baseline at commit `73f06b9`. It separates deterministic algorithm validation
+application baseline at commit `73f06b9` and validation-planning baseline at
+commit `4cf57b6`. It separates deterministic algorithm validation
 from RTL-SDR hardware/system validation and defines the records required for
 reproducible final-report evidence.
 
@@ -17,6 +18,9 @@ settings remain frozen during the validation campaign.
 | `experiments.md` | Ordered experimental procedures and completion criteria |
 | `csv_schemas.md` | Data dictionary, units, allowed values, and recording rules |
 | `configuration_record.csv` | Frozen baseline plus blank session-specific configuration fields |
+| `equipment_inventory.csv` | Available and pending physical/software validation resources |
+| `reference_signal_inventory.csv` | Candidate synthetic, controlled, and live RF references |
+| `resource_plan.md` | Experiment dependencies, fallbacks, gates, and execution order |
 | `report_outputs.md` | Required plots, tables, captions, and engineering conclusions |
 | `templates/*.csv` | Header-only measurement templates for each experiment family |
 
@@ -75,4 +79,3 @@ HV_FREQ_ACC_CFG-H01_20260722_error_vs_frequency.png
 
 At creation, all files in this package are planning artifacts. The templates do
 not contain measurements and do not imply that an experiment has passed.
-
