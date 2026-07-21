@@ -34,6 +34,7 @@ class SignalFeatures:
     frequency_drift_khz: float | None = None
     frequency_stability: float | None = None
     frequency_observations: int = 0
+    duty_cycle_percent: float = 0.0
 
 
 def calculate_bandwidth_stability(
@@ -326,7 +327,8 @@ def extract_features(
     occupancy_percent,
     age_seconds,
     strength,
-    persistence
+    persistence,
+    duty_cycle_percent=0.0
 ):
     signal_type = classify_signal_type(
         SignalFeatures(
@@ -337,7 +339,8 @@ def extract_features(
             occupancy_percent=occupancy_percent,
             age_seconds=age_seconds,
             strength=strength,
-            persistence=persistence
+            persistence=persistence,
+            duty_cycle_percent=duty_cycle_percent
         )
     )
 
@@ -350,5 +353,6 @@ def extract_features(
         age_seconds=age_seconds,
         strength=strength,
         persistence=persistence,
-        signal_type=signal_type
+        signal_type=signal_type,
+        duty_cycle_percent=duty_cycle_percent
     )

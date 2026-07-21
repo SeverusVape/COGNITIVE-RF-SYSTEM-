@@ -34,6 +34,8 @@ from SIGNALS.signal_classifier import (
     classify_signal
 )
 from SIGNALS.signal_history import (
+    record_duty_cycle_frame,
+    reset_duty_cycle_tracking,
     update_signal_history,
     increment_history_update_count,
     prune_stale_history,
@@ -628,6 +630,7 @@ def handle_tune_success(freq_hz):
     freq_mhz = freq_hz / 1e6
 
     peak_confirmer.reset()
+    reset_duty_cycle_tracking()
 
     freqs, freqs_mhz = build_frequency_axis(
         NUM_SAMPLES,
@@ -751,6 +754,11 @@ def process_samples(samples):
 
     peaks = peak_confirmer.update(
         raw_peaks
+    )
+
+    record_duty_cycle_frame(
+        peak[0]
+        for peak in peaks
     )
 
     log_signals(

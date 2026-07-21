@@ -1,6 +1,13 @@
 import time
+import math
 
-from UTILS.config import SIGNAL_CONTINUITY_GAP_SECONDS
+from collections import deque
+from numbers import Real
+
+from UTILS.config import (
+    SIGNAL_CONTINUITY_GAP_SECONDS,
+    SIGNAL_DUTY_CYCLE_WINDOW_SECONDS
+)
 
 
 # ==================================================
@@ -13,6 +20,7 @@ signal_last_seen = {}
 
 history_update_count = 0
 seen_this_cycle = set()
+duty_cycle_frames = deque()
 # ==================================================
 # UPDATE HISTORY
 # ==================================================
@@ -166,6 +174,120 @@ def get_history_update_count():
 
 def reset_cycle_tracking():
     seen_this_cycle.clear()
+
+
+def _prune_duty_cycle_frames(
+        current_time,
+        window_seconds
+):
+    while (
+            duty_cycle_frames
+            and current_time - duty_cycle_frames[0][0]
+            > window_seconds
+    ):
+        duty_cycle_frames.popleft()
+
+
+def record_duty_cycle_frame(
+        frequencies,
+        window_seconds=SIGNAL_DUTY_CYCLE_WINDOW_SECONDS
+):
+    if (
+            isinstance(window_seconds, bool)
+            or not isinstance(window_seconds, Real)
+            or not math.isfinite(window_seconds)
+            or window_seconds <= 0
+    ):
+        raise ValueError(
+            "Duty-cycle window must be a finite, "
+            "positive number."
+        )
+
+    normalized_frequencies = set()
+
+    for frequency in frequencies:
+        if (
+                isinstance(frequency, bool)
+                or not isinstance(frequency, Real)
+                or not math.isfinite(frequency)
+        ):
+            raise ValueError(
+                "Duty-cycle frequencies must be finite numbers."
+            )
+
+        normalized_frequencies.add(
+            round(float(frequency), 1)
+        )
+
+    current_time = time.monotonic()
+
+    duty_cycle_frames.append(
+        (
+            current_time,
+            frozenset(normalized_frequencies)
+        )
+    )
+
+    _prune_duty_cycle_frames(
+        current_time,
+        float(window_seconds)
+    )
+
+
+def get_duty_cycle_percent(
+        frequency,
+        window_seconds=SIGNAL_DUTY_CYCLE_WINDOW_SECONDS
+):
+    if (
+            isinstance(frequency, bool)
+            or not isinstance(frequency, Real)
+            or not math.isfinite(frequency)
+    ):
+        raise ValueError(
+            "Duty-cycle frequency must be a finite number."
+        )
+
+    if (
+            isinstance(window_seconds, bool)
+            or not isinstance(window_seconds, Real)
+            or not math.isfinite(window_seconds)
+            or window_seconds <= 0
+    ):
+        raise ValueError(
+            "Duty-cycle window must be a finite, "
+            "positive number."
+        )
+
+    current_time = time.monotonic()
+
+    _prune_duty_cycle_frames(
+        current_time,
+        float(window_seconds)
+    )
+
+    if not duty_cycle_frames:
+        return 0.0
+
+    normalized_frequency = round(
+        float(frequency),
+        1
+    )
+
+    detected_frames = sum(
+        normalized_frequency in frame_frequencies
+        for _, frame_frequencies in duty_cycle_frames
+    )
+
+    return round(
+        detected_frames
+        / len(duty_cycle_frames)
+        * 100,
+        1
+    )
+
+
+def reset_duty_cycle_tracking():
+    duty_cycle_frames.clear()
 
 def get_occupancy_percent(
         frequency

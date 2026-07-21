@@ -12,6 +12,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtGui import QColor
 
 from SIGNALS.signal_history import (
+    get_duty_cycle_percent,
     update_signal_history,
     get_occupancy_percent
 )
@@ -142,6 +143,10 @@ def update_signal_panel(
             )
         )
 
+        duty_cycle_percent = get_duty_cycle_percent(
+            freq
+        )
+
         signal_type, strength, persistence = (
             classify_signal(
                 power,
@@ -158,7 +163,8 @@ def update_signal_panel(
             occupancy_percent=occupancy_percent,
             age_seconds=age_seconds,
             strength=strength,
-            persistence=persistence
+            persistence=persistence,
+            duty_cycle_percent=duty_cycle_percent
         )
 
         feature_store.update(
