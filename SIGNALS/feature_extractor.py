@@ -12,6 +12,7 @@ from SIGNALS.signal_type_classifier import (
 )
 from UTILS.config import (
     BANDWIDTH_STABILITY_MIN_SAMPLES,
+    FEATURE_TRACKING_TOLERANCE_KHZ,
     FREQUENCY_STABILITY_MIN_SAMPLES,
     FREQUENCY_STABILITY_REFERENCE_KHZ
 )
@@ -177,13 +178,39 @@ class FeatureStore:
         self.bandwidth_history = {}
         self.frequency_history = {}
 
+    def _find_matching_key(self, frequency):
+        if not self.features:
+            return None
+
+        tolerance_mhz = (
+            FEATURE_TRACKING_TOLERANCE_KHZ
+            / 1000
+        )
+
+        nearest_key = min(
+            self.features,
+            key=lambda key: abs(
+                key - frequency
+            )
+        )
+
+        if abs(nearest_key - frequency) > tolerance_mhz:
+            return None
+
+        return nearest_key
+
     def update(self, feature):
         feature.last_seen = time.monotonic()
 
-        freq_key = round(
-            feature.frequency,
-            2
+        freq_key = self._find_matching_key(
+            feature.frequency
         )
+
+        if freq_key is None:
+            freq_key = round(
+                feature.frequency,
+                6
+            )
 
         if freq_key not in self.bandwidth_history:
             self.bandwidth_history[freq_key] = deque(
@@ -248,10 +275,12 @@ class FeatureStore:
         ] = feature
 
     def get(self, frequency):
-        freq_key = round(
-            frequency,
-            2
+        freq_key = self._find_matching_key(
+            frequency
         )
+
+        if freq_key is None:
+            return None
 
         return self.features.get(
             freq_key

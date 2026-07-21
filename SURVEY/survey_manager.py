@@ -454,6 +454,25 @@ def build_results_html(
         duty_cycle_percent = diagnostic_snapshot.get(
             "duty_cycle_percent"
         )
+        bandwidth_observations = diagnostic_snapshot.get(
+            "bandwidth_observations",
+            0
+        )
+        frequency_observations = diagnostic_snapshot.get(
+            "frequency_observations",
+            0
+        )
+
+        diagnostic_observations = min(
+            bandwidth_observations,
+            frequency_observations
+        )
+
+        diagnostic_maturity = (
+            "Provisional"
+            if diagnostic_observations < 5
+            else "Established"
+        )
 
         def percent_or_pending(value):
             return (
@@ -494,6 +513,13 @@ def build_results_html(
             (
                 "Recent duty cycle",
                 duty_cycle_text
+            ),
+            (
+                "Diagnostic maturity",
+                (
+                    f"{diagnostic_maturity} "
+                    f"({diagnostic_observations} observations)"
+                )
             )
         )
 
@@ -532,7 +558,9 @@ def build_results_html(
             </table>
             <p style="color:{{TEXT_SUBTLE}}; font-size:10px;">
               Diagnostic measurements are observational and are not yet
-              included in recommendation scoring.
+              included in recommendation scoring. Three or four matched
+              observations produce a provisional estimate; five or more
+              produce an established estimate.
             </p>
             """
         )

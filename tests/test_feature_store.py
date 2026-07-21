@@ -46,6 +46,54 @@ class FeatureStoreTests(unittest.TestCase):
             store.get(100.0)
         )
 
+    def test_frequency_jitter_uses_one_feature_history(self):
+        store = FeatureStore()
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=10.0
+        ):
+            for frequency in (
+                    100.000,
+                    100.012,
+                    99.988,
+                    100.018,
+                    99.982
+            ):
+                store.update(
+                    feature(frequency, 25.0)
+                )
+
+        stored = store.get(100.0)
+
+        self.assertEqual(len(store.features), 1)
+        self.assertEqual(
+            stored.frequency_observations,
+            5
+        )
+        self.assertIsNotNone(
+            stored.frequency_stability
+        )
+        self.assertIsNotNone(
+            stored.bandwidth_stability
+        )
+
+    def test_distinct_frequencies_keep_separate_histories(self):
+        store = FeatureStore()
+
+        with patch(
+                "SIGNALS.feature_extractor.time.monotonic",
+                return_value=10.0
+        ):
+            store.update(
+                feature(100.000, 25.0)
+            )
+            store.update(
+                feature(100.075, 25.0)
+            )
+
+        self.assertEqual(len(store.features), 2)
+
     def test_bandwidth_keeps_recent_maximum(self):
         store = FeatureStore()
 
@@ -68,7 +116,14 @@ class FeatureStoreTests(unittest.TestCase):
     def test_stability_requires_minimum_observations(self):
         self.assertIsNone(
             calculate_bandwidth_stability(
-                [25.0, 26.0, 24.0, 25.0]
+                [25.0, 26.0]
+            )
+        )
+
+    def test_bandwidth_stability_accepts_short_survey_sample(self):
+        self.assertIsNotNone(
+            calculate_bandwidth_stability(
+                [25.0, 26.0, 24.0]
             )
         )
 
@@ -141,7 +196,14 @@ class FeatureStoreTests(unittest.TestCase):
     def test_frequency_stability_requires_observations(self):
         self.assertIsNone(
             calculate_frequency_stability(
-                [100.0, 100.001, 99.999, 100.0]
+                [100.0, 100.001]
+            )
+        )
+
+    def test_frequency_stability_accepts_short_survey_sample(self):
+        self.assertIsNotNone(
+            calculate_frequency_stability(
+                [100.0, 100.001, 99.999]
             )
         )
 

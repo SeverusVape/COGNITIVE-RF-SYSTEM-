@@ -179,7 +179,9 @@ class SurveyManagerTests(unittest.TestCase):
             },
             diagnostic_snapshot={
                 "bandwidth_stability": 0.8,
+                "bandwidth_observations": 3,
                 "frequency_stability": 0.9,
+                "frequency_observations": 3,
                 "frequency_drift_khz": 2.5,
                 "duty_cycle_percent": 60.0
             }
@@ -193,6 +195,10 @@ class SurveyManagerTests(unittest.TestCase):
         self.assertIn("90.0%", results_html)
         self.assertIn("2.5 kHz", results_html)
         self.assertIn("60.0%", results_html)
+        self.assertIn(
+            "Provisional (3 observations)",
+            results_html
+        )
         self.assertIn(
             "not yet\n              included in recommendation scoring",
             results_html
