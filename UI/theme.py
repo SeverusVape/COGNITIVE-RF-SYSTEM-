@@ -435,23 +435,23 @@ GRAPH_GRID_ALPHA = 0.22
 # ==================================================
 
 SURVEY_POPUP_SIZE = (
-    720,
-    760
+    1200,
+    820
 )
 
 SURVEY_POPUP_MINIMUM_SIZE = (
-    560,
-    520
+    900,
+    650
 )
 
 SURVEY_POPUP_MARGINS = (
-    20,
     18,
-    20,
-    18
+    14,
+    18,
+    14
 )
 
-SURVEY_POPUP_SPACING = 12
+SURVEY_POPUP_SPACING = 7
 
 SURVEY_POPUP_STYLESHEET = f"""
 QWidget {{
@@ -461,13 +461,13 @@ QWidget {{
 
 QLabel#reportTitle {{
     color: {TEXT_STRONG};
-    font-size: 22px;
+    font-size: 20px;
     font-weight: 700;
 }}
 
 QLabel#reportSubtitle {{
     color: {TEXT_MUTED};
-    font-size: 12px;
+    font-size: 11px;
 }}
 
 QTextEdit {{
@@ -475,14 +475,15 @@ QTextEdit {{
     color: {TEXT_PRIMARY};
     border: 1px solid {BORDER};
     border-radius: 8px;
-    padding: 16px;
+    padding: 10px;
+    font-size: 12px;
     selection-background-color: {ACCENT};
 }}
 
 QPushButton {{
     min-width: 96px;
-    min-height: 32px;
-    padding: 4px 16px;
+    min-height: 28px;
+    padding: 3px 14px;
     color: {TEXT_STRONG};
     background-color: {ACCENT};
     border: 1px solid {ACCENT_BORDER};

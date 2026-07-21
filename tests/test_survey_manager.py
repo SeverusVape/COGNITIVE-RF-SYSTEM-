@@ -158,6 +158,73 @@ class SurveyManagerTests(unittest.TestCase):
             results_html
         )
 
+    def test_results_html_uses_three_column_card_layout(
+            self
+    ):
+        results_html = build_results_html(
+            sorted_results=[
+                (100.0, 10.0)
+            ],
+            points_scanned=1,
+            average_occupancy=10.0,
+            recommendation={
+                "title": "SMART RECOMMENDATION",
+                "frequency": 100.0,
+                "occupancy": 10.0,
+                "score": 70.0,
+                "reason": [],
+                "score_details": {
+                    "occupancy_score": 45.0,
+                    "power_score": 15.0,
+                    "persistence_score": 5.0,
+                    "age_score": 2.0,
+                    "strength_score": 3.0,
+                    "max_power": 50.0,
+                    "average_power": 25.0
+                }
+            }
+        )
+
+        self.assertIn(
+            'width="32%" valign="top"',
+            results_html
+        )
+        self.assertIn(
+            'width="33%" valign="top"',
+            results_html
+        )
+        self.assertIn(
+            'width="35%" valign="top"',
+            results_html
+        )
+
+    def test_results_html_uses_secondary_detail_row(
+            self
+    ):
+        results_html = build_results_html(
+            sorted_results=[
+                (100.0, 10.0)
+            ],
+            points_scanned=1,
+            average_occupancy=10.0,
+            recommendation={
+                "title": "SMART RECOMMENDATION",
+                "frequency": 100.0,
+                "occupancy": 10.0,
+                "score": 70.0,
+                "reason": []
+            }
+        )
+
+        self.assertIn(
+            'width="36%" valign="top"',
+            results_html
+        )
+        self.assertIn(
+            'width="64%" valign="top"',
+            results_html
+        )
+
     def test_results_html_shows_observational_diagnostics(
             self
     ):
@@ -216,11 +283,11 @@ class SurveyManagerTests(unittest.TestCase):
             results_html
         )
         self.assertIn(
-            "do not identify modulation or service",
+            "not modulation or service identity",
             results_html
         )
         self.assertIn(
-            "not yet\n              included in recommendation scoring",
+            "Diagnostic only",
             results_html
         )
 
@@ -282,7 +349,7 @@ class SurveyManagerTests(unittest.TestCase):
             results_html
         )
         self.assertIn(
-            "Coverage remains diagnostic-only",
+            "Remaining rows in occupancy order",
             results_html
         )
 

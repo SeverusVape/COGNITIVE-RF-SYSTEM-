@@ -86,6 +86,10 @@ class SurveyPopup(QWidget):
             QTextEdit.LineWrapMode.WidgetWidth
         )
 
+        self.text_box.setHorizontalScrollBarPolicy(
+            Qt.ScrollBarPolicy.ScrollBarAlwaysOff
+        )
+
         self.text_box.setHtml(
             results_text
         )
@@ -100,6 +104,10 @@ class SurveyPopup(QWidget):
 
         close_button = QPushButton(
             "Close"
+        )
+
+        close_button.setAccessibleName(
+            "Close survey analysis report"
         )
 
         close_button.setCursor(

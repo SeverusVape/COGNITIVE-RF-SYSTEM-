@@ -104,7 +104,7 @@ class SurveyController:
             self.latest_survey_results_html
         )
 
-        self.survey_popup.show()
+        self.survey_popup.showMaximized()
 
     def auto_tune_best(self):
 

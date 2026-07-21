@@ -215,23 +215,26 @@ def build_results_html(
     report = [
         """
         <div style="color:{{TEXT_PRIMARY}}; font-size:13px;">
-        <table width="100%" cellspacing="8" cellpadding="14">
+        <table width="100%" cellspacing="10" cellpadding="10">
+          <tr>
+            <td width="32%" valign="top" bgcolor="{{CARD_SURFACE}}">
+        <table width="100%" cellspacing="5" cellpadding="8">
           <tr>
             <td bgcolor="{{CARD_SURFACE}}">
-              <span style="color:{{TEXT_MUTED}}; font-size:10px;">
+              <b style="color:{{TEXT_MUTED}}; font-size:11px;">
                 POINTS SCANNED
-              </span><br>
-              <span style="font-size:22px; font-weight:600;">
+              </b><br>
+              <span style="font-size:20px; font-weight:700;">
         """,
         str(points_scanned),
         """
               </span>
             </td>
             <td bgcolor="{{CARD_SURFACE}}">
-              <span style="color:{{TEXT_MUTED}}; font-size:10px;">
+              <b style="color:{{TEXT_MUTED}}; font-size:11px;">
                 AVERAGE OCCUPANCY
-              </span><br>
-              <span style="font-size:22px; font-weight:600;">
+              </b><br>
+              <span style="font-size:20px; font-weight:700;">
         """,
         f"{average_occupancy:.1f}%",
         """
@@ -240,11 +243,11 @@ def build_results_html(
           </tr>
         </table>
 
-        <h2 style="color:{{TEXT_STRONG}}; margin-top:18px;">
+        <h2 style="color:{{TEXT_STRONG}}; margin-top:8px;">
           Recommendation
         </h2>
 
-        <table width="100%" cellspacing="0" cellpadding="16">
+        <table width="100%" cellspacing="0" cellpadding="9">
           <tr>
             <td bgcolor="{{RECOMMENDATION_SURFACE}}">
               <span style="color:{{ACCENT_LIGHT}}; font-size:11px;">
@@ -253,8 +256,8 @@ def build_results_html(
             recommendation_title.upper()
         ),
         """
-              </span><br><br>
-              <span style="color:{{TEXT_STRONG}}; font-size:28px;
+              </span><br>
+              <span style="color:{{TEXT_STRONG}}; font-size:23px;
                            font-weight:700;">
         """,
         frequency_text,
@@ -264,7 +267,7 @@ def build_results_html(
           </tr>
         </table>
 
-        <table width="100%" cellspacing="8" cellpadding="10">
+        <table width="100%" cellspacing="5" cellpadding="6">
           <tr>
             <td bgcolor="{{CARD_SURFACE}}">
               <span style="color:{{TEXT_MUTED}};">Occupancy</span><br>
@@ -295,6 +298,8 @@ def build_results_html(
         """
           </tr>
         </table>
+            </td>
+            <td width="33%" valign="top" bgcolor="{{CARD_SURFACE}}">
         """
     )
 
@@ -305,10 +310,11 @@ def build_results_html(
     ):
         report.extend([
             """
-            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
+            <p style="color:{{TEXT_STRONG}}; font-size:15px;
+                      font-weight:700; margin-top:4px; margin-bottom:4px;">
               Decision Comparison
-            </h3>
-            <table width="100%" cellspacing="0" cellpadding="8">
+            </p>
+            <table width="100%" cellspacing="0" cellpadding="5">
               <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
                 <td><b>Candidate</b></td>
                 <td><b>Frequency</b></td>
@@ -342,7 +348,7 @@ def build_results_html(
               </tr>
             </table>
 
-            <table width="100%" cellspacing="8" cellpadding="10">
+            <table width="100%" cellspacing="5" cellpadding="6">
               <tr>
                 <td bgcolor="{{CARD_SURFACE}}">
                   <span style="color:{{TEXT_MUTED}};">Decision Margin</span><br>
@@ -369,8 +375,8 @@ def build_results_html(
               </tr>
             </table>
             <p style="color:{{TEXT_SUBTLE}}; font-size:10px;">
-              Confidence reflects winner/runner-up score separation,
-              not statistical certainty.
+              Confidence represents score separation, not statistical
+              certainty.
             </p>
             """
         ])
@@ -401,10 +407,10 @@ def build_results_html(
 
         report.append(
             """
-            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
+            <h3 style="color:{{TEXT_STRONG}}; margin-top:14px;">
               Score Breakdown
             </h3>
-            <table width="100%" cellspacing="0" cellpadding="7">
+            <table width="100%" cellspacing="0" cellpadding="4">
               <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
                 <td><b>Component</b></td>
                 <td align="right"><b>Score</b></td>
@@ -433,7 +439,7 @@ def build_results_html(
         report.extend([
             """
             </table>
-            <p style="color:{{TEXT_MUTED}};">
+            <p style="color:{{TEXT_MUTED}}; font-size:10px;">
               Max power: <b style="color:{{TEXT_PRIMARY}};">
             """,
             f"{score_details['max_power']:.1f} dB",
@@ -444,6 +450,33 @@ def build_results_html(
             f"{score_details['average_power']:.1f} dB",
             "</b></p>"
         ])
+
+    if recommended_reason:
+        report.append(
+            """
+            <p style="color:{{TEXT_STRONG}}; font-size:14px;
+                      font-weight:700; margin-top:8px; margin-bottom:3px;">
+              Decision Rationale
+            </p>
+            <ul style="margin-top:2px; margin-bottom:4px;">
+            """
+        )
+
+        for reason in recommended_reason:
+            report.extend([
+                '<li style="margin-bottom:2px;">',
+                escape(reason),
+                "</li>"
+            ])
+
+        report.append("</ul>")
+
+    report.append(
+        """
+            </td>
+            <td width="35%" valign="top" bgcolor="{{CARD_SURFACE}}">
+        """
+    )
 
     if diagnostic_snapshot:
         behavior_profile = build_behavior_profile(
@@ -532,10 +565,11 @@ def build_results_html(
 
         report.append(
             """
-            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
+            <p style="color:{{TEXT_STRONG}}; font-size:14px;
+                      font-weight:700; margin-top:6px; margin-bottom:3px;">
               Signal Diagnostics
-            </h3>
-            <table width="100%" cellspacing="0" cellpadding="7">
+            </p>
+            <table width="100%" cellspacing="0" cellpadding="4">
               <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
                 <td><b>Measurement</b></td>
                 <td align="right"><b>Observed value</b></td>
@@ -564,10 +598,8 @@ def build_results_html(
             """
             </table>
             <p style="color:{{TEXT_SUBTLE}}; font-size:10px;">
-              Diagnostic measurements are observational and are not yet
-              included in recommendation scoring. Three or four matched
-              observations produce a provisional estimate; five or more
-              produce an established estimate.
+              Diagnostic only · Provisional: 3–4 observations ·
+              Established: 5+
             </p>
             """
         )
@@ -596,10 +628,12 @@ def build_results_html(
 
             report.append(
                 """
-                <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
+                <p style="color:{{TEXT_STRONG}}; font-size:14px;
+                          font-weight:700; margin-top:7px;
+                          margin-bottom:3px;">
                   Observed Signal Behavior
-                </h3>
-                <table width="100%" cellspacing="0" cellpadding="7">
+                </p>
+                <table width="100%" cellspacing="0" cellpadding="4">
                   <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
                     <td><b>Characteristic</b></td>
                     <td align="right"><b>Descriptor</b></td>
@@ -628,37 +662,29 @@ def build_results_html(
                 """
                 </table>
                 <p style="color:{{TEXT_SUBTLE}}; font-size:10px;">
-                  Behavior descriptors summarize measured stability and
-                  activity only. They do not identify modulation or service.
+                  Behavior summary only—not modulation or service identity.
                 </p>
                 """
             )
 
-    if recommended_reason:
-        report.append(
-            """
-            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
-              Decision Rationale
-            </h3>
-            <ul style="margin-top:4px;">
-            """
-        )
-
-        for reason in recommended_reason:
-            report.extend([
-                '<li style="margin-bottom:4px;">',
-                escape(reason),
-                "</li>"
-            ])
-
-        report.append("</ul>")
+    report.append(
+        """
+            </td>
+          </tr>
+        </table>
+        <table width="100%" cellspacing="10" cellpadding="10">
+          <tr>
+            <td width="36%" valign="top" bgcolor="{{CARD_SURFACE}}">
+        """
+    )
 
     report.append(
         """
-        <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
+        <p style="color:{{TEXT_STRONG}}; font-size:14px;
+                  font-weight:700; margin-top:6px; margin-bottom:3px;">
           Measured Occupancy
-        </h3>
-        <table width="100%" cellspacing="0" cellpadding="7">
+        </p>
+        <table width="100%" cellspacing="0" cellpadding="4">
           <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
             <td><b>Rank</b></td>
             <td><b>Frequency</b></td>
@@ -688,7 +714,13 @@ def build_results_html(
             "</tr>"
         ])
 
-    report.append("</table>")
+    report.append(
+        """
+        </table>
+            </td>
+            <td width="64%" valign="top" bgcolor="{{CARD_SURFACE}}">
+        """
+    )
 
     if diagnostic_snapshots:
         ordered_frequencies = []
@@ -706,10 +738,11 @@ def build_results_html(
 
         report.append(
             """
-            <h3 style="color:{{TEXT_STRONG}}; margin-top:16px;">
+            <p style="color:{{TEXT_STRONG}}; font-size:14px;
+                      font-weight:700; margin-top:6px; margin-bottom:3px;">
               Survey Diagnostic Coverage
-            </h3>
-            <table width="100%" cellspacing="0" cellpadding="7">
+            </p>
+            <table width="100%" cellspacing="0" cellpadding="4">
               <tr bgcolor="{{TABLE_HEADER_SURFACE}}">
                 <td><b>Frequency</b></td>
                 <td><b>Evidence</b></td>
@@ -795,14 +828,17 @@ def build_results_html(
             """
             </table>
             <p style="color:{{TEXT_SUBTLE}}; font-size:10px;">
-              The recommended frequency is shown first; remaining rows follow
-              measured-occupancy order. Coverage remains diagnostic-only.
+              Recommended first · Remaining rows in occupancy order ·
+              Diagnostic only
             </p>
             """
         )
 
     report.append(
         """
+            </td>
+          </tr>
+        </table>
         </div>
         """
     )

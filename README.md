@@ -17,7 +17,7 @@ hardware-tested with an RTL-SDR Blog V3 dongle on macOS.
 - Explainable SMART recommendation scoring
 - Runner-up, decision margin, and score-separation confidence
 - Professional Phase 1 user interface
-- 105 automated tests passing
+- 107 automated tests passing
 
 The application is receive-only. It does not transmit or control external RF
 equipment.
@@ -53,6 +53,10 @@ equipment.
   stability, and recent activity without claiming modulation or service type
 - Survey reports compare diagnostic evidence and behavior coverage across the
   recommended frequency and other measured candidates
+- The detailed survey report opens maximized and uses a readable three-column
+  card layout for recommendation, scoring, and signal diagnostics
+- Measured occupancy and candidate diagnostic coverage remain grouped in a
+  separate comparison row for quick review
 - Temporal confirmation to reject single-frame spikes
 - Small peak-frequency drift tolerance
 
@@ -402,7 +406,7 @@ python -m unittest discover -s tests -v
 Current verified result:
 
 ```text
-Ran 105 tests
+Ran 107 tests
 OK
 ```
 
