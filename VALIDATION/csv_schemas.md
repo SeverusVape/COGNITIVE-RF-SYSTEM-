@@ -399,6 +399,34 @@ One row describes one deterministic controlled-spectrum bandwidth trial for
 | valid | boolean | Record validity |
 | notes | text | Trial scope and interpretation |
 
+## `synthetic_occupancy_trials.csv`
+
+One row describes one deterministic controlled-bin occupancy trial for
+`AV-OCC-01`.
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `AV-OCC-01` |
+| configuration_id | text | Frozen synthetic configuration |
+| trial_id | integer | Unique trial number |
+| timestamp | datetime | Run timestamp |
+| random_seed | integer | Reproduction seed |
+| bin_count | integer | Total spectral-bin count |
+| layout | text | `clustered` or `distributed` occupied bins |
+| requested_occupancy_percent | float | Requested nominal occupancy |
+| occupied_bin_count | integer | Integer occupied-bin count |
+| realized_expected_occupancy_percent | float | Exact bin-count reference |
+| measured_occupancy_percent | float | Application occupancy output |
+| measurement_error_percentage_points | float | Measured minus expected |
+| threshold_mode | text | Scalar or per-bin threshold condition |
+| minimum_threshold_db | float | Minimum synthetic threshold |
+| maximum_threshold_db | float | Maximum synthetic threshold |
+| minimum_occupied_excess_db | float/NA | Minimum margin above threshold |
+| maximum_occupied_excess_db | float/NA | Maximum margin above threshold |
+| meter_filled_bar_count | integer | Filled UI meter segments |
+| valid | boolean | Record validity |
+| notes | text | Reference convention and trial note |
+
 ## `survey_sequence.csv`
 
 | Column | Type | Meaning |

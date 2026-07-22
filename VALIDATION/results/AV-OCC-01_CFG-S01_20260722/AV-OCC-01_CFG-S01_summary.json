@@ -1,0 +1,16 @@
+{
+  "validation_id": "AV-OCC-01",
+  "configuration_id": "CFG-S01",
+  "trial_count": 900,
+  "layout_count": 2,
+  "occupancy_level_count": 9,
+  "trials_per_condition": 50,
+  "bin_count": 8192,
+  "maximum_allowed_error_percentage_points": 1e-09,
+  "maximum_absolute_error_percentage_points": 0.0,
+  "maximum_repeatability_standard_deviation_percent": 0.0,
+  "maximum_clustered_distributed_difference_percentage_points": 0.0,
+  "result": "PASS",
+  "claim_scope": "Exact spectral-bin fraction above scalar or per-bin thresholds for deterministic synthetic spectra",
+  "excluded_claims": "Regulatory occupancy, time occupancy, channel utilization, hardware repeatability, and RF calibration"
+}
