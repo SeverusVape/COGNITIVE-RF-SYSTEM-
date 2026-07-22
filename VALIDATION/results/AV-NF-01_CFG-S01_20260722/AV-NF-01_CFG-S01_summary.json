@@ -1,0 +1,22 @@
+{
+  "validation_id": "AV-NF-01",
+  "configuration_id": "CFG-S01",
+  "trial_count": 300,
+  "trials_per_condition": 100,
+  "conditions": 3,
+  "sample_rate_hz": 2048000.0,
+  "fft_size": 8192,
+  "window_khz": 250.0,
+  "percentile": 30.0,
+  "margin_db": 10.0,
+  "noise_sigma_db": 1.5,
+  "mae_limit_db": 1.25,
+  "p95_trial_mae_limit_db": 1.5,
+  "peak_effect_p95_limit_db": 0.25,
+  "maximum_condition_mean_mae_db": 0.7877663719411225,
+  "maximum_condition_p95_trial_mae_db": 0.8191764319866311,
+  "maximum_condition_p95_peak_effect_db": 0.0060722834705187615,
+  "result": "PASS",
+  "claim_scope": "Synthetic spectral-baseline tracking by the existing percentile estimator",
+  "excluded_claims": "RTL-SDR noise figure; calibrated dBm; abrupt-step accuracy inside the estimator window"
+}

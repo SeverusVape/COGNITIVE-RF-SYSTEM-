@@ -103,6 +103,38 @@ collection. Do not enter results directly into the templates.
 | passed | boolean | Per-row centered-peak criterion result |
 | notes | text | Scope and leakage definition |
 
+## `noise_floor_trials.csv`
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `AV-NF-01` |
+| configuration_id | text | Frozen synthetic configuration |
+| trial_id | integer | Unique baseline realization |
+| timestamp | datetime | Execution time with UTC offset |
+| random_seed | integer | Reproducible noise/peak seed |
+| condition | text | `flat`, `curved`, or `stepped` baseline |
+| sample_rate_hz | float | Frequency-axis sample rate |
+| fft_size | integer | Number of synthetic spectral bins |
+| bin_spacing_hz | float | Sample rate divided by FFT size |
+| window_khz | float | Local percentile-filter width |
+| percentile | float | Configured local-floor percentile |
+| margin_db | float | Detection-threshold margin |
+| noise_sigma_db | float | Gaussian spectral variation in dB |
+| injected_peak_count | integer | Added narrow interferers |
+| valid_bin_count | integer | Bins used after boundary exclusions |
+| mean_error_db | float | Mean estimated-minus-known floor error |
+| mean_absolute_error_db | float | Mean absolute floor error |
+| maximum_absolute_error_db | float | Worst valid-bin absolute error |
+| p95_absolute_bin_error_db | float | 95th percentile valid-bin error |
+| peak_induced_mean_absolute_change_db | float | Mean estimate change caused by peaks |
+| peak_induced_maximum_change_db | float | Worst estimate change caused by peaks |
+| threshold_margin_error_db | float | Error in applied detection margin |
+| mae_limit_db | float | Condition mean-MAE criterion |
+| p95_trial_mae_limit_db | float | Condition 95th-percentile trial criterion |
+| peak_effect_p95_limit_db | float | Peak-contamination criterion |
+| passed | boolean | Per-trial MAE and margin result |
+| notes | text | Qualification and boundary handling |
+
 ## `frequency_accuracy.csv`
 
 | Column | Type | Meaning |
