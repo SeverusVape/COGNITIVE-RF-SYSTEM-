@@ -74,6 +74,35 @@ collection. Do not enter results directly into the templates.
 | passed | boolean | Whether absolute error is within the limit |
 | notes | text | Trial qualification or anomaly |
 
+## `fft_window_trials.csv`
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `AV-FFT-02` |
+| configuration_id | text | Frozen synthetic configuration |
+| trial_id | integer | Unique spectrum evaluation |
+| timestamp | datetime | Execution time with UTC offset |
+| random_seed | integer | Seed used for the paired tone phase |
+| window_type | text | `Rectangular` or coherent-gain-corrected `Hann` |
+| sample_rate_hz | float | Synthetic IQ sample rate |
+| fft_size | integer | Number of complex samples |
+| bin_spacing_hz | float | Sample rate divided by FFT size |
+| integer_bin_offset | integer | Integer FFT-bin location from center |
+| fractional_bin_offset | float | Tone displacement from the integer bin |
+| tone_offset_hz | float | Exact generated tone offset from center |
+| phase_rad | float | Deterministic randomized starting phase |
+| detected_bin_offset | float | Detected maximum-bin offset from center |
+| peak_relative_db | float | Relative FFT peak; not calibrated dBm |
+| ideal_peak_db | float | Ideal coherent bin-centered peak for a unit tone |
+| peak_error_db | float | Measured peak minus ideal peak |
+| protected_half_width_bins | integer | Bins protected on each side of peak |
+| leakage_relative_db | float | Energy outside protected region relative to total energy |
+| maximum_sidelobe_relative_db | float | Strongest bin outside protected region relative to peak |
+| centered_peak_limit_db | float | Absolute centered-tone peak-error criterion |
+| minimum_off_bin_improvement_db | float | Hann leakage-improvement criterion |
+| passed | boolean | Per-row centered-peak criterion result |
+| notes | text | Scope and leakage definition |
+
 ## `frequency_accuracy.csv`
 
 | Column | Type | Meaning |
