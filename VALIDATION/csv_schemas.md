@@ -51,6 +51,29 @@ collection. Do not enter results directly into the templates.
 | valid | boolean | Trial validity |
 | notes | text | Failure reason or special condition |
 
+## `fft_frequency_trials.csv`
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `AV-FFT-01` |
+| configuration_id | text | Frozen synthetic configuration |
+| trial_id | integer | Unique trial number |
+| timestamp | datetime | Execution time with UTC offset |
+| random_seed | integer | Resolved seed used for the trial phase |
+| sample_rate_hz | float | Synthetic IQ sample rate |
+| fft_size | integer | Number of complex samples |
+| bin_spacing_hz | float | Sample rate divided by FFT size |
+| shifted_bin_index | integer | Index in the shifted FFT array |
+| tone_offset_hz | float | Expected tone offset from center |
+| phase_rad | float | Deterministic randomized starting phase |
+| measured_offset_hz | float | Frequency-axis value at maximum FFT bin |
+| error_hz | float | Measured offset minus expected offset |
+| absolute_error_hz | float | Absolute frequency error |
+| peak_relative_db | float | Relative FFT peak; not calibrated dBm |
+| acceptance_limit_hz | float | Half-bin frequency-error limit |
+| passed | boolean | Whether absolute error is within the limit |
+| notes | text | Trial qualification or anomaly |
+
 ## `frequency_accuracy.csv`
 
 | Column | Type | Meaning |
@@ -193,4 +216,3 @@ One row describes one frequency candidate within a survey run.
 | result_stored | boolean | Whether point was accepted |
 | status | text | `complete`, `tune_failed`, `measurement_failed`, or `cancelled` |
 | notes | text | Sequence anomaly |
-

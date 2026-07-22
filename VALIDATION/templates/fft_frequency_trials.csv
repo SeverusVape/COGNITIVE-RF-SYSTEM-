@@ -1,0 +1,1 @@
+validation_id,configuration_id,trial_id,timestamp,random_seed,sample_rate_hz,fft_size,bin_spacing_hz,shifted_bin_index,tone_offset_hz,phase_rad,measured_offset_hz,error_hz,absolute_error_hz,peak_relative_db,acceptance_limit_hz,passed,notes

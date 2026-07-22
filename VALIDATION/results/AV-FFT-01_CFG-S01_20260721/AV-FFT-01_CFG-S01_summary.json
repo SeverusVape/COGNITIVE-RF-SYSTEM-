@@ -1,0 +1,21 @@
+{
+  "validation_id": "AV-FFT-01",
+  "configuration_id": "CFG-S01",
+  "trial_count": 25,
+  "unique_tone_offsets": 5,
+  "repetitions_per_offset": 5,
+  "sample_rate_hz": 2048000.0,
+  "fft_size": 8192,
+  "bin_spacing_hz": 250.0,
+  "acceptance_limit_hz": 125.0,
+  "mean_error_hz": 0.0,
+  "standard_deviation_error_hz": 0.0,
+  "maximum_absolute_error_hz": 0.0,
+  "mean_peak_relative_db": 78.2677988726351,
+  "standard_deviation_peak_relative_db": 1.4503892858778863e-14,
+  "passed_trials": 25,
+  "failed_trials": 0,
+  "result": "PASS",
+  "claim_scope": "Numerical FFT-axis placement for bin-centered synthetic complex tones",
+  "excluded_claims": "RTL-SDR frequency accuracy; off-bin interpolation; calibrated power"
+}
