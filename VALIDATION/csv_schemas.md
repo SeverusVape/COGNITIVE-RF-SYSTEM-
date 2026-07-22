@@ -368,6 +368,37 @@ One row describes one deterministic two-tone resolution trial for `AV-PD-03`.
 | valid | boolean | Record validity |
 | notes | text | Matching rule and trial note |
 
+## `bandwidth_heuristic_trials.csv`
+
+One row describes one deterministic controlled-spectrum bandwidth trial for
+`AV-BW-01`.
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `AV-BW-01` |
+| configuration_id | text | Frozen synthetic configuration |
+| trial_id | integer | Unique trial number |
+| timestamp | datetime | Run timestamp |
+| random_seed | integer | Reproduction seed |
+| sample_rate_hz | float | Frequency-axis sample rate |
+| fft_size | integer | Number of spectral bins |
+| bin_spacing_hz | float | Frequency-bin spacing |
+| shape | text | Controlled spectral-shape family |
+| controlled_minus_15db_width_khz | float | Analytical reference width |
+| center_frequency_hz | float | Randomized synthetic center |
+| peak_level_db | float | Synthetic peak level |
+| baseline_level_db | float | Synthetic baseline level |
+| returned_peak_count | integer | Total detector output count |
+| detected_frequency_hz | float/NA | Frequency of matched response |
+| frequency_error_hz | float/NA | Matched frequency error |
+| estimated_minus_15db_width_khz | float/NA | Existing heuristic output |
+| width_error_khz | float/NA | Estimated minus controlled width |
+| absolute_width_error_khz | float/NA | Absolute width error |
+| relative_width_error_percent | float/NA | Signed relative error |
+| detected | boolean | Controlled response was matched |
+| valid | boolean | Record validity |
+| notes | text | Trial scope and interpretation |
+
 ## `survey_sequence.csv`
 
 | Column | Type | Meaning |

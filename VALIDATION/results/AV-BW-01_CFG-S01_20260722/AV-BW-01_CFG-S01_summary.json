@@ -1,0 +1,18 @@
+{
+  "validation_id": "AV-BW-01",
+  "configuration_id": "CFG-S01",
+  "trial_count": 700,
+  "shape_count": 2,
+  "width_count": 7,
+  "trials_per_condition": 50,
+  "sample_rate_hz": 2048000.0,
+  "fft_size": 8192,
+  "bin_spacing_khz": 0.25,
+  "acceptance_tolerance_khz": 1.0,
+  "minimum_detection_probability": 0.0,
+  "maximum_p95_absolute_error_khz": 0.2500000000668763,
+  "maximum_repeatability_standard_deviation_khz": 2.8710262101646174e-14,
+  "result": "FAIL",
+  "claim_scope": "Repeatability and bias of the existing minus-15 dB bandwidth heuristic on controlled synthetic spectral shapes",
+  "excluded_claims": "Regulatory occupied bandwidth, modulated-signal bandwidth, hardware bandwidth, and calibrated RF measurements"
+}
