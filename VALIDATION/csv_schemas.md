@@ -330,6 +330,44 @@ One row describes one frequency candidate within a survey run.
 | valid | boolean | Candidate record validity |
 | notes | text | Special condition |
 
+## `two_tone_resolution_trials.csv`
+
+One row describes one deterministic two-tone resolution trial for `AV-PD-03`.
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `AV-PD-03` |
+| configuration_id | text | Frozen synthetic configuration |
+| trial_id | integer | Unique trial number |
+| timestamp | datetime | Run timestamp |
+| random_seed | integer | Reproduction seed |
+| sample_rate_hz | float | FFT sample rate |
+| fft_size | integer | FFT length |
+| bin_spacing_hz | float | FFT frequency-bin spacing |
+| noise_model | text | Synthetic complex-noise definition |
+| snr_definition | text | Primary-tone SNR convention |
+| primary_tone_snr_db | float | Primary tone power relative to noise |
+| relative_tone_2_db | float | Secondary tone amplitude relative to tone 1 |
+| tone_1_hz | float | True tone 1 baseband frequency |
+| tone_2_hz | float | True tone 2 baseband frequency |
+| tone_separation_khz | float | Controlled tone separation |
+| expected_peak_count | integer | Expected tone count |
+| returned_peak_count | integer | Total detector output count |
+| tone_1_detected | boolean | Tone 1 received a unique matched peak |
+| tone_2_detected | boolean | Tone 2 received a unique matched peak |
+| both_tones_detected | boolean | Both tones received distinct matched peaks |
+| detected_frequency_1_hz | float/NA | Peak assigned to tone 1 |
+| detected_frequency_2_hz | float/NA | Peak assigned to tone 2 |
+| frequency_error_1_hz | float/NA | Tone 1 frequency error |
+| frequency_error_2_hz | float/NA | Tone 2 frequency error |
+| detected_peak_separation_khz | float/NA | Separation of assigned detector outputs |
+| missed_detection_count | integer | Unmatched synthetic tones |
+| local_response_count | integer | Returned peaks within the two-tone span |
+| nearest_local_peak_hz | float/NA | Local detector response nearest midpoint |
+| response_class | text | Resolution/partial/merged response category |
+| valid | boolean | Record validity |
+| notes | text | Matching rule and trial note |
+
 ## `survey_sequence.csv`
 
 | Column | Type | Meaning |
