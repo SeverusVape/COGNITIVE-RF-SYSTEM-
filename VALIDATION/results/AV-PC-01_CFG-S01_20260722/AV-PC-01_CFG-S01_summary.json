@@ -1,0 +1,23 @@
+{
+  "validation_id": "AV-PC-01",
+  "configuration_id": "CFG-S01",
+  "conditions": [
+    "flat_noise",
+    "uneven_baseline"
+  ],
+  "observation_windows_per_condition": 50,
+  "frames_per_window": 100,
+  "total_frames": 10000,
+  "sample_rate_hz": 2048000.0,
+  "fft_size": 8192,
+  "required_hits": 2,
+  "confirmation_window_frames": 3,
+  "confirmation_tolerance_khz": 25.0,
+  "confirmed_frame_probability_limit": 0.05,
+  "mean_confirmed_false_per_frame_limit": 0.05,
+  "minimum_suppression_ratio": 0.95,
+  "p95_confirmed_false_per_window_limit": 5.0,
+  "result": "FAIL",
+  "claim_scope": "Synthetic noise-only specificity through FFT, raw detector, and unchanged temporal peak confirmation",
+  "excluded_claims": "Signal-history aging, classifier behavior, hardware interference, and displayed UI false-alarm rate"
+}

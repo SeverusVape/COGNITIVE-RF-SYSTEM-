@@ -79,6 +79,50 @@ collection. Do not enter results directly into the templates.
 | valid | boolean | Trial validity |
 | notes | text | Scope, shaping, or qualification note |
 
+## `temporal_confirmation_frames.csv`
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `AV-PC-01` |
+| configuration_id | text | Frozen synthetic configuration |
+| condition | text | `flat_noise` or `uneven_baseline` |
+| observation_window_id | integer | Independent 100-frame sequence identifier |
+| frame_index | integer | One-based frame index within the sequence |
+| global_frame_index | integer | One-based frame index across the experiment |
+| timestamp | datetime | Experiment execution time with UTC offset |
+| random_seed | integer | Reproducible frame seed |
+| sample_rate_hz | float | Synthetic IQ sample rate |
+| fft_size | integer | Complex samples per frame |
+| raw_peak_count | integer | Candidates returned by the raw detector |
+| frame_has_raw_candidates | boolean | Whether raw candidates were present |
+| confirmed_false_count | integer | Noise candidates accepted by temporal confirmation |
+| frame_has_confirmed_false | boolean | Whether the frame contained a confirmed false signal |
+| confirmed_frequencies_mhz | text/NA | Semicolon-separated confirmed frequencies |
+| maximum_active_persistence_frames | integer | Longest confirmed-frequency run active in this frame |
+| required_hits | integer | Unchanged confirmer hit requirement |
+| confirmation_window_frames | integer | Unchanged confirmer history length |
+| confirmation_tolerance_khz | float | Unchanged frequency matching tolerance |
+| valid | boolean | Frame validity |
+| notes | text | Scope and qualification note |
+
+## `temporal_confirmation_windows.csv`
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `AV-PC-01` |
+| configuration_id | text | Frozen synthetic configuration |
+| condition | text | Noise condition |
+| observation_window_id | integer | Independent sequence identifier |
+| frame_count | integer | Consecutive frames in the sequence |
+| raw_candidate_count | integer | Total raw candidates in the sequence |
+| confirmed_false_count | integer | Total confirmed false signals in the sequence |
+| confirmed_false_frame_count | integer | Frames containing confirmed false signals |
+| raw_to_confirmed_suppression_ratio | float | One minus confirmed divided by raw candidate count |
+| maximum_persistence_frames | integer | Longest consecutive confirmed-frequency run |
+| distinct_confirmed_frequency_tracks | integer | Validation-only count of confirmed-frequency tracks |
+| valid | boolean | Window validity |
+| notes | text | Persistence-tracking definition |
+
 ## `fft_frequency_trials.csv`
 
 | Column | Type | Meaning |
