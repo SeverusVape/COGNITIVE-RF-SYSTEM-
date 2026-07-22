@@ -51,6 +51,34 @@ collection. Do not enter results directly into the templates.
 | valid | boolean | Trial validity |
 | notes | text | Failure reason or special condition |
 
+## `noise_only_false_alarm_trials.csv`
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `AV-PD-02` |
+| configuration_id | text | Frozen synthetic configuration |
+| trial_id | integer | Unique noise-only realization |
+| timestamp | datetime | Execution time with UTC offset |
+| random_seed | integer | Reproducible noise seed |
+| condition | text | `flat_noise` or `uneven_baseline` |
+| sample_rate_hz | float | Synthetic IQ sample rate |
+| fft_size | integer | Number of complex samples |
+| bin_spacing_hz | float | Sample rate divided by FFT size |
+| noise_model | text | Noise distribution and baseline-shaping definition |
+| baseline_peak_to_peak_db | float | Intended frequency-domain baseline range |
+| false_peak_count | integer | Detector candidates returned from a signal-free frame |
+| any_false_alarm | boolean | Whether at least one candidate was returned |
+| reached_peak_cap | boolean | Whether the detector returned its three-candidate maximum |
+| maximum_excess_db | float/NA | Largest returned peak above its local threshold |
+| mean_excess_db | float/NA | Mean returned-peak excess above local threshold |
+| median_local_floor_db | float | Median estimated local noise floor |
+| median_threshold_db | float | Median adaptive threshold |
+| false_alarm_probability_limit | float | Maximum acceptable frame false-alarm probability, 0–1 |
+| mean_false_peak_limit | float | Maximum acceptable mean candidates per frame |
+| peak_cap_frame_fraction_limit | float | Maximum acceptable fraction reaching the three-peak cap, 0–1 |
+| valid | boolean | Trial validity |
+| notes | text | Scope, shaping, or qualification note |
+
 ## `fft_frequency_trials.csv`
 
 | Column | Type | Meaning |

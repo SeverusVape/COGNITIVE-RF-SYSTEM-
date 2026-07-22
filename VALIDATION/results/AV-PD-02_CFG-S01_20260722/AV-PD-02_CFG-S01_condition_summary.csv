@@ -1,0 +1,3 @@
+condition,trial_count,frames_with_false_alarm,frame_false_alarm_probability,mean_false_peaks_per_frame,peak_cap_frame_fraction,median_maximum_excess_db,p95_maximum_excess_db,false_alarm_probability_limit,mean_false_peak_limit,peak_cap_frame_fraction_limit,result
+flat_noise,500,500,1.0,3.0,1.0,4.2367125534564565,5.269822352916447,0.05,0.1,0.01,FAIL
+uneven_baseline,500,500,1.0,3.0,1.0,3.6591193906106696,5.070332789485755,0.05,0.1,0.01,FAIL
