@@ -98,7 +98,9 @@ from UI.theme import (
     STATUS_WARNING,
     SURVEY_CONTROL_PANEL_MARGINS,
     SURVEY_CONTROL_PANEL_SPACING,
-    SURVEY_CONTROL_PANEL_STYLESHEET
+    SURVEY_CONTROL_PANEL_STYLESHEET,
+    TEXT_STRONG,
+    WINDOW_BACKGROUND
 )
 
 from UTILS.occupancy import (
@@ -141,12 +143,12 @@ app = QApplication(sys.argv)
 
 pg.setConfigOption(
     "background",
-    "k"
+    WINDOW_BACKGROUND
 )
 
 pg.setConfigOption(
     "foreground",
-    "w"
+    TEXT_STRONG
 )
 
 

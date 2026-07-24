@@ -9,6 +9,11 @@ from SURVEY.survey_manager import (
     rank_frequencies
 )
 
+from UI.theme import (
+    CARD_SURFACE,
+    STATUS_WARNING
+)
+
 
 class SurveyManagerTests(unittest.TestCase):
 
@@ -234,12 +239,12 @@ class SurveyManagerTests(unittest.TestCase):
         )
 
         self.assertIn(
-            'bgcolor="#1d2329"',
+            f'bgcolor="{CARD_SURFACE}"',
             results_html
         )
 
         self.assertIn(
-            "#fbbf24",
+            STATUS_WARNING,
             results_html
         )
 

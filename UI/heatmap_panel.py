@@ -8,6 +8,8 @@ from UI.graph_style import (
     style_plot
 )
 
+from UI.theme import RECOMMENDATION_ACCENT
+
 
 def create_heatmap_panel(
         win,
@@ -77,14 +79,14 @@ def create_heatmap_panel(
         movable=False,
         span=(0, 0.80),
         pen=pg.mkPen(
-            color="#fb7185",
+            color=RECOMMENDATION_ACCENT,
             width=2,
             style=pg.QtCore.Qt.PenStyle.DashLine
         ),
         label="RECOMMENDED",
         labelOpts={
             "position": 0.98,
-            "color": "#fb7185",
+            "color": RECOMMENDATION_ACCENT,
             "fill": (0, 0, 0, 180),
             "anchors": [
                 (0.5, 1.0),

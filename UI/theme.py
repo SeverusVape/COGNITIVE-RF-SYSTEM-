@@ -9,27 +9,29 @@ the approved Survey Analysis Report style without duplicating color values.
 # COLOR PALETTE
 # ==================================================
 
-WINDOW_BACKGROUND = "#202124"
-REPORT_SURFACE = "#111315"
-CARD_SURFACE = "#1d2329"
-RECOMMENDATION_SURFACE = "#132631"
-TABLE_HEADER_SURFACE = "#252a30"
-TABLE_ALTERNATE_SURFACE = "#181b1f"
+WINDOW_BACKGROUND = "#0A1B2E"
+REPORT_SURFACE = "#101922"
+CARD_SURFACE = "#1C232B"
+RECOMMENDATION_SURFACE = "#102F3C"
+TABLE_HEADER_SURFACE = "#1F2D3A"
+TABLE_ALTERNATE_SURFACE = "#15202A"
 
-BORDER = "#3c4043"
+BORDER = "#244C5F"
 
 TEXT_PRIMARY = "#e8eaed"
 TEXT_STRONG = "#ffffff"
-TEXT_MUTED = "#9aa0a6"
-TEXT_SUBTLE = "#7f8a93"
+TEXT_MUTED = "#b7c2cc"
+TEXT_SUBTLE = "#8fa0ad"
 
-ACCENT = "#1769aa"
-ACCENT_BORDER = "#2b7bbb"
-ACCENT_HOVER = "#1f7fc5"
-ACCENT_PRESSED = "#135887"
-ACCENT_LIGHT = "#7dd3fc"
+ACCENT = "#00C8FF"
+ACCENT_BORDER = "#087C9D"
+ACCENT_HOVER = "#35D8FF"
+ACCENT_PRESSED = "#0096C2"
+ACCENT_LIGHT = "#63E2FF"
+SECONDARY_ACCENT = "#00E6B8"
+RECOMMENDATION_ACCENT = "#7B5CFF"
 
-STATUS_SUCCESS = "#4ade80"
+STATUS_SUCCESS = SECONDARY_ACCENT
 STATUS_WARNING = "#fbbf24"
 STATUS_ERROR = "#fb7185"
 
@@ -54,7 +56,7 @@ MAIN_WINDOW_SPACING = 10
 
 MAIN_WINDOW_STYLESHEET = f"""
 QWidget#mainWindow {{
-    background-color: #303134;
+    background-color: {WINDOW_BACKGROUND};
 }}
 """
 
@@ -80,7 +82,7 @@ QWidget#surveyControlPanel {{
 }}
 
 QLabel#surveyPanelTitle {{
-    color: {TEXT_STRONG};
+    color: {ACCENT};
     font-size: 18px;
     font-weight: 700;
     border: none;
@@ -93,7 +95,7 @@ QLabel#surveyPanelSubtitle {{
 }}
 
 QLabel#surveySectionTitle {{
-    color: {TEXT_PRIMARY};
+    color: {ACCENT};
     font-size: 12px;
     font-weight: 700;
     border: none;
@@ -235,7 +237,7 @@ RIGHT_INFO_PANEL_SPACING = 12
 
 RIGHT_INFO_PANEL_STYLESHEET = f"""
 QWidget#rightInfoPanel {{
-    background-color: {WINDOW_BACKGROUND};
+    background-color: {CARD_SURFACE};
     border: 1px solid {BORDER};
     border-radius: 10px;
 }}
@@ -307,7 +309,7 @@ TUNING_PANEL_SPACING = 4
 
 TUNING_PANEL_STYLESHEET = f"""
 QWidget#tuningPanel {{
-    background-color: {WINDOW_BACKGROUND};
+    background-color: {CARD_SURFACE};
     border: 1px solid {BORDER};
     border-radius: 10px;
 }}
@@ -441,21 +443,21 @@ GRAPH_PANEL_MARGINS = (
 
 GRAPH_PANEL_STYLESHEET = f"""
 QWidget#graphPanel {{
-    background-color: {REPORT_SURFACE};
+    background-color: {CARD_SURFACE};
     border: 1px solid {BORDER};
     border-radius: 10px;
 }}
 
 QGraphicsView#graphCanvas {{
-    background-color: #000000;
+    background-color: {WINDOW_BACKGROUND};
     border: none;
 }}
 """
 
-GRAPH_TITLE_COLOR = TEXT_PRIMARY
+GRAPH_TITLE_COLOR = TEXT_STRONG
 GRAPH_AXIS_COLOR = TEXT_MUTED
 GRAPH_AXIS_LINE_COLOR = BORDER
-GRAPH_GRID_ALPHA = 0.22
+GRAPH_GRID_ALPHA = 0.18
 
 
 # ==================================================

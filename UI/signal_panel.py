@@ -22,6 +22,16 @@ from SIGNALS.feature_extractor import (
     extract_features
 )
 
+from UI.theme import (
+    ACCENT,
+    RECOMMENDATION_ACCENT,
+    SECONDARY_ACCENT,
+    STATUS_ERROR,
+    STATUS_WARNING,
+    TEXT_STRONG
+)
+
+
 def create_signal_panel():
 
     table = QTableWidget()
@@ -190,25 +200,27 @@ def update_signal_panel(
 
         # COLORED ITEMS ================
         if "BC" in signal_type:
-            type_item.setForeground(QColor("#00ff66"))
+            type_item.setForeground(QColor(SECONDARY_ACCENT))
 
         elif signal_type == "NOAA":
-            type_item.setForeground(QColor("#00ffff"))
+            type_item.setForeground(QColor(ACCENT))
 
         elif signal_type == "WX":
-            type_item.setForeground(QColor("#66ffff"))
+            type_item.setForeground(QColor(ACCENT))
 
         elif "AIRBND" in signal_type:
-            type_item.setForeground(QColor("#ffff00"))
+            type_item.setForeground(QColor(STATUS_WARNING))
 
         elif "2m" in signal_type:
-            type_item.setForeground(QColor("#ff9900"))
+            type_item.setForeground(QColor(RECOMMENDATION_ACCENT))
 
         elif "70cm" in signal_type:
-            type_item.setForeground(QColor("#ff66ff"))
+            type_item.setForeground(QColor(RECOMMENDATION_ACCENT))
 
         elif signal_type == "GMRS":
-            type_item.setForeground(QColor("#ff4444"))
+            type_item.setForeground(QColor(STATUS_ERROR))
+        else:
+            type_item.setForeground(QColor(TEXT_STRONG))
         # ==============================
 
         table.setItem(

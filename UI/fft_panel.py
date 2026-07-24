@@ -5,7 +5,12 @@ from UI.graph_style import (
     style_plot
 )
 
-from UI.theme import GRAPH_GRID_ALPHA
+from UI.theme import (
+    ACCENT,
+    SECONDARY_ACCENT,
+    TEXT_STRONG,
+    GRAPH_GRID_ALPHA
+)
 
 
 def create_fft_panel(
@@ -41,7 +46,7 @@ def create_fft_panel(
 
     curve = fft_plot.plot(
         pen=pg.mkPen(
-            color=(180, 0, 255),
+            color=SECONDARY_ACCENT,
             width=1
         )
     )
@@ -87,13 +92,10 @@ def update_peak_markers(
             symbol="t",
             size=14,
             brush=pg.mkBrush(
-                0,
-                220,
-                140,
-                255
+                ACCENT
             ),
             pen=pg.mkPen(
-                color=(0, 220, 140, 100),
+                color=ACCENT,
                 width=3
             )
         )
@@ -104,7 +106,7 @@ def update_peak_markers(
 
         label = pg.TextItem(
             text=f"{freq:.1f} MHz",
-            color="yellow"
+            color=TEXT_STRONG
         )
 
         label.setPos(
