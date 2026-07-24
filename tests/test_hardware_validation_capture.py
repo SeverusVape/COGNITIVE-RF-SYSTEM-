@@ -8,6 +8,7 @@ from VALIDATION.hardware.validation_capture import (
     build_session_config,
     build_survey_record,
     frequency_list_hz,
+    normalize_decision_mode,
 )
 
 
@@ -189,6 +190,175 @@ class HardwareValidationCaptureTests(unittest.TestCase):
         self.assertIn(
             "Average occupancy: 10.0%",
             payload["notes"]
+        )
+
+    def test_free_mode_does_not_record_smart_recommendation(self):
+        record = build_survey_record(
+            validation_id="VAL-20260724-143000",
+            session_id="SESSION-001",
+            survey_index=1,
+            timestamp="2026-07-24T14:31:00-04:00",
+            survey_frequencies_mhz=[
+                88.0,
+                89.0
+            ],
+            sorted_results=[
+                (88.0, 7.0),
+                (89.0, 12.0)
+            ],
+            points_scanned=2,
+            recommendation={
+                "frequency": 88.0,
+                "occupancy": 7.0
+            },
+            decision_mode="FREE",
+            average_occupancy=9.5
+        )
+
+        payload = record.to_dict()
+
+        self.assertEqual(
+            payload["decision_mode"],
+            "FREE"
+        )
+        self.assertEqual(
+            payload["best_frequency_hz"],
+            88000000.0
+        )
+        self.assertIsNone(
+            payload["smart_recommendation_hz"]
+        )
+
+    def test_smart_mode_records_smart_recommendation(self):
+        record = build_survey_record(
+            validation_id="VAL-20260724-143000",
+            session_id="SESSION-001",
+            survey_index=1,
+            timestamp="2026-07-24T14:31:00-04:00",
+            survey_frequencies_mhz=[
+                88.0,
+                89.0
+            ],
+            sorted_results=[
+                (88.0, 7.0),
+                (89.0, 12.0)
+            ],
+            points_scanned=2,
+            recommendation={
+                "frequency": 88.0,
+                "occupancy": 7.0
+            },
+            decision_mode="SMART",
+            average_occupancy=9.5
+        )
+
+        payload = record.to_dict()
+
+        self.assertEqual(
+            payload["decision_mode"],
+            "SMART"
+        )
+        self.assertEqual(
+            payload["best_frequency_hz"],
+            88000000.0
+        )
+        self.assertEqual(
+            payload["smart_recommendation_hz"],
+            88000000.0
+        )
+
+    def test_decision_mode_is_normalized_safely(self):
+        self.assertEqual(
+            normalize_decision_mode(" smart recommendation "),
+            "SMART"
+        )
+        self.assertEqual(
+            normalize_decision_mode("find free channel"),
+            "FREE"
+        )
+
+        record = build_survey_record(
+            validation_id="VAL-20260724-143000",
+            session_id="SESSION-001",
+            survey_index=1,
+            timestamp="2026-07-24T14:31:00-04:00",
+            survey_frequencies_mhz=[
+                88.0
+            ],
+            sorted_results=[
+                (88.0, 7.0)
+            ],
+            points_scanned=1,
+            recommendation={
+                "frequency": 88.0
+            },
+            decision_mode="sMaRt",
+            average_occupancy=7.0
+        )
+
+        self.assertEqual(
+            record.decision_mode,
+            "SMART"
+        )
+
+    def test_missing_recommendation_frequency_is_recorded_as_none(self):
+        record = build_survey_record(
+            validation_id="VAL-20260724-143000",
+            session_id="SESSION-001",
+            survey_index=1,
+            timestamp="2026-07-24T14:31:00-04:00",
+            survey_frequencies_mhz=[
+                88.0
+            ],
+            sorted_results=[
+                (88.0, 7.0)
+            ],
+            points_scanned=1,
+            recommendation={
+                "occupancy": 7.0,
+                "score": 60.0
+            },
+            decision_mode="SMART",
+            average_occupancy=7.0
+        )
+
+        payload = record.to_dict()
+
+        self.assertIsNone(
+            payload["best_frequency_hz"]
+        )
+        self.assertIsNone(
+            payload["smart_recommendation_hz"]
+        )
+
+    def test_missing_runner_up_values_are_recorded_as_none(self):
+        record = build_survey_record(
+            validation_id="VAL-20260724-143000",
+            session_id="SESSION-001",
+            survey_index=1,
+            timestamp="2026-07-24T14:31:00-04:00",
+            survey_frequencies_mhz=[
+                88.0
+            ],
+            sorted_results=[
+                (88.0, 7.0)
+            ],
+            points_scanned=1,
+            recommendation={
+                "frequency": 88.0,
+                "occupancy": 7.0
+            },
+            decision_mode="SMART",
+            average_occupancy=7.0
+        )
+
+        payload = record.to_dict()
+
+        self.assertIsNone(
+            payload["runner_up_frequency_hz"]
+        )
+        self.assertIsNone(
+            payload["runner_up_score"]
         )
 
 

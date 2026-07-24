@@ -36,6 +36,40 @@ def frequency_list_hz(peaks):
     ]
 
 
+def normalize_decision_mode(
+        decision_mode
+):
+    mode = str(
+        decision_mode
+        or "unknown"
+    ).strip().upper()
+
+    if mode in (
+            "FREE",
+            "FIND FREE CHANNEL"
+    ):
+        return "FREE"
+
+    if mode in (
+            "SMART",
+            "SMART RECOMMENDATION"
+    ):
+        return "SMART"
+
+    return mode
+
+
+def _frequency_mhz_to_hz(
+        frequency_mhz
+):
+    if frequency_mhz is None:
+        return None
+
+    return float(
+        frequency_mhz
+    ) * 1e6
+
+
 def build_session_config(
         timestamp,
         configuration_id,
@@ -219,6 +253,17 @@ def build_survey_record(
     runner_up_frequency = recommendation.get(
         "runner_up_frequency"
     )
+    normalized_decision_mode = normalize_decision_mode(
+        decision_mode
+    )
+    best_frequency_hz = _frequency_mhz_to_hz(
+        recommended_frequency
+    )
+    smart_recommendation_hz = (
+        best_frequency_hz
+        if normalized_decision_mode == "SMART"
+        else None
+    )
 
     ranked_results = [
         {
@@ -241,18 +286,10 @@ def build_survey_record(
         step_frequency_hz=step_frequency_hz,
         number_of_points=points_scanned,
         ranked_results=ranked_results,
-        best_frequency_hz=(
-            None
-            if recommended_frequency is None
-            else float(recommended_frequency) * 1e6
-        ),
-        smart_recommendation_hz=(
-            None
-            if recommended_frequency is None
-            else float(recommended_frequency) * 1e6
-        ),
+        best_frequency_hz=best_frequency_hz,
+        smart_recommendation_hz=smart_recommendation_hz,
         completion_status="success",
-        decision_mode=decision_mode,
+        decision_mode=normalized_decision_mode,
         recommended_occupancy_percent=recommendation.get(
             "occupancy"
         ),
@@ -260,9 +297,9 @@ def build_survey_record(
             "score"
         ),
         runner_up_frequency_hz=(
-            None
-            if runner_up_frequency is None
-            else float(runner_up_frequency) * 1e6
+            _frequency_mhz_to_hz(
+                runner_up_frequency
+            )
         ),
         runner_up_score=recommendation.get(
             "runner_up_score"
