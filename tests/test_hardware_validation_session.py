@@ -44,7 +44,7 @@ class HardwareValidationSessionTests(unittest.TestCase):
             confirmed_signal_count=1,
             detector_runtime_ms=1.5,
             occupancy_percent=8.0,
-            strongest_power_db=42.0,
+            strongest_fft_bin_power_db=42.0,
             smart_recommendation_hz=90e6
     ):
         return ValidationFrameRecord(
@@ -53,8 +53,8 @@ class HardwareValidationSessionTests(unittest.TestCase):
             frame_index=frame_index,
             timestamp="2026-07-24T14:30:01-04:00",
             center_frequency_hz=90e6,
-            strongest_frequency_hz=90.1e6,
-            strongest_power_db=strongest_power_db,
+            strongest_fft_bin_frequency_hz=90.1e6,
+            strongest_fft_bin_power_db=strongest_fft_bin_power_db,
             average_power_db=21.0,
             threshold_db=31.0,
             occupancy_percent=occupancy_percent,
@@ -177,7 +177,7 @@ class HardwareValidationSessionTests(unittest.TestCase):
                     confirmed_signal_count=2,
                     detector_runtime_ms=2.5,
                     occupancy_percent=10.0,
-                    strongest_power_db=45.0
+                    strongest_fft_bin_power_db=45.0
                 )
             )
             session.register_survey(
@@ -235,8 +235,12 @@ class HardwareValidationSessionTests(unittest.TestCase):
             9.0
         )
         self.assertEqual(
-            payload["strongest_observed_power_db"],
+            payload["strongest_observed_fft_bin_power_db"],
             45.0
+        )
+        self.assertEqual(
+            payload["strongest_observed_fft_bin_frequency_hz"],
+            90.1e6
         )
         self.assertEqual(
             payload["survey_recommendation_repeatability_percent"],

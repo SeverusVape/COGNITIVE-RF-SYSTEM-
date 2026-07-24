@@ -122,8 +122,8 @@ class ValidationFrameRecord(_JsonSafeRecord):
     frame_index: int
     timestamp: str
     center_frequency_hz: float | None
-    strongest_frequency_hz: float | None
-    strongest_power_db: float | None
+    strongest_fft_bin_frequency_hz: float | None
+    strongest_fft_bin_power_db: float | None
     average_power_db: float | None
     threshold_db: float | None
     occupancy_percent: float | None
@@ -139,6 +139,16 @@ class ValidationFrameRecord(_JsonSafeRecord):
     smart_recommendation_hz: float | None = None
     application_mode: str = "monitoring"
     notes: str = ""
+
+    @property
+    def strongest_frequency_hz(self):
+        """Deprecated alias for the maximum FFT-bin frequency."""
+        return self.strongest_fft_bin_frequency_hz
+
+    @property
+    def strongest_power_db(self):
+        """Deprecated alias for the maximum FFT-bin power."""
+        return self.strongest_fft_bin_power_db
 
 
 @dataclass
@@ -190,8 +200,8 @@ class ValidationSessionSummary(_JsonSafeRecord):
     ] = field(
         default_factory=list
     )
-    strongest_observed_frequency_hz: float | None = None
-    strongest_observed_power_db: float | None = None
+    strongest_observed_fft_bin_frequency_hz: float | None = None
+    strongest_observed_fft_bin_power_db: float | None = None
     most_frequent_smart_recommendation_hz: float | None = None
     survey_recommendation_repeatability_percent: float | None = None
     errors_encountered: list[str] = field(
@@ -203,3 +213,13 @@ class ValidationSessionSummary(_JsonSafeRecord):
     limitations: list[str] = field(
         default_factory=list
     )
+
+    @property
+    def strongest_observed_frequency_hz(self):
+        """Deprecated alias for the strongest observed FFT-bin frequency."""
+        return self.strongest_observed_fft_bin_frequency_hz
+
+    @property
+    def strongest_observed_power_db(self):
+        """Deprecated alias for the strongest observed FFT-bin power."""
+        return self.strongest_observed_fft_bin_power_db

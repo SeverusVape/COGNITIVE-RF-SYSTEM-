@@ -134,8 +134,8 @@ class HardwareValidationSession:
         self._occupancy_values = []
         self._confirmed_frequency_counter = Counter()
         self._smart_recommendation_counter = Counter()
-        self._strongest_frequency_hz = None
-        self._strongest_power_db = None
+        self._strongest_fft_bin_frequency_hz = None
+        self._strongest_fft_bin_power_db = None
         self._survey_recommendations = []
         self._errors = []
 
@@ -255,14 +255,21 @@ class HardwareValidationSession:
             ] += 1
 
         if (
-                record.strongest_power_db is not None
+                record.strongest_fft_bin_power_db is not None
                 and (
-                    self._strongest_power_db is None
-                    or record.strongest_power_db > self._strongest_power_db
+                    self._strongest_fft_bin_power_db is None
+                    or (
+                        record.strongest_fft_bin_power_db
+                        > self._strongest_fft_bin_power_db
+                    )
                 )
         ):
-            self._strongest_power_db = record.strongest_power_db
-            self._strongest_frequency_hz = record.strongest_frequency_hz
+            self._strongest_fft_bin_power_db = (
+                record.strongest_fft_bin_power_db
+            )
+            self._strongest_fft_bin_frequency_hz = (
+                record.strongest_fft_bin_frequency_hz
+            )
 
     def register_survey(
             self,
@@ -345,8 +352,12 @@ class HardwareValidationSession:
                     self._confirmed_frequency_counter
                 )
             ),
-            strongest_observed_frequency_hz=self._strongest_frequency_hz,
-            strongest_observed_power_db=self._strongest_power_db,
+            strongest_observed_fft_bin_frequency_hz=(
+                self._strongest_fft_bin_frequency_hz
+            ),
+            strongest_observed_fft_bin_power_db=(
+                self._strongest_fft_bin_power_db
+            ),
             most_frequent_smart_recommendation_hz=(
                 self._most_common_frequency(
                     self._smart_recommendation_counter

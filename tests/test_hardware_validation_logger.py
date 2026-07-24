@@ -59,8 +59,8 @@ class HardwareValidationLoggerTests(unittest.TestCase):
             frame_index=frame_index,
             timestamp="2026-07-24T14:30:01-04:00",
             center_frequency_hz=90e6,
-            strongest_frequency_hz=90.1e6,
-            strongest_power_db=42.0,
+            strongest_fft_bin_frequency_hz=90.1e6,
+            strongest_fft_bin_power_db=42.0,
             average_power_db=21.0,
             threshold_db=31.0,
             occupancy_percent=8.0,
@@ -228,6 +228,14 @@ class HardwareValidationLoggerTests(unittest.TestCase):
             self.assertIn(
                 "90100000.0",
                 rows[0]["confirmed_frequencies_hz"]
+            )
+            self.assertEqual(
+                rows[0]["strongest_fft_bin_frequency_hz"],
+                "90100000.0"
+            )
+            self.assertNotIn(
+                "strongest_frequency_hz",
+                rows[0]
             )
 
             json_lines = frame_jsonl_path.read_text(

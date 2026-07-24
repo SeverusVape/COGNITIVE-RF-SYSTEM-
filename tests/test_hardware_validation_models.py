@@ -64,8 +64,8 @@ class HardwareValidationModelTests(unittest.TestCase):
             frame_index=1,
             timestamp="2026-07-24T14:30:01-04:00",
             center_frequency_hz=90e6,
-            strongest_frequency_hz=90.1e6,
-            strongest_power_db=42.5,
+            strongest_fft_bin_frequency_hz=90.1e6,
+            strongest_fft_bin_power_db=42.5,
             average_power_db=20.2,
             threshold_db=31.4,
             occupancy_percent=8.3,
@@ -90,6 +90,18 @@ class HardwareValidationModelTests(unittest.TestCase):
         self.assertEqual(
             payload["raw_candidate_count"],
             2
+        )
+        self.assertEqual(
+            payload["strongest_fft_bin_frequency_hz"],
+            90.1e6
+        )
+        self.assertNotIn(
+            "strongest_frequency_hz",
+            payload
+        )
+        self.assertEqual(
+            record.strongest_frequency_hz,
+            90.1e6
         )
 
     def test_survey_record_captures_decision_evidence(self):
@@ -182,8 +194,8 @@ class HardwareValidationModelTests(unittest.TestCase):
                 frame_index=1,
                 timestamp="2026-07-24T14:30:01-04:00",
                 center_frequency_hz=90e6,
-                strongest_frequency_hz=None,
-                strongest_power_db=None,
+                strongest_fft_bin_frequency_hz=None,
+                strongest_fft_bin_power_db=None,
                 average_power_db=float("nan"),
                 threshold_db=None,
                 occupancy_percent=None,

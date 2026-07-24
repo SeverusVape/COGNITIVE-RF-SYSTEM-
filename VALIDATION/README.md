@@ -79,3 +79,15 @@ HV_FREQ_ACC_CFG-H01_20260722_error_vs_frequency.png
 
 At creation, all files in this package are planning artifacts. The templates do
 not contain measurements and do not imply that an experiment has passed.
+
+## Hardware frame field semantics
+
+Hardware-validation frame records use
+`strongest_fft_bin_frequency_hz` and `strongest_fft_bin_power_db` for the
+frequency and relative power of the maximum FFT bin in a captured frame. These
+fields describe a spectral maximum only. They do not imply that the bin passed
+the peak detector, survived temporal confirmation, or represents an identified
+RF signal. Confirmed signal evidence is recorded separately in
+`confirmed_frequencies_hz`; confirmed-signal power is not recorded because the
+current confirmation output does not provide an independent reliable power
+value.

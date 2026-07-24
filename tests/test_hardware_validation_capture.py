@@ -117,8 +117,16 @@ class HardwareValidationCaptureTests(unittest.TestCase):
         payload = record.to_dict()
 
         self.assertEqual(
-            payload["strongest_frequency_hz"],
+            payload["strongest_fft_bin_frequency_hz"],
             90000000.0
+        )
+        self.assertEqual(
+            payload["strongest_fft_bin_power_db"],
+            45.0
+        )
+        self.assertNotIn(
+            "strongest_frequency_hz",
+            payload
         )
         self.assertEqual(
             payload["raw_candidate_count"],

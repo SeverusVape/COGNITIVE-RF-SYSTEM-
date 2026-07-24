@@ -186,11 +186,11 @@ def build_frame_record(
         frame_index=frame_index,
         timestamp=timestamp,
         center_frequency_hz=center_frequency_hz,
-        strongest_frequency_hz=round(
+        strongest_fft_bin_frequency_hz=round(
             float(freqs_mhz[strongest_index]) * 1e6,
             3
         ),
-        strongest_power_db=round(
+        strongest_fft_bin_power_db=round(
             float(np.max(power_db)),
             3
         ),
