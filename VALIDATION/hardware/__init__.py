@@ -1,5 +1,9 @@
 """Hardware-validation records, sessions, and logging for SPECTRA."""
 
+from VALIDATION.hardware.validation_controller import (
+    HardwareValidationController,
+    HardwareValidationSettings,
+)
 from VALIDATION.hardware.validation_logger import (
     HardwareValidationLogger,
 )
@@ -25,7 +29,9 @@ from VALIDATION.hardware.validation_session import (
 
 __all__ = [
     "DEFAULT_RESULTS_ROOT",
+    "HardwareValidationController",
     "HardwareValidationLogger",
+    "HardwareValidationSettings",
     "HardwareValidationSession",
     "ValidationFrameRecord",
     "ValidationSessionConfig",
