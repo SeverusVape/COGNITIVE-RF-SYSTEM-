@@ -33,7 +33,14 @@ This outcome is not a production-detector selection. Hardware evidence and full 
 
 ## Scenario Metrics
 
-| Scenario | Detector | Pd | Pfa | Precision | Recall | p95 runtime (ms) |
+`Pfa` in this frozen table means **SPECTRA Frame False Alarm Rate**: a frame is
+false when it contains at least one unmatched raw detector candidate. It is
+not the classical per-cell CFAR Probability of False Alarm. The frame-level
+metric was chosen because it better represents whether a SPECTRA processing
+frame can introduce an unsupported candidate into downstream processing.
+Temporal confirmation remains outside this comparison.
+
+| Scenario | Detector | Pd | Frame Pfa | Precision | Recall | p95 runtime (ms) |
 | --- | --- | ---: | ---: | ---: | ---: | ---: |
 | noise only | adaptive | NA | 1.0000 | 0.0000 | NA | 0.507 |
 | noise only | os_cfar | NA | 1.0000 | 0.0000 | NA | 14.333 |
@@ -54,9 +61,29 @@ This outcome is not a production-detector selection. Hardware evidence and full 
 
 ## Engineering Limitations
 
-- Inputs are deterministic synthetic unmodulated tones and noise.
+- Inputs are deterministic synthetic unmodulated tones and algorithmic noise.
+- Coherent Hann-window FFT processing provides narrow-tone processing gain;
+  synthetic SNR fixtures are not equivalent to hardware input sensitivity.
+- High-SNR cases can saturate the three-candidate output cap and produce
+  near-unity detection probability for both detectors.
 - Relative FFT levels are not calibrated dBm.
 - Raw peak outputs are compared before temporal confirmation.
 - The three-peak cap remains part of both public detector interfaces.
+- Synthetic data cannot reproduce real RF clutter, multipath, modulation,
+  impulsive interference, or receiver artifacts.
+- Results apply only to frozen OS-CFAR configuration `CFG-C01`. Any parameter
+  optimization requires a new predeclared validation campaign.
+- Edge tests cover explicit excluded-bin behavior and valid near-edge
+  detection, but not a complete sweep through excluded, transition, and valid
+  regions.
 - Runtime results apply only to this development computer and software environment.
 - No claim about live RF performance is made by Phase 4.
+
+## Runtime Interpretation
+
+OS-CFAR met the `100 ms` runtime gate. Its worst p95 detector runtime
+(`14.4218 ms`) was approximately 28 times, or about 30 times at engineering
+precision, the adaptive detector result (`0.5070 ms`). Runtime alone does not
+reject OS-CFAR because both detectors met the requirement. The candidate
+nevertheless provided no measurable Frame False Alarm Rate improvement, so
+the additional computation has no demonstrated production benefit.
