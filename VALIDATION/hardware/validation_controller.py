@@ -21,6 +21,9 @@ from VALIDATION.hardware.validation_capture import (
 from VALIDATION.hardware.validation_logger import (
     HardwareValidationLogger,
 )
+from VALIDATION.hardware.validation_environment import (
+    get_git_commit_sha,
+)
 from VALIDATION.hardware.validation_session import (
     DEFAULT_RESULTS_ROOT,
     HardwareValidationSession,
@@ -49,8 +52,9 @@ class HardwareValidationSettings:
     survey_defaults: dict[str, Any] = field(
         default_factory=dict
     )
+    detector_name: str = "adaptive local-threshold detector"
+    update_interval_ms: int | None = None
     software_version: str = "SPECTRA validation capture"
-    git_commit_sha: str = "unknown"
     limitations: tuple[str, ...] = (
         "RTL-SDR measurements are relative, not calibrated dBm.",
         "Indoor antenna placement affects observed occupancy.",
@@ -66,14 +70,20 @@ class HardwareValidationController:
             settings: HardwareValidationSettings,
             center_frequency_provider: Callable[[], float | None],
             survey_frequencies_provider: Callable[[], list[float]],
+            decision_mode_provider: Callable[[], str] | None = None,
             status_callback=None,
             results_root: str | Path = DEFAULT_RESULTS_ROOT,
             datetime_provider=None,
-            monotonic_provider=None
+            monotonic_provider=None,
+            git_sha_provider=None
     ):
         self.settings = settings
         self._center_frequency_provider = center_frequency_provider
         self._survey_frequencies_provider = survey_frequencies_provider
+        self._decision_mode_provider = (
+            decision_mode_provider
+            or (lambda: "unknown")
+        )
         self._status_callback = status_callback
         self._results_root = Path(
             results_root
@@ -85,6 +95,10 @@ class HardwareValidationController:
         self._monotonic_provider = (
             monotonic_provider
             or perf_counter
+        )
+        self._git_sha_provider = (
+            git_sha_provider
+            or get_git_commit_sha
         )
         self._logger = None
         self._frame_index = 0
@@ -166,8 +180,15 @@ class HardwareValidationController:
                     self.settings.logging_interval_ms
                 ),
                 survey_defaults=self.settings.survey_defaults,
+                detector_name=self.settings.detector_name,
+                update_interval_ms=(
+                    self.settings.update_interval_ms
+                ),
+                active_decision_mode=(
+                    self._decision_mode_provider()
+                ),
                 software_version=self.settings.software_version,
-                git_commit_sha=self.settings.git_commit_sha
+                git_commit_sha=self._git_sha_provider()
             )
             session = HardwareValidationSession(
                 config,

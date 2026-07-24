@@ -7,6 +7,9 @@ from VALIDATION.hardware.validation_controller import (
 from VALIDATION.hardware.validation_logger import (
     HardwareValidationLogger,
 )
+from VALIDATION.hardware.validation_environment import (
+    get_git_commit_sha,
+)
 from VALIDATION.hardware.validation_capture import (
     build_frame_record,
     build_session_config,
@@ -44,4 +47,5 @@ __all__ = [
     "frequency_list_hz",
     "generate_session_id",
     "generate_validation_id",
+    "get_git_commit_sha",
 ]

@@ -840,7 +840,9 @@ validation_settings = HardwareValidationSettings(
         "measurement_buffer_size": (
             SURVEY_MEASUREMENT_BUFFER_SIZE
         )
-    }
+    },
+    detector_name="adaptive local-threshold detector",
+    update_interval_ms=100
 )
 
 validation_controller = HardwareValidationController(
@@ -850,6 +852,9 @@ validation_controller = HardwareValidationController(
     ),
     survey_frequencies_provider=(
         lambda: survey.survey_frequencies
+    ),
+    decision_mode_provider=(
+        lambda: decision_mode_combo.currentText()
     ),
     status_callback=update_validation_status
 )

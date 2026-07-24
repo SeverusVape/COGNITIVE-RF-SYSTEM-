@@ -1,4 +1,5 @@
 from datetime import datetime, timedelta, timezone
+import json
 import tempfile
 import unittest
 
@@ -97,7 +98,9 @@ class HardwareValidationControllerTests(unittest.TestCase):
             monotonic_provider=None,
             logging_interval_ms=1000,
             center_frequency_provider=None,
-            status_callback=None
+            status_callback=None,
+            decision_mode_provider=None,
+            git_sha_provider=None
     ):
         return HardwareValidationController(
             settings=self._settings(
@@ -112,6 +115,7 @@ class HardwareValidationControllerTests(unittest.TestCase):
                 89.0,
                 90.0
             ],
+            decision_mode_provider=decision_mode_provider,
             status_callback=(
                 status_callback
                 if status_callback is not None
@@ -129,7 +133,8 @@ class HardwareValidationControllerTests(unittest.TestCase):
             ),
             results_root=temp_dir,
             datetime_provider=self._datetime_provider(),
-            monotonic_provider=monotonic_provider
+            monotonic_provider=monotonic_provider,
+            git_sha_provider=git_sha_provider
         )
 
     def test_start_and_stop_manage_session_and_status(self):
@@ -353,6 +358,43 @@ class HardwareValidationControllerTests(unittest.TestCase):
                 in update[1]
                 for update in status_updates
             )
+        )
+
+    def test_start_snapshots_runtime_mode_and_git_sha(self):
+        commit_sha = "b" * 40
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            controller = self._controller(
+                temp_dir,
+                decision_mode_provider=(
+                    lambda: "Smart Recommendation"
+                ),
+                git_sha_provider=lambda: commit_sha
+            )
+            self.assertTrue(
+                controller.start()
+            )
+            config_path = (
+                controller.session_directory
+                / "session_config.json"
+            )
+            payload = json.loads(
+                config_path.read_text(
+                    encoding="utf-8"
+                )
+            )
+
+        self.assertEqual(
+            payload["active_decision_mode"],
+            "SMART"
+        )
+        self.assertEqual(
+            payload["smart_mode_state"],
+            "SMART"
+        )
+        self.assertEqual(
+            payload["git_commit_sha"],
+            commit_sha
         )
 
 
