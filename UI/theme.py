@@ -391,8 +391,36 @@ QPushButton#autoTuneButton:hover {{
     border-color: {ACCENT_BORDER};
 }}
 
+QPushButton#validationStartButton,
+QPushButton#validationStopButton {{
+    min-height: 24px;
+    padding: 0 12px;
+    color: {ACCENT_LIGHT};
+    background-color: {RECOMMENDATION_SURFACE};
+    border: 1px solid {ACCENT_BORDER};
+    border-radius: 6px;
+    font-size: 10px;
+    font-weight: 700;
+}}
+
+QPushButton#validationStartButton:hover,
+QPushButton#validationStopButton:hover {{
+    color: {TEXT_STRONG};
+    background-color: {ACCENT};
+    border-color: {ACCENT_LIGHT};
+}}
+
+QLabel#validationStatusLabel {{
+    color: {TEXT_MUTED};
+    font-size: 10px;
+    font-weight: 700;
+    border: none;
+}}
+
 QPushButton#tunePrimaryButton:disabled,
-QPushButton#autoTuneButton:disabled {{
+QPushButton#autoTuneButton:disabled,
+QPushButton#validationStartButton:disabled,
+QPushButton#validationStopButton:disabled {{
     color: {TEXT_SUBTLE};
     background-color: {REPORT_SURFACE};
     border-color: {BORDER};

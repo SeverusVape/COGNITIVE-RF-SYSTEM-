@@ -2,6 +2,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import (
     QHBoxLayout,
     QLabel,
+    QPushButton,
     QVBoxLayout,
     QWidget
 )
@@ -18,7 +19,10 @@ def create_tuning_panel(
         freq_label,
         freq_input,
         tune_button,
-        auto_tune_button
+        auto_tune_button,
+        validation_start_button=None,
+        validation_stop_button=None,
+        validation_status_label=None
 ):
     panel = QWidget()
 
@@ -114,6 +118,40 @@ def create_tuning_panel(
         "Tune to the latest survey recommendation."
     )
 
+    validation_controls_available = all(
+        control is not None
+        for control in (
+            validation_start_button,
+            validation_stop_button,
+            validation_status_label
+        )
+    )
+
+    if validation_controls_available:
+        validation_start_button.setObjectName(
+            "validationStartButton"
+        )
+
+        validation_start_button.setToolTip(
+            "Start temporary hardware validation evidence logging."
+        )
+
+        validation_stop_button.setObjectName(
+            "validationStopButton"
+        )
+
+        validation_stop_button.setToolTip(
+            "Stop hardware validation evidence logging."
+        )
+
+        validation_status_label.setObjectName(
+            "validationStatusLabel"
+        )
+
+        validation_status_label.setText(
+            "Validation idle"
+        )
+
     controls_layout = QHBoxLayout()
 
     controls_layout.setSpacing(
@@ -140,6 +178,29 @@ def create_tuning_panel(
 
     controls_layout.addStretch()
 
+    if validation_controls_available:
+        validation_layout = QHBoxLayout()
+
+        validation_layout.setSpacing(
+            8
+        )
+
+        validation_layout.addStretch()
+
+        validation_layout.addWidget(
+            validation_start_button
+        )
+
+        validation_layout.addWidget(
+            validation_stop_button
+        )
+
+        validation_layout.addWidget(
+            validation_status_label
+        )
+
+        validation_layout.addStretch()
+
     layout.addWidget(
         eyebrow
     )
@@ -160,4 +221,29 @@ def create_tuning_panel(
         controls_layout
     )
 
+    if validation_controls_available:
+        layout.addLayout(
+            validation_layout
+        )
+
     return panel
+
+
+def create_validation_controls():
+    validation_start_button = QPushButton(
+        "Start validation log"
+    )
+
+    validation_stop_button = QPushButton(
+        "Stop validation log"
+    )
+
+    validation_status_label = QLabel(
+        "Validation idle"
+    )
+
+    return (
+        validation_start_button,
+        validation_stop_button,
+        validation_status_label
+    )

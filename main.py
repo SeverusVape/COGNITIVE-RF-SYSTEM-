@@ -79,7 +79,8 @@ from UI.survey_history_panel import (
     create_survey_history_panel
 )
 from UI.tuning_panel import (
-    create_tuning_panel
+    create_tuning_panel,
+    create_validation_controls
 )
 from UI.graph_style import (
     create_graph_canvas
@@ -92,6 +93,8 @@ from UI.theme import (
     RIGHT_INFO_PANEL_MARGINS,
     RIGHT_INFO_PANEL_SPACING,
     RIGHT_INFO_PANEL_STYLESHEET,
+    STATUS_SUCCESS,
+    STATUS_WARNING,
     SURVEY_CONTROL_PANEL_MARGINS,
     SURVEY_CONTROL_PANEL_SPACING,
     SURVEY_CONTROL_PANEL_STYLESHEET
@@ -238,12 +241,21 @@ frequency_display = QLabel(
     "100.0 MHz"
 )
 
+(
+    validation_start_button,
+    validation_stop_button,
+    validation_status_label
+) = create_validation_controls()
+
 tuning_panel = create_tuning_panel(
     frequency_display,
     freq_label,
     freq_input,
     tune_button,
-    auto_tune_button
+    auto_tune_button,
+    validation_start_button,
+    validation_stop_button,
+    validation_status_label
 )
 
 (
@@ -800,9 +812,19 @@ def build_hardware_validation_config():
 
 def start_validation_logging():
     global validation_logger
+    global validation_frame_index
+    global validation_survey_index
+    global last_validation_frame_time
 
-    if not HARDWARE_VALIDATION_ENABLED:
+    if (
+            validation_logger is not None
+            and validation_logger.active
+    ):
         return
+
+    validation_frame_index = 0
+    validation_survey_index = 0
+    last_validation_frame_time = 0.0
 
     validation_session = HardwareValidationSession(
         build_hardware_validation_config()
@@ -811,6 +833,19 @@ def start_validation_logging():
         validation_session
     )
     validation_logger.start()
+
+    validation_start_button.setEnabled(
+        False
+    )
+    validation_stop_button.setEnabled(
+        True
+    )
+    validation_status_label.setText(
+        "Validation logging active"
+    )
+    validation_status_label.setStyleSheet(
+        f"color: {STATUS_SUCCESS};"
+    )
 
 
 def stop_validation_logging():
@@ -828,6 +863,19 @@ def stop_validation_logging():
             "Indoor antenna placement affects observed occupancy.",
             "Validation records reflect SPECTRA application behavior."
         ]
+    )
+
+    validation_start_button.setEnabled(
+        True
+    )
+    validation_stop_button.setEnabled(
+        False
+    )
+    validation_status_label.setText(
+        "Validation log saved"
+    )
+    validation_status_label.setStyleSheet(
+        f"color: {STATUS_WARNING};"
     )
 
 
@@ -1123,7 +1171,12 @@ sdr_worker.tune_failed.connect(
 
 sdr_worker.start()
 
-start_validation_logging()
+if HARDWARE_VALIDATION_ENABLED:
+    start_validation_logging()
+else:
+    validation_stop_button.setEnabled(
+        False
+    )
 
 
 def begin_shutdown():
@@ -1154,6 +1207,14 @@ clear_survey_button.clicked.connect(
 
 auto_tune_button.clicked.connect(
     survey_controller.auto_tune_best
+)
+
+validation_start_button.clicked.connect(
+    start_validation_logging
+)
+
+validation_stop_button.clicked.connect(
+    stop_validation_logging
 )
 
 start_survey_button.clicked.connect(
