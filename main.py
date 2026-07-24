@@ -94,6 +94,7 @@ from UI.theme import (
     RIGHT_INFO_PANEL_MARGINS,
     RIGHT_INFO_PANEL_SPACING,
     RIGHT_INFO_PANEL_STYLESHEET,
+    STATUS_ERROR,
     STATUS_SUCCESS,
     STATUS_WARNING,
     SURVEY_CONTROL_PANEL_MARGINS,
@@ -813,6 +814,22 @@ def build_hardware_validation_config():
     )
 
 
+def show_validation_write_error(message):
+    validation_start_button.setEnabled(
+        True
+    )
+    validation_stop_button.setEnabled(
+        False
+    )
+    validation_status_label.setText(
+        "Validation error\n"
+        + str(message)
+    )
+    validation_status_label.setStyleSheet(
+        f"color: {STATUS_ERROR};"
+    )
+
+
 def start_validation_logging():
     global validation_logger
     global validation_frame_index
@@ -833,9 +850,13 @@ def start_validation_logging():
         build_hardware_validation_config()
     )
     validation_logger = HardwareValidationLogger(
-        validation_session
+        validation_session,
+        error_callback=show_validation_write_error
     )
-    validation_logger.start()
+    session_directory = validation_logger.start()
+
+    if session_directory is None:
+        return
 
     validation_start_button.setEnabled(
         False
@@ -860,13 +881,16 @@ def stop_validation_logging():
     ):
         return
 
-    validation_logger.stop(
+    summary = validation_logger.stop(
         limitations=[
             "RTL-SDR measurements are relative, not calibrated dBm.",
             "Indoor antenna placement affects observed occupancy.",
             "Validation records reflect SPECTRA application behavior."
         ]
     )
+
+    if summary is None:
+        return
 
     validation_start_button.setEnabled(
         True
@@ -952,11 +976,12 @@ def log_validation_frame(
         return
 
     last_validation_frame_time = now
-    validation_frame_index = next_frame_index
-
-    validation_logger.log_frame(
+    frame_written = validation_logger.log_frame(
         frame_record
     )
+
+    if frame_written:
+        validation_frame_index = next_frame_index
 
 
 def log_validation_survey(
@@ -977,9 +1002,8 @@ def log_validation_survey(
     ):
         return
 
-    validation_survey_index += 1
-
-    validation_logger.log_survey(
+    next_survey_index = validation_survey_index + 1
+    survey_written = validation_logger.log_survey(
         build_survey_record(
             validation_id=(
                 validation_logger.session.config.validation_id
@@ -987,7 +1011,7 @@ def log_validation_survey(
             session_id=(
                 validation_logger.session.config.session_id
             ),
-            survey_index=validation_survey_index,
+            survey_index=next_survey_index,
             timestamp=current_timestamp(),
             survey_frequencies_mhz=survey.survey_frequencies,
             sorted_results=sorted_results,
@@ -1000,6 +1024,9 @@ def log_validation_survey(
             error_message=error_message
         )
     )
+
+    if survey_written:
+        validation_survey_index = next_survey_index
 
 
 # ==================================================

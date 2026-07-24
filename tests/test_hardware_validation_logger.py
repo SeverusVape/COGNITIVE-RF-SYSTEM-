@@ -3,6 +3,7 @@ import csv
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from VALIDATION.hardware.validation_logger import (
     CONFIG_CSV_FILENAME,
@@ -373,6 +374,162 @@ class HardwareValidationLoggerTests(unittest.TestCase):
             logger.log_frame(
                 self._frame()
             )
+
+    def test_permission_error_during_start_is_reported(self):
+        errors = []
+
+        with tempfile.TemporaryDirectory() as temp_dir:
+            logger = self._logger(
+                temp_dir
+            )
+            logger._error_callback = errors.append
+
+            with patch(
+                    "VALIDATION.hardware.validation_logger._write_json",
+                    side_effect=PermissionError(
+                        "read-only destination"
+                    )
+            ):
+                session_path = logger.start()
+
+        self.assertIsNone(
+            session_path
+        )
+        self.assertTrue(
+            logger.failed
+        )
+        self.assertFalse(
+            logger.active
+        )
+        self.assertIn(
+            "PermissionError",
+            logger.last_error
+        )
+        self.assertEqual(
+            errors,
+            [
+                logger.last_error
+            ]
+        )
+        self.assertIn(
+            logger.last_error,
+            logger.session.errors
+        )
+
+    def test_missing_frame_directory_disables_writes(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            logger = self._logger(
+                temp_dir
+            )
+            session_path = logger.start()
+            (
+                session_path
+                / "frames"
+            ).rmdir()
+
+            written = logger.log_frame(
+                self._frame()
+            )
+
+        self.assertFalse(
+            written
+        )
+        self.assertTrue(
+            logger.failed
+        )
+        self.assertIn(
+            "FileNotFoundError",
+            logger.last_error
+        )
+        self.assertEqual(
+            logger.session.frame_count,
+            0
+        )
+
+    def test_disk_write_error_during_frame_logging_is_contained(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            logger = self._logger(
+                temp_dir
+            )
+            logger.start()
+
+            with patch(
+                    "VALIDATION.hardware.validation_logger._append_jsonl",
+                    side_effect=OSError(
+                        "simulated disk failure"
+                    )
+            ):
+                written = logger.log_frame(
+                    self._frame()
+                )
+
+        self.assertFalse(
+            written
+        )
+        self.assertIn(
+            "simulated disk failure",
+            logger.last_error
+        )
+
+    def test_serialization_error_during_survey_logging_is_contained(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            logger = self._logger(
+                temp_dir
+            )
+            logger.start()
+            record = self._survey()
+
+            with patch.object(
+                    record,
+                    "to_dict",
+                    side_effect=TypeError(
+                        "not JSON serializable"
+                    )
+            ):
+                written = logger.log_survey(
+                    record
+                )
+
+        self.assertFalse(
+            written
+        )
+        self.assertTrue(
+            logger.failed
+        )
+        self.assertEqual(
+            logger.session.survey_count,
+            0
+        )
+        self.assertIn(
+            "TypeError",
+            logger.last_error
+        )
+
+    def test_summary_write_error_is_contained(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            logger = self._logger(
+                temp_dir
+            )
+            logger.start()
+
+            with patch(
+                    "VALIDATION.hardware.validation_logger._write_json",
+                    side_effect=OSError(
+                        "summary write failure"
+                    )
+            ):
+                summary = logger.stop()
+
+        self.assertIsNone(
+            summary
+        )
+        self.assertTrue(
+            logger.failed
+        )
+        self.assertIn(
+            "writing session summary",
+            logger.last_error
+        )
 
 
 if __name__ == "__main__":

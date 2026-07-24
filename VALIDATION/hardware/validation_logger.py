@@ -149,12 +149,16 @@ class HardwareValidationLogger:
 
     def __init__(
             self,
-            session: HardwareValidationSession
+            session: HardwareValidationSession,
+            error_callback=None
     ):
         self.session = session
+        self._error_callback = error_callback
         self._session_directory = None
         self._frame_csv_writer = None
         self._survey_csv_writer = None
+        self._writes_disabled = False
+        self._last_error = None
 
     @property
     def session_directory(self):
@@ -162,29 +166,51 @@ class HardwareValidationLogger:
 
     @property
     def active(self):
-        return self.session.active
+        return (
+            self.session.active
+            and not self._writes_disabled
+        )
+
+    @property
+    def failed(self):
+        return self._writes_disabled
+
+    @property
+    def last_error(self):
+        return self._last_error
 
     def start(self):
-        self._session_directory = self.session.start()
-        self._write_config(
-            self.session.config
-        )
-        self._frame_csv_writer = _CsvAppendWriter(
-            self._session_directory
-            / "frames"
-            / FRAME_CSV_FILENAME,
-            _field_names(
-                ValidationFrameRecord
+        try:
+            self._session_directory = self.session.start()
+            self._write_config(
+                self.session.config
             )
-        )
-        self._survey_csv_writer = _CsvAppendWriter(
-            self._session_directory
-            / "surveys"
-            / SURVEY_CSV_FILENAME,
-            _field_names(
-                ValidationSurveyRecord
+            self._frame_csv_writer = _CsvAppendWriter(
+                self._session_directory
+                / "frames"
+                / FRAME_CSV_FILENAME,
+                _field_names(
+                    ValidationFrameRecord
+                )
             )
-        )
+            self._survey_csv_writer = _CsvAppendWriter(
+                self._session_directory
+                / "surveys"
+                / SURVEY_CSV_FILENAME,
+                _field_names(
+                    ValidationSurveyRecord
+                )
+            )
+        except (
+                OSError,
+                TypeError,
+                ValueError
+        ) as error:
+            self._record_write_error(
+                "starting validation session",
+                error
+            )
+            return None
 
         return self._session_directory
 
@@ -194,20 +220,33 @@ class HardwareValidationLogger:
     ):
         self._require_started()
 
-        self.session.register_frame(
-            record
-        )
-        payload = record.to_dict()
+        try:
+            payload = record.to_dict()
 
-        self._frame_csv_writer.append(
-            payload
-        )
-        _append_jsonl(
-            self._session_directory
-            / "frames"
-            / FRAME_JSONL_FILENAME,
-            payload
-        )
+            self._frame_csv_writer.append(
+                payload
+            )
+            _append_jsonl(
+                self._session_directory
+                / "frames"
+                / FRAME_JSONL_FILENAME,
+                payload
+            )
+            self.session.register_frame(
+                record
+            )
+        except (
+                OSError,
+                TypeError,
+                ValueError
+        ) as error:
+            self._record_write_error(
+                "writing frame evidence",
+                error
+            )
+            return False
+
+        return True
 
     def log_survey(
             self,
@@ -215,20 +254,33 @@ class HardwareValidationLogger:
     ):
         self._require_started()
 
-        self.session.register_survey(
-            record
-        )
-        payload = record.to_dict()
+        try:
+            payload = record.to_dict()
 
-        self._survey_csv_writer.append(
-            payload
-        )
-        _append_jsonl(
-            self._session_directory
-            / "surveys"
-            / SURVEY_JSONL_FILENAME,
-            payload
-        )
+            self._survey_csv_writer.append(
+                payload
+            )
+            _append_jsonl(
+                self._session_directory
+                / "surveys"
+                / SURVEY_JSONL_FILENAME,
+                payload
+            )
+            self.session.register_survey(
+                record
+            )
+        except (
+                OSError,
+                TypeError,
+                ValueError
+        ) as error:
+            self._record_write_error(
+                "writing survey evidence",
+                error
+            )
+            return False
+
+        return True
 
     def stop(
             self,
@@ -237,15 +289,59 @@ class HardwareValidationLogger:
     ):
         self._require_started()
 
-        summary = self.session.stop(
-            operator_metadata=operator_metadata,
-            limitations=limitations
-        )
-        self._write_summary(
-            summary
-        )
+        try:
+            summary = self.session.stop(
+                operator_metadata=operator_metadata,
+                limitations=limitations
+            )
+            self._write_summary(
+                summary
+            )
+        except (
+                OSError,
+                TypeError,
+                ValueError
+        ) as error:
+            self._record_write_error(
+                "writing session summary",
+                error
+            )
+            return None
 
         return summary
+
+    def _record_write_error(
+            self,
+            operation,
+            error
+    ):
+        message = (
+            f"Validation write error while {operation}: "
+            f"{type(error).__name__}: {error}"
+        )
+        self._last_error = message
+        self._writes_disabled = True
+
+        if self.session.active:
+            self.session.abort_due_to_error(
+                message
+            )
+        else:
+            self.session.add_error(
+                message
+            )
+
+        if self._error_callback is not None:
+            try:
+                self._error_callback(
+                    message
+                )
+            except Exception as callback_error:
+                self.session.add_error(
+                    "Validation error callback failed: "
+                    f"{type(callback_error).__name__}: "
+                    f"{callback_error}"
+                )
 
     def _write_config(
             self,
@@ -293,4 +389,9 @@ class HardwareValidationLogger:
         if self._session_directory is None:
             raise RuntimeError(
                 "Validation logger has not been started."
+            )
+
+        if self._writes_disabled:
+            raise RuntimeError(
+                "Validation writes are disabled after a previous error."
             )

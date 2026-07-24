@@ -159,6 +159,12 @@ class HardwareValidationSession:
     def survey_count(self):
         return self._survey_count
 
+    @property
+    def errors(self):
+        return list(
+            self._errors
+        )
+
     def start(self):
         if self._active:
             raise RuntimeError(
@@ -220,6 +226,18 @@ class HardwareValidationSession:
         self._errors.append(
             str(message)
         )
+
+    def abort_due_to_error(self, message):
+        """Close runtime accounting after an unrecoverable write error."""
+        self.add_error(
+            message
+        )
+
+        if self._active:
+            self._stop_time = self._timestamp_provider()
+
+        self._active = False
+        self._stopped = True
 
     def register_frame(
             self,

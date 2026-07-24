@@ -101,3 +101,13 @@ warning and skips that frame; the production application continues running.
 For length-matched arrays containing a mixture of finite and invalid values,
 only finite frequency/power pairs are used to calculate the maximum FFT bin and
 average relative power. Skipped frames do not consume a logged frame index.
+
+## Validation write failures
+
+Configuration, frame, survey, and summary writes are isolated from production
+SDR processing. If a filesystem or serialization operation fails, the logger
+records the operation and exception in the session error list, disables further
+validation writes, closes the active validation state, and notifies the
+temporary validation UI. SPECTRA continues monitoring normally. A failed
+evidence session must be treated as incomplete; validation should be restarted
+only after the reported storage problem is corrected.
