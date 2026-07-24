@@ -174,9 +174,52 @@ def build_frame_record(
         smart_recommendation_mhz=None,
         application_mode="monitoring"
 ):
+    try:
+        frequency_values = np.asarray(
+            freqs_mhz,
+            dtype=float
+        ).reshape(-1)
+        power_values = np.asarray(
+            power_db,
+            dtype=float
+        ).reshape(-1)
+    except (
+            TypeError,
+            ValueError
+    ):
+        return None
+
+    if (
+            frequency_values.size == 0
+            or power_values.size == 0
+            or frequency_values.size != power_values.size
+    ):
+        return None
+
+    valid_mask = (
+        np.isfinite(
+            frequency_values
+        )
+        & np.isfinite(
+            power_values
+        )
+    )
+
+    if not np.any(
+            valid_mask
+    ):
+        return None
+
+    valid_frequencies_mhz = frequency_values[
+        valid_mask
+    ]
+    valid_power_db = power_values[
+        valid_mask
+    ]
+
     strongest_index = int(
         np.argmax(
-            power_db
+            valid_power_db
         )
     )
 
@@ -187,15 +230,28 @@ def build_frame_record(
         timestamp=timestamp,
         center_frequency_hz=center_frequency_hz,
         strongest_fft_bin_frequency_hz=round(
-            float(freqs_mhz[strongest_index]) * 1e6,
+            float(
+                valid_frequencies_mhz[
+                    strongest_index
+                ]
+            )
+            * 1e6,
             3
         ),
         strongest_fft_bin_power_db=round(
-            float(np.max(power_db)),
+            float(
+                valid_power_db[
+                    strongest_index
+                ]
+            ),
             3
         ),
         average_power_db=round(
-            float(np.mean(power_db)),
+            float(
+                np.mean(
+                    valid_power_db
+                )
+            ),
             3
         ),
         threshold_db=round(

@@ -914,36 +914,48 @@ def log_validation_frame(
     ):
         return
 
+    next_frame_index = validation_frame_index + 1
+    frame_record = build_frame_record(
+        validation_id=(
+            validation_logger.session.config.validation_id
+        ),
+        session_id=(
+            validation_logger.session.config.session_id
+        ),
+        frame_index=next_frame_index,
+        timestamp=current_timestamp(),
+        center_frequency_hz=(
+            sdr_worker.get_center_frequency()
+        ),
+        freqs_mhz=freqs_mhz,
+        power_db=power_db,
+        threshold_db=threshold_db,
+        occupancy_percent=occupancy,
+        raw_peaks=raw_peaks,
+        confirmed_peaks=confirmed_peaks,
+        detector_runtime_ms=detector_runtime_ms,
+        smart_recommendation_mhz=survey.best_frequency,
+        application_mode=(
+            "survey"
+            if survey_controller.survey_active
+            else "monitoring"
+        )
+    )
+
+    if frame_record is None:
+        last_validation_frame_time = now
+        validation_logger.session.add_error(
+            "Skipped invalid validation frame: FFT frequency and power "
+            "arrays must be non-empty, length-matched, and contain at "
+            "least one finite pair."
+        )
+        return
+
     last_validation_frame_time = now
-    validation_frame_index += 1
+    validation_frame_index = next_frame_index
 
     validation_logger.log_frame(
-        build_frame_record(
-            validation_id=(
-                validation_logger.session.config.validation_id
-            ),
-            session_id=(
-                validation_logger.session.config.session_id
-            ),
-            frame_index=validation_frame_index,
-            timestamp=current_timestamp(),
-            center_frequency_hz=(
-                sdr_worker.get_center_frequency()
-            ),
-            freqs_mhz=freqs_mhz,
-            power_db=power_db,
-            threshold_db=threshold_db,
-            occupancy_percent=occupancy,
-            raw_peaks=raw_peaks,
-            confirmed_peaks=confirmed_peaks,
-            detector_runtime_ms=detector_runtime_ms,
-            smart_recommendation_mhz=survey.best_frequency,
-            application_mode=(
-                "survey"
-                if survey_controller.survey_active
-                else "monitoring"
-            )
-        )
+        frame_record
     )
 
 

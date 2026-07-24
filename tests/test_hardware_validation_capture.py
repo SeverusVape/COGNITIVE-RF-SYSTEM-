@@ -145,6 +145,125 @@ class HardwareValidationCaptureTests(unittest.TestCase):
             89000000.0
         )
 
+    def test_empty_fft_arrays_are_skipped(self):
+        record = self._build_frame_with_fft(
+            freqs_mhz=np.array([]),
+            power_db=np.array([])
+        )
+
+        self.assertIsNone(
+            record
+        )
+
+    def test_mismatched_fft_arrays_are_skipped(self):
+        record = self._build_frame_with_fft(
+            freqs_mhz=np.array(
+                [
+                    89.9,
+                    90.0
+                ]
+            ),
+            power_db=np.array(
+                [
+                    20.0
+                ]
+            )
+        )
+
+        self.assertIsNone(
+            record
+        )
+
+    def test_nan_only_fft_arrays_are_skipped(self):
+        record = self._build_frame_with_fft(
+            freqs_mhz=np.array(
+                [
+                    np.nan,
+                    np.nan
+                ]
+            ),
+            power_db=np.array(
+                [
+                    np.nan,
+                    np.nan
+                ]
+            )
+        )
+
+        self.assertIsNone(
+            record
+        )
+
+    def test_partially_valid_fft_arrays_use_finite_pairs(self):
+        record = self._build_frame_with_fft(
+            freqs_mhz=np.array(
+                [
+                    89.9,
+                    90.0,
+                    np.nan,
+                    90.2
+                ]
+            ),
+            power_db=np.array(
+                [
+                    20.0,
+                    np.nan,
+                    80.0,
+                    40.0
+                ]
+            )
+        )
+
+        self.assertIsNotNone(
+            record
+        )
+        self.assertEqual(
+            record.strongest_fft_bin_frequency_hz,
+            90200000.0
+        )
+        self.assertEqual(
+            record.strongest_fft_bin_power_db,
+            40.0
+        )
+        self.assertEqual(
+            record.average_power_db,
+            30.0
+        )
+
+    def test_non_numeric_fft_arrays_are_skipped(self):
+        record = self._build_frame_with_fft(
+            freqs_mhz=[
+                "invalid"
+            ],
+            power_db=[
+                20.0
+            ]
+        )
+
+        self.assertIsNone(
+            record
+        )
+
+    @staticmethod
+    def _build_frame_with_fft(
+            freqs_mhz,
+            power_db
+    ):
+        return build_frame_record(
+            validation_id="VAL-20260724-143000",
+            session_id="SESSION-001",
+            frame_index=1,
+            timestamp="2026-07-24T14:30:01-04:00",
+            center_frequency_hz=90e6,
+            freqs_mhz=freqs_mhz,
+            power_db=power_db,
+            threshold_db=31.5,
+            occupancy_percent=8.25,
+            raw_peaks=[],
+            confirmed_peaks=[],
+            detector_runtime_ms=1.0
+        )
+
     def test_build_survey_record_captures_decision_evidence(self):
         record = build_survey_record(
             validation_id="VAL-20260724-143000",

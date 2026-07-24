@@ -91,3 +91,13 @@ RF signal. Confirmed signal evidence is recorded separately in
 `confirmed_frequencies_hz`; confirmed-signal power is not recorded because the
 current confirmation output does not provide an independent reliable power
 value.
+
+## Invalid hardware frames
+
+The hardware frame builder returns `None` when FFT frequency and power arrays
+are empty, have different lengths, cannot be converted to numeric arrays, or
+contain no finite frequency/power pair. The active validation session records a
+warning and skips that frame; the production application continues running.
+For length-matched arrays containing a mixture of finite and invalid values,
+only finite frequency/power pairs are used to calculate the maximum FFT bin and
+average relative power. Skipped frames do not consume a logged frame index.
