@@ -21,6 +21,7 @@ from PyQt6.QtCore import (
 import pyqtgraph as pg
 
 from SURVEY.survey_controller import SurveyController
+import SURVEY.survey_manager as survey
 from SDR.sdr_worker import SDRWorker
 from SDR.fft_processing import compute_windowed_fft
 from SDR.detection import detect_peaks
