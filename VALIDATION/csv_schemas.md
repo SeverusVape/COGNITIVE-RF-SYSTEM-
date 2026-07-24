@@ -17,6 +17,50 @@ collection. Do not enter results directly into the templates.
 - Percentages: numeric 0–100 without the `%` character
 - Each row represents one raw trial or one candidate within a survey run
 
+## `detector_comparison_trials.csv`
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| validation_id | text | `DE-CMP-01` |
+| configuration_id | text | Frozen comparison configuration |
+| timestamp | datetime | Experiment execution time with UTC offset |
+| detector | text | `adaptive` or `os_cfar` |
+| scenario | text | Frozen synthetic scenario |
+| trial_index | integer | Shared trial identifier |
+| random_seed | integer | Seed that reproduces the shared FFT input |
+| sample_rate_hz | float | Synthetic IQ sample rate |
+| fft_size | integer | Complex samples and FFT bins |
+| bin_spacing_hz | float | Sample rate divided by FFT size |
+| expected_count | integer | Known synthetic carriers |
+| detected_count | integer | Raw peaks returned |
+| true_positive_count | integer | One-to-one matched peaks |
+| false_positive_count | integer | Unmatched returned peaks |
+| false_negative_count | integer | Unmatched expected carriers |
+| frame_has_false_alarm | boolean | Whether the frame has any unmatched response |
+| frequency_errors_hz | text/NA | Semicolon-separated signed matched errors |
+| runtime_ms | float | Detector-call runtime after protocol warmup |
+| finite_threshold_median_db | float | Median finite threshold value |
+
+## `detector_comparison_summary.csv`
+
+Each row aggregates one detector and scenario. It records counts, probability
+of detection, frame false-alarm rate, Wilson 95% intervals, precision, recall,
+runtime distribution statistics, returned-count stability, frequency-error
+statistics, and mean threshold summary. Probability fields use numeric 0–1
+values; unavailable carrier metrics in noise-only trials use `NA`.
+
+## `detector_comparison_gates.csv`
+
+| Column | Type | Meaning |
+| --- | --- | --- |
+| gate_id | text | Frozen synthetic gate `G1`–`G6` |
+| engineering_requirement | text | Engineering property being protected |
+| criterion | text | Criterion frozen before execution |
+| adaptive_value | float | Production-baseline metric |
+| os_cfar_value | float | Experimental-detector metric |
+| passed | boolean | Whether OS-CFAR satisfies the gate |
+| interpretation | text | Scope and rationale |
+
 ## `synthetic_detector_trials.csv`
 
 | Column | Type | Meaning |

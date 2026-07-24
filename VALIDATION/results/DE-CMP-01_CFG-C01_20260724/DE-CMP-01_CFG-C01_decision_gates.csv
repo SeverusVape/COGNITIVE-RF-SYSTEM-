@@ -1,0 +1,7 @@
+gate_id,engineering_requirement,criterion,adaptive_value,os_cfar_value,passed,interpretation
+G1,Material noise-only false-alarm reduction,"OS-CFAR frame Pfa <= max(0.01, 50% of adaptive Pfa)",1.0,1.0,false,Tests whether OS-CFAR addresses the measured raw-specificity weakness.
+G2,Single-carrier sensitivity,OS-CFAR >= adaptive - 0.05,1.0,1.0,true,Bounds the permitted sensitivity loss against the production baseline.
+G3,Weak carrier beside strong carrier,OS-CFAR >= adaptive - 0.10,0.99,0.99,true,Bounds the permitted sensitivity loss against the production baseline.
+G4,Closely spaced carrier performance,OS-CFAR >= adaptive - 0.05,1.0,1.0,true,Bounds the permitted sensitivity loss against the production baseline.
+G5,Robustness across non-ideal scenarios,"Mean OS-CFAR recall across edge, multiple, variable-floor, and Monte Carlo scenarios >= adaptive - 0.05",1.0,1.0,true,Prevents selection based on one favorable scenario.
+G6,Runtime compatible with the live processing interval,Worst scenario p95 runtime <= 100.0 ms,0.5070124985650182,14.421754140494158,true,Runtime is measured after warmup and excludes FFT generation and file output.

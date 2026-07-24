@@ -1,0 +1,34 @@
+{
+  "validation_id": "DE-CMP-01",
+  "configuration_id": "CFG-C01",
+  "protocol_status": "Frozen before comparative execution",
+  "sample_rate_hz": 2048000.0,
+  "fft_size": 8192,
+  "bin_spacing_hz": 250.0,
+  "base_seed": 3104204,
+  "trials_per_scenario": 100,
+  "scenarios": [
+    "noise_only",
+    "single_carrier",
+    "weak_beside_strong",
+    "multiple_carriers",
+    "fft_edge",
+    "closely_spaced_carriers",
+    "variable_noise_floor",
+    "monte_carlo"
+  ],
+  "matching_tolerance_bins": 1.0,
+  "warmup_trials_per_detector": 5,
+  "runtime_limit_ms": 100.0,
+  "adaptive_configuration": "Production SDR/detection.py unchanged",
+  "os_cfar_configuration": {
+    "reference_cells_per_side": 32,
+    "guard_cells_per_side": 8,
+    "rank_one_based": 48,
+    "threshold_scale_linear": 4.0,
+    "minimum_peak_distance_khz": 75.0,
+    "maximum_peaks": 3,
+    "bandwidth_drop_db": 15.0
+  },
+  "decision_boundary": "Synthetic eligibility for Phase 5 hardware validation only; not production selection"
+}
