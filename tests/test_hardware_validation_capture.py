@@ -15,6 +15,37 @@ from VALIDATION.hardware.validation_capture import (
 
 class HardwareValidationCaptureTests(unittest.TestCase):
 
+    @staticmethod
+    def _build_session_config(
+            active_decision_mode
+    ):
+        return build_session_config(
+            timestamp=datetime(
+                2026,
+                7,
+                24,
+                14,
+                30,
+                0
+            ),
+            configuration_id="CFG-HW-01",
+            session_name="Mode test",
+            test_band="88-92 MHz",
+            operator_notes="",
+            antenna_description="RTL-SDR dipole",
+            location_description="Bay Ridge",
+            expected_signal_description="FM broadcast carriers",
+            center_frequency_hz=90e6,
+            sample_rate_hz=2.048e6,
+            fft_size=8192,
+            gain="auto",
+            detector_configuration={},
+            confirmation_configuration={},
+            validation_log_interval_ms=1000,
+            survey_defaults={},
+            active_decision_mode=active_decision_mode
+        )
+
     def test_frequency_list_converts_peak_mhz_to_hz(self):
         self.assertEqual(
             frequency_list_hz(
@@ -59,7 +90,12 @@ class HardwareValidationCaptureTests(unittest.TestCase):
             validation_log_interval_ms=1000,
             survey_defaults={
                 "settling_delay_ms": 500
-            }
+            },
+            detector_name="production adaptive detector",
+            update_interval_ms=100,
+            active_decision_mode="Smart Recommendation",
+            software_version="SPECTRA test",
+            git_commit_sha="a" * 40
         )
 
         payload = config.to_dict()
@@ -78,6 +114,58 @@ class HardwareValidationCaptureTests(unittest.TestCase):
         self.assertEqual(
             payload["validation_log_interval_ms"],
             1000
+        )
+        self.assertEqual(
+            payload["detector_name"],
+            "production adaptive detector"
+        )
+        self.assertEqual(
+            payload["update_interval_ms"],
+            100
+        )
+        self.assertEqual(
+            payload["active_decision_mode"],
+            "SMART"
+        )
+        self.assertEqual(
+            payload["smart_mode_state"],
+            "SMART"
+        )
+        self.assertEqual(
+            payload["software_version"],
+            "SPECTRA test"
+        )
+        self.assertEqual(
+            payload["git_commit_sha"],
+            "a" * 40
+        )
+
+    def test_session_config_records_active_free_mode(self):
+        config = self._build_session_config(
+            active_decision_mode="Find Free Channel"
+        )
+
+        self.assertEqual(
+            config.active_decision_mode,
+            "FREE"
+        )
+        self.assertEqual(
+            config.smart_mode_state,
+            "FREE"
+        )
+
+    def test_session_config_records_active_smart_mode(self):
+        config = self._build_session_config(
+            active_decision_mode="Smart Recommendation"
+        )
+
+        self.assertEqual(
+            config.active_decision_mode,
+            "SMART"
+        )
+        self.assertEqual(
+            config.smart_mode_state,
+            "SMART"
         )
 
     def test_build_frame_record_uses_application_measurements(self):
@@ -403,6 +491,10 @@ class HardwareValidationCaptureTests(unittest.TestCase):
         self.assertEqual(
             normalize_decision_mode("find free channel"),
             "FREE"
+        )
+        self.assertEqual(
+            normalize_decision_mode("Find Active Signal"),
+            "ACTIVE"
         )
 
         record = build_survey_record(

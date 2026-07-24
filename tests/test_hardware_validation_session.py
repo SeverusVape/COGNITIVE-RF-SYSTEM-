@@ -74,7 +74,8 @@ class HardwareValidationSessionTests(unittest.TestCase):
     @staticmethod
     def _survey(
             survey_index=1,
-            smart_recommendation_hz=90e6
+            smart_recommendation_hz=90e6,
+            completion_status="success"
     ):
         return ValidationSurveyRecord(
             validation_id="VAL-20260724-143000",
@@ -87,7 +88,7 @@ class HardwareValidationSessionTests(unittest.TestCase):
             number_of_points=5,
             best_frequency_hz=smart_recommendation_hz,
             smart_recommendation_hz=smart_recommendation_hz,
-            completion_status="success"
+            completion_status=completion_status
         )
 
     def test_identifier_helpers_use_stable_formats(self):
@@ -170,6 +171,9 @@ class HardwareValidationSessionTests(unittest.TestCase):
             session.register_frame(
                 self._frame(frame_index=1)
             )
+            session.register_invalid_frame(
+                "Skipped invalid validation frame."
+            )
             session.register_frame(
                 self._frame(
                     frame_index=2,
@@ -186,7 +190,8 @@ class HardwareValidationSessionTests(unittest.TestCase):
             session.register_survey(
                 self._survey(
                     survey_index=2,
-                    smart_recommendation_hz=91e6
+                    smart_recommendation_hz=91e6,
+                    completion_status="cancelled"
                 )
             )
             summary = session.stop(
@@ -215,8 +220,23 @@ class HardwareValidationSessionTests(unittest.TestCase):
             2
         )
         self.assertEqual(
+            payload["valid_frame_count"],
+            2
+        )
+        self.assertEqual(
+            payload["skipped_invalid_frame_count"],
+            1
+        )
+        self.assertEqual(
             payload["total_surveys"],
             2
+        )
+        self.assertEqual(
+            payload["survey_completion_state_counts"],
+            {
+                "cancelled": 1,
+                "success": 1
+            }
         )
         self.assertEqual(
             payload["average_raw_candidate_count"],
@@ -245,6 +265,16 @@ class HardwareValidationSessionTests(unittest.TestCase):
         self.assertEqual(
             payload["survey_recommendation_repeatability_percent"],
             50.0
+        )
+        self.assertEqual(
+            payload["most_frequent_smart_recommendation_hz"],
+            90e6
+        )
+        self.assertEqual(
+            payload["warnings_encountered"],
+            [
+                "Skipped invalid validation frame."
+            ]
         )
         self.assertEqual(
             payload["operator_metadata"]["operator"],

@@ -137,7 +137,10 @@ class HardwareValidationController:
         if self._logger is None:
             return []
 
-        return self._logger.session.errors
+        return (
+            self._logger.session.errors
+            + self._logger.session.warnings
+        )
 
     def start(self):
         if self.active:
@@ -227,6 +230,20 @@ class HardwareValidationController:
         try:
             output_directory = self._logger.session_directory
             summary = self._logger.stop(
+                operator_metadata={
+                    "operator_notes": (
+                        self.settings.operator_notes
+                    ),
+                    "antenna_description": (
+                        self.settings.antenna_description
+                    ),
+                    "location_description": (
+                        self.settings.location_description
+                    ),
+                    "expected_signal_description": (
+                        self.settings.expected_signal_description
+                    )
+                },
                 limitations=list(
                     self.settings.limitations
                 )
@@ -321,7 +338,7 @@ class HardwareValidationController:
         self._last_frame_time = now
 
         if frame_record is None:
-            self._logger.session.add_error(
+            self._logger.session.register_invalid_frame(
                 "Skipped invalid validation frame: FFT frequency and "
                 "power arrays must be non-empty, length-matched, and "
                 "contain at least one finite pair."

@@ -13,6 +13,7 @@ from VALIDATION.hardware.validation_logger import (
     HardwareValidationLogger,
     SUMMARY_CSV_FILENAME,
     SUMMARY_JSON_FILENAME,
+    SUMMARY_MARKDOWN_FILENAME,
     SURVEY_CSV_FILENAME,
     SURVEY_JSONL_FILENAME,
 )
@@ -336,6 +337,11 @@ class HardwareValidationLoggerTests(unittest.TestCase):
                 / "summaries"
                 / SUMMARY_CSV_FILENAME
             )
+            summary_markdown_path = (
+                session_path
+                / "summaries"
+                / SUMMARY_MARKDOWN_FILENAME
+            )
 
             self.assertEqual(
                 summary.total_logged_frames,
@@ -346,6 +352,9 @@ class HardwareValidationLoggerTests(unittest.TestCase):
             )
             self.assertTrue(
                 summary_csv_path.exists()
+            )
+            self.assertTrue(
+                summary_markdown_path.exists()
             )
 
             payload = json.loads(
@@ -361,6 +370,24 @@ class HardwareValidationLoggerTests(unittest.TestCase):
             self.assertEqual(
                 payload["operator_metadata"]["operator"],
                 "Sergei"
+            )
+            markdown = summary_markdown_path.read_text(
+                encoding="utf-8"
+            )
+            self.assertIn(
+                "# SPECTRA Hardware Validation Session Summary",
+                markdown
+            )
+            self.assertIn(
+                "Logged frames: 1",
+                markdown
+            )
+            self.assertIn(
+                "Probability of correct selection",
+                markdown.replace(
+                    "probability of correct selection",
+                    "Probability of correct selection"
+                )
             )
 
     def test_logger_rejects_records_before_start(self):

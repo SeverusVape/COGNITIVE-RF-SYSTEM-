@@ -56,6 +56,12 @@ def normalize_decision_mode(
     ):
         return "SMART"
 
+    if mode in (
+            "ACTIVE",
+            "FIND ACTIVE SIGNAL"
+    ):
+        return "ACTIVE"
+
     return mode
 
 
@@ -107,7 +113,10 @@ def build_session_config(
         validation_log_interval_ms,
         survey_defaults,
         software_version="SPECTRA validation capture",
-        git_commit_sha="unknown"
+        git_commit_sha="unknown",
+        detector_name="adaptive local-threshold detector",
+        update_interval_ms=None,
+        active_decision_mode="unknown"
 ):
     gain_mode = (
         "auto"
@@ -119,6 +128,10 @@ def build_session_config(
         None
         if gain == "auto"
         else float(gain)
+    )
+
+    normalized_decision_mode = normalize_decision_mode(
+        active_decision_mode
     )
 
     return ValidationSessionConfig(
@@ -145,14 +158,16 @@ def build_session_config(
         fft_size=fft_size,
         gain_mode=gain_mode,
         gain_db=gain_db,
-        detector_name="adaptive local-threshold detector",
+        detector_name=detector_name,
         detector_configuration=detector_configuration,
         confirmation_configuration=confirmation_configuration,
+        update_interval_ms=update_interval_ms,
         validation_log_interval_ms=(
             validation_log_interval_ms
         ),
         survey_defaults=survey_defaults,
-        smart_mode_state="available",
+        active_decision_mode=normalized_decision_mode,
+        smart_mode_state=normalized_decision_mode,
         software_version=software_version,
         git_commit_sha=git_commit_sha
     )

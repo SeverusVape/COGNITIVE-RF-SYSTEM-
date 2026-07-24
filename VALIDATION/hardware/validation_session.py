@@ -127,7 +127,9 @@ class HardwareValidationSession:
         self._start_time = None
         self._stop_time = None
         self._frame_count = 0
+        self._skipped_invalid_frame_count = 0
         self._survey_count = 0
+        self._survey_completion_state_counter = Counter()
         self._raw_candidate_total = 0
         self._confirmed_signal_total = 0
         self._detector_runtime_values = []
@@ -138,6 +140,7 @@ class HardwareValidationSession:
         self._strongest_fft_bin_power_db = None
         self._survey_recommendations = []
         self._errors = []
+        self._warnings = []
 
     @property
     def active(self):
@@ -163,6 +166,12 @@ class HardwareValidationSession:
     def errors(self):
         return list(
             self._errors
+        )
+
+    @property
+    def warnings(self):
+        return list(
+            self._warnings
         )
 
     def start(self):
@@ -227,6 +236,18 @@ class HardwareValidationSession:
             str(message)
         )
 
+    def add_warning(self, message):
+        self._warnings.append(
+            str(message)
+        )
+
+    def register_invalid_frame(self, message):
+        self._require_active()
+        self._skipped_invalid_frame_count += 1
+        self.add_warning(
+            message
+        )
+
     def abort_due_to_error(self, message):
         """Close runtime accounting after an unrecoverable write error."""
         self.add_error(
@@ -267,11 +288,6 @@ class HardwareValidationSession:
                 frequency
             ] += 1
 
-        if record.smart_recommendation_hz is not None:
-            self._smart_recommendation_counter[
-                record.smart_recommendation_hz
-            ] += 1
-
         if (
                 record.strongest_fft_bin_power_db is not None
                 and (
@@ -299,6 +315,14 @@ class HardwareValidationSession:
         )
 
         self._survey_count += 1
+        self._survey_completion_state_counter[
+            record.completion_status
+        ] += 1
+
+        if record.smart_recommendation_hz is not None:
+            self._smart_recommendation_counter[
+                record.smart_recommendation_hz
+            ] += 1
 
         recommendation = (
             record.smart_recommendation_hz
@@ -336,6 +360,9 @@ class HardwareValidationSession:
             validation_id=self.config.validation_id,
             session_id=self.config.session_id,
             session_name=self.config.session_name,
+            test_band=self.config.test_band,
+            configuration_id=self.config.configuration_id,
+            git_commit_sha=self.config.git_commit_sha,
             start_timestamp=_format_timestamp(
                 start_time
             ),
@@ -347,7 +374,14 @@ class HardwareValidationSession:
                 3
             ),
             total_logged_frames=self._frame_count,
+            valid_frame_count=self._frame_count,
+            skipped_invalid_frame_count=(
+                self._skipped_invalid_frame_count
+            ),
             total_surveys=self._survey_count,
+            survey_completion_state_counts=dict(
+                self._survey_completion_state_counter
+            ),
             average_raw_candidate_count=self._average(
                 self._raw_candidate_total,
                 self._frame_count
@@ -386,6 +420,9 @@ class HardwareValidationSession:
             ),
             errors_encountered=list(
                 self._errors
+            ),
+            warnings_encountered=list(
+                self._warnings
             ),
             operator_metadata=operator_metadata or {},
             limitations=limitations or []

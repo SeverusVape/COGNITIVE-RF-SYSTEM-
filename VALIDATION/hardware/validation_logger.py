@@ -21,6 +21,9 @@ from VALIDATION.hardware.validation_models import (
 from VALIDATION.hardware.validation_session import (
     HardwareValidationSession,
 )
+from VALIDATION.hardware.validation_summary import (
+    build_summary_markdown,
+)
 
 
 CONFIG_JSON_FILENAME = "session_config.json"
@@ -31,6 +34,7 @@ SURVEY_CSV_FILENAME = "survey_records.csv"
 SURVEY_JSONL_FILENAME = "survey_records.jsonl"
 SUMMARY_JSON_FILENAME = "session_summary.json"
 SUMMARY_CSV_FILENAME = "session_summary.csv"
+SUMMARY_MARKDOWN_FILENAME = "summary.md"
 
 
 def _field_names(record_type):
@@ -362,7 +366,6 @@ class HardwareValidationLogger:
             ),
             payload
         )
-
     def _write_summary(
             self,
             summary: ValidationSessionSummary
@@ -383,6 +386,17 @@ class HardwareValidationLogger:
                 ValidationSessionSummary
             ),
             payload
+        )
+        (
+            self._session_directory
+            / "summaries"
+            / SUMMARY_MARKDOWN_FILENAME
+        ).write_text(
+            build_summary_markdown(
+                summary,
+                self.session.config
+            ),
+            encoding="utf-8"
         )
 
     def _require_started(self):

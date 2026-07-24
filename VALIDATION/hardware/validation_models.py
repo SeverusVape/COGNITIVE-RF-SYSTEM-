@@ -110,6 +110,7 @@ class ValidationSessionConfig(_JsonSafeRecord):
     survey_defaults: dict[str, Any] = field(
         default_factory=dict
     )
+    active_decision_mode: str = "unknown"
     smart_mode_state: str = "unknown"
     software_version: str = "unknown"
     git_commit_sha: str = "unknown"
@@ -185,11 +186,17 @@ class ValidationSessionSummary(_JsonSafeRecord):
     validation_id: str
     session_id: str
     session_name: str
+    test_band: str
+    configuration_id: str
+    git_commit_sha: str
     start_timestamp: str
     stop_timestamp: str
     duration_seconds: float
     total_logged_frames: int
+    valid_frame_count: int
+    skipped_invalid_frame_count: int
     total_surveys: int
+    survey_completion_state_counts: dict[str, int]
     average_raw_candidate_count: float | None
     average_confirmed_signal_count: float | None
     average_detector_runtime_ms: float | None
@@ -205,6 +212,9 @@ class ValidationSessionSummary(_JsonSafeRecord):
     most_frequent_smart_recommendation_hz: float | None = None
     survey_recommendation_repeatability_percent: float | None = None
     errors_encountered: list[str] = field(
+        default_factory=list
+    )
+    warnings_encountered: list[str] = field(
         default_factory=list
     )
     operator_metadata: dict[str, Any] = field(
