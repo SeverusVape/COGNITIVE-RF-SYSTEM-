@@ -10,6 +10,7 @@ from __future__ import annotations
 from dataclasses import fields
 import csv
 import json
+import logging
 from pathlib import Path
 
 from VALIDATION.hardware.validation_models import (
@@ -35,6 +36,7 @@ SURVEY_JSONL_FILENAME = "survey_records.jsonl"
 SUMMARY_JSON_FILENAME = "session_summary.json"
 SUMMARY_CSV_FILENAME = "session_summary.csv"
 SUMMARY_MARKDOWN_FILENAME = "summary.md"
+VALIDATION_LOG_FILENAME = "validation.log"
 
 
 def _field_names(record_type):
@@ -163,6 +165,8 @@ class HardwareValidationLogger:
         self._survey_csv_writer = None
         self._writes_disabled = False
         self._last_error = None
+        self._event_logger = None
+        self._event_handler = None
 
     @property
     def session_directory(self):
@@ -186,8 +190,17 @@ class HardwareValidationLogger:
     def start(self):
         try:
             self._session_directory = self.session.start()
+            self._start_event_log()
+            self._write_event(
+                logging.INFO,
+                "Validation session started."
+            )
             self._write_config(
                 self.session.config
+            )
+            self._write_event(
+                logging.INFO,
+                "Configuration snapshot saved."
             )
             self._frame_csv_writer = _CsvAppendWriter(
                 self._session_directory
@@ -239,6 +252,11 @@ class HardwareValidationLogger:
             self.session.register_frame(
                 record
             )
+            if self.session.frame_count == 1:
+                self._write_event(
+                    logging.INFO,
+                    "First validation frame recorded."
+                )
         except (
                 OSError,
                 TypeError,
@@ -273,6 +291,12 @@ class HardwareValidationLogger:
             self.session.register_survey(
                 record
             )
+            self._write_event(
+                logging.INFO,
+                "Survey record saved: "
+                f"index={record.survey_index}, "
+                f"status={record.completion_status}."
+            )
         except (
                 OSError,
                 TypeError,
@@ -294,12 +318,24 @@ class HardwareValidationLogger:
         self._require_started()
 
         try:
+            self._write_event(
+                logging.INFO,
+                "Validation session stop requested."
+            )
             summary = self.session.stop(
                 operator_metadata=operator_metadata,
                 limitations=limitations
             )
             self._write_summary(
                 summary
+            )
+            self._write_event(
+                logging.INFO,
+                "Session summary generated."
+            )
+            self._write_event(
+                logging.INFO,
+                "Validation session stopped."
             )
         except (
                 OSError,
@@ -311,8 +347,32 @@ class HardwareValidationLogger:
                 error
             )
             return None
+        finally:
+            self._close_event_log()
 
         return summary
+
+    def record_invalid_frame(
+            self,
+            message
+    ):
+        self._require_started()
+        self.session.register_invalid_frame(
+            message
+        )
+        self._write_event(
+            logging.WARNING,
+            str(message)
+        )
+
+    def record_shutdown(self):
+        if not self.active:
+            return
+
+        self._write_event(
+            logging.INFO,
+            "Application shutdown requested while validation was active."
+        )
 
     def _record_write_error(
             self,
@@ -325,6 +385,10 @@ class HardwareValidationLogger:
         )
         self._last_error = message
         self._writes_disabled = True
+        self._write_event(
+            logging.ERROR,
+            message
+        )
 
         if self.session.active:
             self.session.abort_due_to_error(
@@ -346,6 +410,76 @@ class HardwareValidationLogger:
                     f"{type(callback_error).__name__}: "
                     f"{callback_error}"
                 )
+
+        self._close_event_log()
+
+    def _start_event_log(self):
+        logger_name = (
+            "SPECTRA.validation."
+            + self.session.config.session_id
+        )
+        self._event_logger = logging.getLogger(
+            logger_name
+        )
+        self._event_logger.setLevel(
+            logging.INFO
+        )
+        self._event_logger.propagate = False
+
+        for handler in list(
+                self._event_logger.handlers
+        ):
+            handler.close()
+            self._event_logger.removeHandler(
+                handler
+            )
+
+        self._event_handler = logging.FileHandler(
+            self._session_directory
+            / VALIDATION_LOG_FILENAME,
+            encoding="utf-8"
+        )
+        self._event_handler.setFormatter(
+            logging.Formatter(
+                "%(asctime)s | %(levelname)s | %(message)s"
+            )
+        )
+        self._event_logger.addHandler(
+            self._event_handler
+        )
+
+    def _write_event(
+            self,
+            level,
+            message
+    ):
+        if self._event_logger is None:
+            return
+
+        self._event_logger.log(
+            level,
+            str(message)
+        )
+
+    def _close_event_log(self):
+        if self._event_handler is None:
+            return
+
+        try:
+            self._event_handler.flush()
+            self._event_handler.close()
+        except OSError as error:
+            self.session.add_error(
+                "Validation event-log close error: "
+                f"{type(error).__name__}: {error}"
+            )
+        finally:
+            if self._event_logger is not None:
+                self._event_logger.removeHandler(
+                    self._event_handler
+                )
+
+            self._event_handler = None
 
     def _write_config(
             self,

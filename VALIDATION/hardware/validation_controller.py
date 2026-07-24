@@ -269,6 +269,7 @@ class HardwareValidationController:
 
     def shutdown(self):
         if self.active:
+            self._logger.record_shutdown()
             return self.stop()
 
         return True
@@ -338,7 +339,7 @@ class HardwareValidationController:
         self._last_frame_time = now
 
         if frame_record is None:
-            self._logger.session.register_invalid_frame(
+            self._logger.record_invalid_frame(
                 "Skipped invalid validation frame: FFT frequency and "
                 "power arrays must be non-empty, length-matched, and "
                 "contain at least one finite pair."

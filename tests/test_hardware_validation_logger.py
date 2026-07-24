@@ -16,6 +16,7 @@ from VALIDATION.hardware.validation_logger import (
     SUMMARY_MARKDOWN_FILENAME,
     SURVEY_CSV_FILENAME,
     SURVEY_JSONL_FILENAME,
+    VALIDATION_LOG_FILENAME,
 )
 from VALIDATION.hardware.validation_models import (
     ValidationFrameRecord,
@@ -342,6 +343,10 @@ class HardwareValidationLoggerTests(unittest.TestCase):
                 / "summaries"
                 / SUMMARY_MARKDOWN_FILENAME
             )
+            validation_log_path = (
+                session_path
+                / VALIDATION_LOG_FILENAME
+            )
 
             self.assertEqual(
                 summary.total_logged_frames,
@@ -355,6 +360,9 @@ class HardwareValidationLoggerTests(unittest.TestCase):
             )
             self.assertTrue(
                 summary_markdown_path.exists()
+            )
+            self.assertTrue(
+                validation_log_path.exists()
             )
 
             payload = json.loads(
@@ -388,6 +396,35 @@ class HardwareValidationLoggerTests(unittest.TestCase):
                     "probability of correct selection",
                     "Probability of correct selection"
                 )
+            )
+            event_log = validation_log_path.read_text(
+                encoding="utf-8"
+            )
+            self.assertIn(
+                "Validation session started.",
+                event_log
+            )
+            self.assertIn(
+                "Configuration snapshot saved.",
+                event_log
+            )
+            self.assertEqual(
+                event_log.count(
+                    "First validation frame recorded."
+                ),
+                1
+            )
+            self.assertIn(
+                "Survey record saved: index=1, status=success.",
+                event_log
+            )
+            self.assertIn(
+                "Session summary generated.",
+                event_log
+            )
+            self.assertIn(
+                "Validation session stopped.",
+                event_log
             )
 
     def test_logger_rejects_records_before_start(self):
@@ -489,6 +526,12 @@ class HardwareValidationLoggerTests(unittest.TestCase):
                 written = logger.log_frame(
                     self._frame()
                 )
+            event_log = (
+                logger.session_directory
+                / VALIDATION_LOG_FILENAME
+            ).read_text(
+                encoding="utf-8"
+            )
 
         self.assertFalse(
             written
@@ -496,6 +539,10 @@ class HardwareValidationLoggerTests(unittest.TestCase):
         self.assertIn(
             "simulated disk failure",
             logger.last_error
+        )
+        self.assertIn(
+            "Validation write error while writing frame evidence",
+            event_log
         )
 
     def test_serialization_error_during_survey_logging_is_contained(self):

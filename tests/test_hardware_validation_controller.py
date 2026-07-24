@@ -259,6 +259,18 @@ class HardwareValidationControllerTests(unittest.TestCase):
                     **arguments
                 )
             )
+            session_directory = (
+                controller.session_directory
+            )
+            self.assertTrue(
+                controller.stop()
+            )
+            event_log = (
+                session_directory
+                / "validation.log"
+            ).read_text(
+                encoding="utf-8"
+            )
 
         self.assertEqual(
             controller.frame_index,
@@ -270,6 +282,10 @@ class HardwareValidationControllerTests(unittest.TestCase):
                 in error
                 for error in controller.errors
             )
+        )
+        self.assertIn(
+            "Skipped invalid validation frame",
+            event_log
         )
 
     def test_survey_logging_uses_provided_canonical_frequencies(self):
@@ -306,13 +322,26 @@ class HardwareValidationControllerTests(unittest.TestCase):
                 temp_dir
             )
             controller.start()
+            session_directory = (
+                controller.session_directory
+            )
 
             self.assertTrue(
                 controller.shutdown()
             )
+            event_log = (
+                session_directory
+                / "validation.log"
+            ).read_text(
+                encoding="utf-8"
+            )
 
         self.assertFalse(
             controller.active
+        )
+        self.assertIn(
+            "Application shutdown requested while validation was active.",
+            event_log
         )
 
     def test_capture_error_is_contained_and_reported(self):
