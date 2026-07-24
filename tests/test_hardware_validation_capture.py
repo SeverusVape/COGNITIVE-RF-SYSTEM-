@@ -8,6 +8,7 @@ from VALIDATION.hardware.validation_capture import (
     build_session_config,
     build_survey_record,
     frequency_list_hz,
+    normalize_completion_status,
     normalize_decision_mode,
 )
 
@@ -299,6 +300,75 @@ class HardwareValidationCaptureTests(unittest.TestCase):
         self.assertEqual(
             record.decision_mode,
             "SMART"
+        )
+
+    def test_completion_status_is_recorded(self):
+        for status in (
+                "success",
+                "cancelled",
+                "interrupted",
+                "failed"
+        ):
+            with self.subTest(status=status):
+                record = build_survey_record(
+                    validation_id="VAL-20260724-143000",
+                    session_id="SESSION-001",
+                    survey_index=1,
+                    timestamp="2026-07-24T14:31:00-04:00",
+                    survey_frequencies_mhz=[
+                        88.0
+                    ],
+                    sorted_results=[],
+                    points_scanned=0,
+                    recommendation={},
+                    decision_mode="SMART",
+                    average_occupancy=0.0,
+                    completion_status=status
+                )
+
+                self.assertEqual(
+                    record.completion_status,
+                    status
+                )
+
+    def test_completion_status_is_normalized_safely(self):
+        self.assertEqual(
+            normalize_completion_status(" Cancelled "),
+            "cancelled"
+        )
+        self.assertEqual(
+            normalize_completion_status("unexpected"),
+            "unknown"
+        )
+
+    def test_completion_reason_and_error_are_recorded(self):
+        record = build_survey_record(
+            validation_id="VAL-20260724-143000",
+            session_id="SESSION-001",
+            survey_index=1,
+            timestamp="2026-07-24T14:31:00-04:00",
+            survey_frequencies_mhz=[
+                88.0
+            ],
+            sorted_results=[],
+            points_scanned=0,
+            recommendation={},
+            decision_mode="SMART",
+            average_occupancy=0.0,
+            completion_status="failed",
+            completion_reason="Measurement unavailable",
+            error_message="RF measurement was invalid."
+        )
+
+        payload = record.to_dict()
+
+        self.assertEqual(
+            payload["completion_reason"],
+            "Measurement unavailable"
+        )
+        self.assertEqual(
+            payload["error_message"],
+            "RF measurement was invalid."
         )
 
     def test_missing_recommendation_frequency_is_recorded_as_none(self):

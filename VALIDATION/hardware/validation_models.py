@@ -158,6 +158,8 @@ class ValidationSurveyRecord(_JsonSafeRecord):
     smart_recommendation_hz: float | None = None
     survey_runtime_seconds: float | None = None
     completion_status: str = "unknown"
+    completion_reason: str = ""
+    error_message: str = ""
     decision_mode: str = "unknown"
     recommended_occupancy_percent: float | None = None
     winner_score: float | None = None

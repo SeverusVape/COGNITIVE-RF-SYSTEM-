@@ -112,10 +112,17 @@ class SurveyController:
         )
 
     def begin_shutdown(self):
+        was_active = self.survey_active
         self.shutting_down = True
         self.survey_active = False
         self.survey_timer.stop()
         self._cancel_status_transition()
+
+        if was_active:
+            self._notify_survey_validation(
+                completion_status="interrupted",
+                completion_reason="Application shutdown"
+            )
 
     def show_results_popup(self):
         if self.latest_survey_results_html == "":
@@ -319,6 +326,11 @@ class SurveyController:
         if self.survey_active:
             self.survey_active = False
             self.survey_timer.stop()
+            self._notify_survey_validation(
+                completion_status="failed",
+                completion_reason="Survey tune failed",
+                error_message=message
+            )
             show_survey_notice(
                 self.survey_label,
                 "Survey tune failed",
@@ -358,8 +370,65 @@ class SurveyController:
         if self.survey_active:
             self.survey_active = False
             self.survey_timer.stop()
+            self._notify_survey_validation(
+                completion_status="interrupted",
+                completion_reason="Receiver error"
+            )
 
         self._show_persistent_status()
+
+    def _notify_survey_validation(
+            self,
+            recommendation=None,
+            sorted_results=None,
+            points_scanned=None,
+            average_occupancy=None,
+            decision_mode=None,
+            completion_status="success",
+            completion_reason="",
+            error_message=""
+    ):
+        if self.survey_completed_callback is None:
+            return
+
+        if sorted_results is None:
+            sorted_results = rank_frequencies(
+                survey.survey_results
+            )
+
+        if points_scanned is None:
+            points_scanned = len(
+                survey.survey_results
+            )
+
+        if average_occupancy is None:
+            if len(survey.survey_results) == 0:
+                average_occupancy = 0.0
+            else:
+                average_occupancy = round(
+                    sum(survey.survey_results.values())
+                    / len(survey.survey_results),
+                    1
+                )
+
+        if recommendation is None:
+            recommendation = {}
+
+        self.survey_completed_callback(
+            recommendation,
+            sorted_results,
+            points_scanned,
+            average_occupancy,
+            decision_mode
+            or getattr(
+                self,
+                "decision_mode",
+                "unknown"
+            ),
+            completion_status=completion_status,
+            completion_reason=completion_reason,
+            error_message=error_message
+        )
 
     def _show_persistent_status(self):
         self._cancel_status_transition()
@@ -676,6 +745,14 @@ class SurveyController:
         ):
             self.survey_active = False
             self.survey_timer.stop()
+            self._notify_survey_validation(
+                completion_status="failed",
+                completion_reason="Measurement unavailable",
+                error_message=(
+                    "RF measurement was missing, invalid, "
+                    "or non-finite."
+                )
+            )
 
             show_survey_notice(
                 self.survey_label,
@@ -732,6 +809,12 @@ class SurveyController:
         self._cancel_status_transition()
 
         if len(survey.survey_results) == 0:
+            self._notify_survey_validation(
+                completion_status="interrupted",
+                completion_reason=(
+                    "No valid RF measurements collected"
+                )
+            )
             show_survey_notice(
                 self.survey_label,
                 "Survey incomplete",
@@ -777,6 +860,21 @@ class SurveyController:
         ]
 
         if recommended_frequency is None:
+            self._notify_survey_validation(
+                recommendation=recommendation,
+                sorted_results=sorted_results,
+                points_scanned=len(
+                    survey.survey_results
+                ),
+                average_occupancy=average_occupancy,
+                decision_mode=self.decision_mode,
+                completion_status="failed",
+                completion_reason="No recommendation produced",
+                error_message=(
+                    "Decision engine did not return a "
+                    "recommended frequency."
+                )
+            )
             show_survey_notice(
                 self.survey_label,
                 "No recommendation",
@@ -823,14 +921,15 @@ class SurveyController:
             results_html
         )
 
-        if self.survey_completed_callback is not None:
-            self.survey_completed_callback(
-                recommendation,
-                sorted_results,
-                points_scanned,
-                average_occupancy,
-                self.decision_mode
-            )
+        self._notify_survey_validation(
+            recommendation=recommendation,
+            sorted_results=sorted_results,
+            points_scanned=points_scanned,
+            average_occupancy=average_occupancy,
+            decision_mode=self.decision_mode,
+            completion_status="success",
+            completion_reason="Survey completed"
+        )
 
         self.survey_results_button.setVisible(
             True
@@ -929,6 +1028,14 @@ class SurveyController:
         )
 
     def clear_current_survey(self):
+        was_active = self.survey_active
+
+        if was_active:
+            self._notify_survey_validation(
+                completion_status="cancelled",
+                completion_reason="Survey cleared by operator"
+            )
+
         self.survey_active = False
         self.survey_timer.stop()
         self._cancel_status_transition()

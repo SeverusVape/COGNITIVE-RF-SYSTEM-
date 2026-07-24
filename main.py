@@ -952,7 +952,10 @@ def log_validation_survey(
         sorted_results,
         points_scanned,
         average_occupancy,
-        decision_mode
+        decision_mode,
+        completion_status="success",
+        completion_reason="",
+        error_message=""
 ):
     global validation_survey_index
 
@@ -979,7 +982,10 @@ def log_validation_survey(
             points_scanned=points_scanned,
             recommendation=recommendation,
             decision_mode=decision_mode,
-            average_occupancy=average_occupancy
+            average_occupancy=average_occupancy,
+            completion_status=completion_status,
+            completion_reason=completion_reason,
+            error_message=error_message
         )
     )
 

@@ -59,6 +59,25 @@ def normalize_decision_mode(
     return mode
 
 
+def normalize_completion_status(
+        completion_status
+):
+    status = str(
+        completion_status
+        or "unknown"
+    ).strip().lower()
+
+    if status in (
+            "success",
+            "cancelled",
+            "interrupted",
+            "failed"
+    ):
+        return status
+
+    return "unknown"
+
+
 def _frequency_mhz_to_hz(
         frequency_mhz
 ):
@@ -222,7 +241,10 @@ def build_survey_record(
         points_scanned,
         recommendation,
         decision_mode,
-        average_occupancy
+        average_occupancy,
+        completion_status="success",
+        completion_reason="",
+        error_message=""
 ):
     start_frequency_hz = None
     stop_frequency_hz = None
@@ -256,6 +278,11 @@ def build_survey_record(
     normalized_decision_mode = normalize_decision_mode(
         decision_mode
     )
+    normalized_completion_status = (
+        normalize_completion_status(
+            completion_status
+        )
+    )
     best_frequency_hz = _frequency_mhz_to_hz(
         recommended_frequency
     )
@@ -288,7 +315,15 @@ def build_survey_record(
         ranked_results=ranked_results,
         best_frequency_hz=best_frequency_hz,
         smart_recommendation_hz=smart_recommendation_hz,
-        completion_status="success",
+        completion_status=normalized_completion_status,
+        completion_reason=str(
+            completion_reason
+            or ""
+        ),
+        error_message=str(
+            error_message
+            or ""
+        ),
         decision_mode=normalized_decision_mode,
         recommended_occupancy_percent=recommendation.get(
             "occupancy"

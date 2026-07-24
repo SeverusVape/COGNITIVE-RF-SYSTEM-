@@ -639,6 +639,93 @@ class SurveyControllerStatusTests(unittest.TestCase):
             callback_args[4],
             "SMART"
         )
+        self.assertEqual(
+            self.controller
+            .survey_completed_callback
+            .call_args
+            .kwargs["completion_status"],
+            "success"
+        )
+
+    def test_clear_running_survey_notifies_cancelled(self):
+        self.controller.survey_completed_callback = Mock()
+        self.controller.survey_results_button = Mock()
+        self.controller.survey_popup = None
+        self.controller.heatmap_img = Mock()
+        self.controller.top_frequencies_label = Mock()
+        self.controller.survey_active = True
+
+        with patch.dict(
+                survey.survey_results,
+                {88.0: 10.0},
+                clear=True
+        ):
+            self.controller.clear_current_survey()
+
+        self.controller.survey_completed_callback.assert_called_once()
+        self.assertEqual(
+            self.controller
+            .survey_completed_callback
+            .call_args
+            .kwargs["completion_status"],
+            "cancelled"
+        )
+
+    def test_measurement_error_notifies_failed(self):
+        self.controller.survey_completed_callback = Mock()
+        self.controller.get_occupancy_callback = Mock(
+            return_value=None
+        )
+        self.controller.survey_active = True
+
+        survey.survey_frequencies = [
+            88.0
+        ]
+        survey.current_survey_index = 0
+
+        self.controller.collect_survey_measurement()
+
+        self.controller.survey_completed_callback.assert_called_once()
+        self.assertEqual(
+            self.controller
+            .survey_completed_callback
+            .call_args
+            .kwargs["completion_status"],
+            "failed"
+        )
+
+    def test_receiver_error_notifies_interrupted(self):
+        self.controller.survey_completed_callback = Mock()
+        self.controller.survey_active = True
+
+        with patch(
+                "SURVEY.survey_controller.show_survey_status"
+        ):
+            self.controller.handle_receiver_error()
+
+        self.controller.survey_completed_callback.assert_called_once()
+        self.assertEqual(
+            self.controller
+            .survey_completed_callback
+            .call_args
+            .kwargs["completion_status"],
+            "interrupted"
+        )
+
+    def test_shutdown_notifies_interrupted(self):
+        self.controller.survey_completed_callback = Mock()
+        self.controller.survey_active = True
+
+        self.controller.begin_shutdown()
+
+        self.controller.survey_completed_callback.assert_called_once()
+        self.assertEqual(
+            self.controller
+            .survey_completed_callback
+            .call_args
+            .kwargs["completion_status"],
+            "interrupted"
+        )
 
 
 if __name__ == "__main__":
