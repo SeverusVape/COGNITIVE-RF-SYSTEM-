@@ -1,5 +1,7 @@
 import sys
 from collections import deque
+from datetime import datetime
+from time import perf_counter
 
 import numpy as np
 
@@ -104,6 +106,18 @@ from UTILS.frequency_axis import (
 )
 from UTILS.measurement_aggregation import (
     aggregate_measurements
+)
+from VALIDATION.hardware.validation_capture import (
+    build_frame_record,
+    build_session_config,
+    build_survey_record,
+    current_timestamp
+)
+from VALIDATION.hardware.validation_logger import (
+    HardwareValidationLogger
+)
+from VALIDATION.hardware.validation_session import (
+    HardwareValidationSession
 )
 
 # GLOBALS ----->
@@ -533,6 +547,10 @@ measurement_buffer = deque(
     maxlen=SURVEY_MEASUREMENT_BUFFER_SIZE
 )
 tune_error_active = False
+validation_logger = None
+validation_frame_index = 0
+validation_survey_index = 0
+last_validation_frame_time = 0.0
 
 # ==================================================
 # SURVEY BUTTON FUNCTIONS
@@ -732,6 +750,189 @@ def get_survey_measurement():
     )
 
 
+def build_hardware_validation_config():
+    return build_session_config(
+        timestamp=datetime.now().astimezone(),
+        configuration_id=(
+            HARDWARE_VALIDATION_CONFIGURATION_ID
+        ),
+        session_name=HARDWARE_VALIDATION_SESSION_NAME,
+        test_band=HARDWARE_VALIDATION_TEST_BAND,
+        operator_notes=HARDWARE_VALIDATION_OPERATOR_NOTES,
+        antenna_description=(
+            HARDWARE_VALIDATION_ANTENNA_DESCRIPTION
+        ),
+        location_description=(
+            HARDWARE_VALIDATION_LOCATION_DESCRIPTION
+        ),
+        expected_signal_description=(
+            HARDWARE_VALIDATION_EXPECTED_SIGNAL_DESCRIPTION
+        ),
+        center_frequency_hz=CENTER_FREQ,
+        sample_rate_hz=SAMPLE_RATE,
+        fft_size=NUM_SAMPLES,
+        gain=GAIN,
+        detector_configuration={
+            "minimum_peak_distance_khz": 75.0,
+            "threshold_margin_db": 10.0,
+            "noise_floor_window_khz": 250.0,
+            "noise_floor_percentile": 30.0
+        },
+        confirmation_configuration={
+            "required_hits": PEAK_CONFIRMATION_REQUIRED_HITS,
+            "window_frames": PEAK_CONFIRMATION_WINDOW_FRAMES,
+            "tolerance_khz": PEAK_CONFIRMATION_TOLERANCE_KHZ
+        },
+        validation_log_interval_ms=(
+            HARDWARE_VALIDATION_LOG_INTERVAL_MS
+        ),
+        survey_defaults={
+            "settling_delay_ms": SURVEY_SETTLING_DELAY_MS,
+            "minimum_measurement_frames": (
+                SURVEY_MIN_MEASUREMENT_FRAMES
+            ),
+            "measurement_buffer_size": (
+                SURVEY_MEASUREMENT_BUFFER_SIZE
+            )
+        }
+    )
+
+
+def start_validation_logging():
+    global validation_logger
+
+    if not HARDWARE_VALIDATION_ENABLED:
+        return
+
+    validation_session = HardwareValidationSession(
+        build_hardware_validation_config()
+    )
+    validation_logger = HardwareValidationLogger(
+        validation_session
+    )
+    validation_logger.start()
+
+
+def stop_validation_logging():
+    global validation_logger
+
+    if (
+            validation_logger is None
+            or not validation_logger.active
+    ):
+        return
+
+    validation_logger.stop(
+        limitations=[
+            "RTL-SDR measurements are relative, not calibrated dBm.",
+            "Indoor antenna placement affects observed occupancy.",
+            "Validation records reflect SPECTRA application behavior."
+        ]
+    )
+
+
+def log_validation_frame(
+        raw_peaks,
+        confirmed_peaks,
+        power_db,
+        threshold_db,
+        occupancy,
+        detector_runtime_ms
+):
+    global validation_frame_index
+    global last_validation_frame_time
+
+    if (
+            validation_logger is None
+            or not validation_logger.active
+    ):
+        return
+
+    now = perf_counter()
+    minimum_interval_seconds = (
+        HARDWARE_VALIDATION_LOG_INTERVAL_MS
+        / 1000
+    )
+
+    if (
+            last_validation_frame_time > 0
+            and (
+                now
+                - last_validation_frame_time
+            ) < minimum_interval_seconds
+    ):
+        return
+
+    last_validation_frame_time = now
+    validation_frame_index += 1
+
+    validation_logger.log_frame(
+        build_frame_record(
+            validation_id=(
+                validation_logger.session.config.validation_id
+            ),
+            session_id=(
+                validation_logger.session.config.session_id
+            ),
+            frame_index=validation_frame_index,
+            timestamp=current_timestamp(),
+            center_frequency_hz=(
+                sdr_worker.get_center_frequency()
+            ),
+            freqs_mhz=freqs_mhz,
+            power_db=power_db,
+            threshold_db=threshold_db,
+            occupancy_percent=occupancy,
+            raw_peaks=raw_peaks,
+            confirmed_peaks=confirmed_peaks,
+            detector_runtime_ms=detector_runtime_ms,
+            smart_recommendation_mhz=survey.best_frequency,
+            application_mode=(
+                "survey"
+                if survey_controller.survey_active
+                else "monitoring"
+            )
+        )
+    )
+
+
+def log_validation_survey(
+        recommendation,
+        sorted_results,
+        points_scanned,
+        average_occupancy,
+        decision_mode
+):
+    global validation_survey_index
+
+    if (
+            validation_logger is None
+            or not validation_logger.active
+    ):
+        return
+
+    validation_survey_index += 1
+
+    validation_logger.log_survey(
+        build_survey_record(
+            validation_id=(
+                validation_logger.session.config.validation_id
+            ),
+            session_id=(
+                validation_logger.session.config.session_id
+            ),
+            survey_index=validation_survey_index,
+            timestamp=current_timestamp(),
+            survey_frequencies_mhz=survey.survey_frequencies,
+            sorted_results=sorted_results,
+            points_scanned=points_scanned,
+            recommendation=recommendation,
+            decision_mode=decision_mode,
+            average_occupancy=average_occupancy
+        )
+    )
+
+
 # ==================================================
 # REAL-TIME SAMPLE PROCESSING
 # ==================================================
@@ -771,10 +972,17 @@ def process_samples(samples):
         smoothed_fft
     )
 
+    detection_start_time = perf_counter()
+
     raw_peaks, threshold = detect_peaks(
         power_db,
         freqs_mhz
     )
+
+    detector_runtime_ms = (
+        perf_counter()
+        - detection_start_time
+    ) * 1000
 
     peaks = peak_confirmer.update(
         raw_peaks
@@ -798,6 +1006,15 @@ def process_samples(samples):
         np.median(
             threshold
         )
+    )
+
+    log_validation_frame(
+        raw_peaks,
+        peaks,
+        power_db,
+        displayed_threshold,
+        occupancy_percent,
+        detector_runtime_ms
     )
 
     current_measurement = {
@@ -867,7 +1084,8 @@ survey_controller = SurveyController(
     ),
     get_survey_measurement,
     lambda: sdr_worker.get_center_frequency(),
-    feature_store
+    feature_store,
+    log_validation_survey
 )
 
 # =========================================
@@ -905,9 +1123,12 @@ sdr_worker.tune_failed.connect(
 
 sdr_worker.start()
 
+start_validation_logging()
+
 
 def begin_shutdown():
     survey_controller.begin_shutdown()
+    stop_validation_logging()
     sdr_worker.requestInterruption()
 
 

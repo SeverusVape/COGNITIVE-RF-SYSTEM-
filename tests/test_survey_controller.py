@@ -29,6 +29,7 @@ class SurveyControllerStatusTests(unittest.TestCase):
             return_value=None
         )
         self.controller.feature_store = Mock()
+        self.controller.survey_completed_callback = None
         self.controller.pending_auto_tune_frequency = None
         self.controller.survey_active = False
         self.controller.shutting_down = False
@@ -569,6 +570,75 @@ class SurveyControllerStatusTests(unittest.TestCase):
             recommended_frequency=88.0
         )
         self.controller.auto_tune_best.assert_called_once_with()
+
+    @patch(
+        "SURVEY.survey_controller.show_survey_status"
+    )
+    @patch(
+        "SURVEY.survey_controller.build_results_html",
+        return_value="report"
+    )
+    @patch(
+        "SURVEY.survey_controller.make_decision"
+    )
+    def test_survey_completion_notifies_validation_callback(
+            self,
+            make_decision,
+            build_results_html,
+            show_survey_status
+    ):
+        self.controller.survey_timer = Mock()
+        self.controller.survey_results_button = Mock()
+        self.controller._update_heatmap_and_history = Mock()
+        self.controller.auto_tune_best = Mock()
+        self.controller.survey_completed_callback = Mock()
+        make_decision.return_value = {
+            "frequency": 88.0,
+            "occupancy": 10.0,
+            "score": 70.0
+        }
+
+        with patch.dict(
+                survey.survey_results,
+                {
+                    88.0: 10.0,
+                    89.0: 12.0
+                },
+                clear=True
+        ), patch.dict(
+                survey.survey_metrics,
+                {
+                    88.0: {},
+                    89.0: {}
+                },
+                clear=True
+        ):
+            self.controller._handle_survey_completion()
+
+        self.controller.survey_completed_callback.assert_called_once()
+        callback_args = (
+            self.controller
+            .survey_completed_callback
+            .call_args
+            .args
+        )
+
+        self.assertEqual(
+            callback_args[0]["frequency"],
+            88.0
+        )
+        self.assertEqual(
+            callback_args[2],
+            2
+        )
+        self.assertEqual(
+            callback_args[3],
+            11.0
+        )
+        self.assertEqual(
+            callback_args[4],
+            "SMART"
+        )
 
 
 if __name__ == "__main__":

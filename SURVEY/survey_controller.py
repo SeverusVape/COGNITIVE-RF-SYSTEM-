@@ -53,6 +53,7 @@ class SurveyController:
             get_occupancy_callback,
             get_center_frequency_callback,
             feature_store,
+            survey_completed_callback=None,
     ):
         self.survey_timer = survey_timer
         self.survey_timer.setSingleShot(
@@ -97,6 +98,9 @@ class SurveyController:
         )
 
         self.feature_store = feature_store
+        self.survey_completed_callback = (
+            survey_completed_callback
+        )
 
         self.top_frequencies_label = (
             top_frequencies_label
@@ -818,6 +822,15 @@ class SurveyController:
         self.latest_survey_results_html = (
             results_html
         )
+
+        if self.survey_completed_callback is not None:
+            self.survey_completed_callback(
+                recommendation,
+                sorted_results,
+                points_scanned,
+                average_occupancy,
+                self.decision_mode
+            )
 
         self.survey_results_button.setVisible(
             True
