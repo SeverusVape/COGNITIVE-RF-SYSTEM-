@@ -1,0 +1,40 @@
+{
+  "active_decision_mode": "FREE",
+  "antenna_description": "RTL-SDR Blog V3 R860 RTL2832U with dipole antenna kit",
+  "center_frequency_hz": 100000000.0,
+  "configuration_id": "CFG-HW-01",
+  "confirmation_configuration": {
+    "required_hits": 2,
+    "tolerance_khz": 25.0,
+    "window_frames": 3
+  },
+  "detector_configuration": {
+    "minimum_peak_distance_khz": 75.0,
+    "noise_floor_percentile": 30.0,
+    "noise_floor_window_khz": 250.0,
+    "threshold_margin_db": 10.0
+  },
+  "detector_name": "adaptive local-threshold detector",
+  "expected_signal_description": "Local broadcast and public RF carriers observable with indoor dipole",
+  "fft_size": 8192,
+  "gain_db": null,
+  "gain_mode": "auto",
+  "git_commit_sha": "c631c616a8d18068c91a92f7fa26a3e23e52da95",
+  "location_description": "Fourth-floor residential indoor window test location, Bay Ridge, Brooklyn, NY",
+  "operator_notes": "",
+  "sample_rate_hz": 2048000.0,
+  "session_id": "SESSION-20260726-182111-9e0b6db1",
+  "session_name": "SPECTRA hardware validation",
+  "smart_mode_state": "FREE",
+  "software_version": "SPECTRA validation capture",
+  "start_timestamp": "2026-07-26T18:21:11-04:00",
+  "survey_defaults": {
+    "measurement_buffer_size": 10,
+    "minimum_measurement_frames": 3,
+    "settling_delay_ms": 500
+  },
+  "test_band": "operator selected",
+  "update_interval_ms": 100,
+  "validation_id": "VAL-20260726-182111",
+  "validation_log_interval_ms": 1000
+}

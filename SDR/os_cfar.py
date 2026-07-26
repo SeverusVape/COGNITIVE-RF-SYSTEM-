@@ -333,7 +333,7 @@ def detect_peaks(
 
         while (
                 left > 0
-                and power_db[left] > bandwidth_threshold
+                and power_db[left - 1] > bandwidth_threshold
         ):
             left -= 1
 
@@ -341,13 +341,14 @@ def detect_peaks(
 
         while (
                 right < len(power_db) - 1
-                and power_db[right] > bandwidth_threshold
+                and power_db[right + 1] > bandwidth_threshold
         ):
             right += 1
 
-        bandwidth_khz = (
-            right - left
-        ) * bin_width_khz
+        # Both boundaries identify included FFT bins.
+        bandwidth_bins = right - left + 1
+
+        bandwidth_khz = bandwidth_bins * bin_width_khz
 
         results.append(
             (

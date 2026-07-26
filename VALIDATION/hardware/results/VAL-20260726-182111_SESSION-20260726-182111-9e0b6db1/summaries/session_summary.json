@@ -1,0 +1,62 @@
+{
+  "average_confirmed_signal_count": 1.456,
+  "average_detector_runtime_ms": 1.045,
+  "average_occupancy_percent": 11.161,
+  "average_raw_candidate_count": 3.0,
+  "configuration_id": "CFG-HW-01",
+  "duration_seconds": 61.449,
+  "errors_encountered": [],
+  "git_commit_sha": "c631c616a8d18068c91a92f7fa26a3e23e52da95",
+  "limitations": [
+    "RTL-SDR measurements are relative, not calibrated dBm.",
+    "Indoor antenna placement affects observed occupancy.",
+    "Validation records reflect SPECTRA application behavior."
+  ],
+  "maximum_detector_runtime_ms": 1.381,
+  "most_frequent_confirmed_frequencies_hz": [
+    {
+      "count": 17,
+      "frequency_hz": 345758250.0
+    },
+    {
+      "count": 10,
+      "frequency_hz": 344353750.0
+    },
+    {
+      "count": 7,
+      "frequency_hz": 345600000.0
+    },
+    {
+      "count": 5,
+      "frequency_hz": 99499750.0
+    },
+    {
+      "count": 5,
+      "frequency_hz": 345601500.0
+    }
+  ],
+  "most_frequent_smart_recommendation_hz": 100000000.0,
+  "operator_metadata": {
+    "antenna_description": "RTL-SDR Blog V3 R860 RTL2832U with dipole antenna kit",
+    "expected_signal_description": "Local broadcast and public RF carriers observable with indoor dipole",
+    "location_description": "Fourth-floor residential indoor window test location, Bay Ridge, Brooklyn, NY",
+    "operator_notes": ""
+  },
+  "session_id": "SESSION-20260726-182111-9e0b6db1",
+  "session_name": "SPECTRA hardware validation",
+  "skipped_invalid_frame_count": 0,
+  "start_timestamp": "2026-07-26T18:21:11-04:00",
+  "stop_timestamp": "2026-07-26T18:22:12-04:00",
+  "strongest_observed_fft_bin_frequency_hz": 99499750.0,
+  "strongest_observed_fft_bin_power_db": 63.6,
+  "survey_completion_state_counts": {
+    "success": 1
+  },
+  "survey_recommendation_repeatability_percent": 100.0,
+  "test_band": "operator selected",
+  "total_logged_frames": 57,
+  "total_surveys": 1,
+  "valid_frame_count": 57,
+  "validation_id": "VAL-20260726-182111",
+  "warnings_encountered": []
+}

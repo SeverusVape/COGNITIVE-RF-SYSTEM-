@@ -2,18 +2,27 @@
 
 ## Phase 2 — Independent OS-CFAR Implementation
 
-**Status:** Implementation complete; production integration not started  
-**Production detector:** `SDR/detection.py` remains unchanged  
-**Experimental detector:** `SDR/os_cfar.py`
+**Status:** Completed and certified independent candidate detector
+
+**Production detector:** `SDR/detection.py` remains unchanged
+
+**Independent candidate detector:** `SDR/os_cfar.py`
 
 ## Scope
 
-Phase 2 adds an independent Ordered Statistics CFAR detector for controlled
-comparison with SPECTRA's existing adaptive detector.
+Phase 2 provides an independently callable Ordered Statistics CFAR detector
+for a future controlled comparison with SPECTRA's existing adaptive detector.
+The implementation and focused certification are complete. Completion means
+that the detector contract, numerical validation, threshold calculation,
+detection behavior, bandwidth convention, determinism, and isolation are
+covered by automated tests. It does not mean OS-CFAR has been selected.
 
 The application does not import or execute the OS-CFAR module. Survey, SMART,
 occupancy, history, classification, FFT, waterfall, and UI behavior are
 therefore unchanged.
+
+Detector comparison and final production selection are separate activities.
+The adaptive detector remains SPECTRA's production detector.
 
 ## Public Interface
 
@@ -32,6 +41,29 @@ This return structure matches the production detector:
 
 The compatible interface is for experimental comparison. It does not imply
 that either detector has been selected.
+
+### Input Contract
+
+Both inputs must be one-dimensional, numeric arrays with equal lengths and at
+least two bins. Power and frequency values must be finite. The frequency axis
+may be strictly increasing or strictly decreasing; duplicate or non-monotonic
+values are rejected. The spectrum must contain enough bins for complete
+leading and lagging reference windows.
+
+Programmer and configuration errors raise clear `ValueError` or `TypeError`
+exceptions. The detector does not silently sanitize malformed FFT data.
+
+### Output Contract
+
+The threshold array is aligned one-to-one with the input spectrum. Each result
+tuple contains:
+
+1. selected FFT-bin frequency in MHz;
+2. selected FFT-bin relative power in dB; and
+3. estimated occupied bandwidth in kHz.
+
+Results are ordered by descending peak power and limited by `maximum_peaks`.
+The detector does not modify either input array.
 
 ## OS-CFAR Processing
 
@@ -86,37 +118,97 @@ changing the selected statistic near FFT boundaries. Alternative edge
 strategies may be compared later, but must not be introduced during a frozen
 detector comparison.
 
-## Validation Added
+## Bandwidth Estimation Convention
+
+Bandwidth is estimated around each accepted peak using:
+
+```text
+bandwidth threshold = peak power - bandwidth_drop_db
+```
+
+The search includes the peak bin and every contiguous neighboring FFT bin
+strictly above that level. Both the left and right boundaries are inclusive,
+so:
+
+```text
+bandwidth bins = right included index - left included index + 1
+bandwidth kHz = bandwidth bins × FFT-bin width kHz
+```
+
+Certification testing confirmed an earlier off-by-one defect: isolated and
+interior multi-bin regions were reported one bin too wide. The boundary
+search and inclusive bin count were corrected without changing CFAR threshold
+generation, peak detection, ranking, configuration, defaults, or result
+structure.
+
+## Determinism and Isolation
+
+Identical input arrays and configuration produce identical threshold arrays,
+peak lists, peak ordering, and bandwidth values. Focused tests also prove that
+threshold generation and detection do not mutate their input arrays.
+
+`SDR/os_cfar.py` does not import the adaptive detector or any SDR, Survey,
+SMART, Feature Store, Signal History, Validation, or UI subsystem. Importing
+and invoking OS-CFAR does not alter the adaptive detector module's public
+state.
+
+## Computational Complexity
+
+For `N` FFT bins and `R` reference cells per side, the current implementation
+evaluates approximately `N - 2(R + G)` valid cells, builds `2R` reference
+samples for each valid cell, and selects one order statistic with
+`numpy.partition`.
+
+For fixed detector configuration, runtime scales approximately linearly with
+FFT length. In general terms, work is approximately `O(NR)`, while the
+per-cell temporary reference storage is `O(R)`. Runtime remains measured
+outside the detector, preserving the common `(results, threshold)` contract.
+A non-strict 8,192-bin smoke test verifies that execution completes and
+produces a finite, non-negative millisecond measurement without imposing a
+machine-specific timing limit.
+
+## Certification Test Coverage
 
 `tests/test_os_cfar.py` verifies:
 
-- default rank consistency;
-- invalid configuration rejection;
-- constant-floor threshold calculation;
-- guard-cell exclusion;
-- ordered-rank response to a reference outlier;
-- insufficient-window rejection;
-- peak detection and public return compatibility;
-- strongest-peak limiting;
-- explicit FFT-edge exclusion;
-- descending frequency-axis support;
-- non-monotonic frequency-axis rejection.
+- focused validation of every `OSCFARConfig` field;
+- dimensionality, length, finite-value, monotonic-axis, window-size, and
+  configuration-type input validation;
+- hand-calculated two-sided reference selection, CUT exclusion, guard-cell
+  exclusion, one-based rank selection, and linear-scale dB conversion;
+- threshold shape, explicit infinite edge thresholds, and input immutability;
+- controlled noise-only, below-threshold, above-threshold, single-peak,
+  multiple-peak, spacing, strongest-first, and maximum-output behavior;
+- exact FFT-bin frequency and power reporting on increasing and decreasing
+  axes;
+- isolated, multi-bin, array-boundary, drop-controlled, finite, and
+  non-negative bandwidth behavior;
+- deterministic thresholds, peak results, ordering, and bandwidth;
+- logical result-contract compatibility and isolation from the adaptive
+  detector;
+- representative 8,192-bin runtime smoke execution.
 
-## Verification Result
+## Known Limitations
 
-- OS-CFAR focused tests: **11 passed**
-- Complete repository suite: **149 passed**
-- Informational local runtime smoke measurement:
-  approximately **13.7 ms per 8,192-bin frame** over 20 runs on the current
-  development system
-
-The runtime figure is not a formal comparison result. Phase 3 must measure both
-detectors under the same benchmark protocol with warmup, repeated trials, and
-reported distribution statistics.
+- Configuration does not establish a calibrated classical per-cell
+  probability of false alarm.
+- Performance depends on the selected rank, scale, window geometry, and RF
+  environment.
+- Complete-window edge exclusion creates intentional no-detection regions at
+  both FFT boundaries.
+- Closely spaced or wide signals may contaminate reference windows.
+- Minimum peak spacing intentionally prevents sufficiently close local maxima
+  from being returned independently.
+- Bandwidth is a relative spectral-bin estimate, not a calibrated occupied
+  bandwidth measurement.
+- FFT power values remain relative and are not calibrated dBm.
+- The Python per-cell implementation is slower than the current adaptive
+  detector, although runtime selection is outside this certification task.
 
 ## Phase 2 Decision
 
-The independent detector is ready for automated comparison development.
+The independent detector implementation is complete and certified for
+controlled future evaluation.
 
 It is not ready for:
 
@@ -127,5 +219,7 @@ It is not ready for:
 - production claims;
 - removal of the current detector.
 
-The next approved phase should freeze identical datasets and acceptance
-metrics for both detectors before generating comparative results.
+The next approved detector phase should define a controlled comparison using
+frozen, identical datasets and predeclared acceptance metrics. This document
+makes no claim that OS-CFAR is superior and makes no production-selection
+decision.

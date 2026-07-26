@@ -1,0 +1,7 @@
+2026-07-26 18:21:11,068 | INFO | Validation session started.
+2026-07-26 18:21:11,068 | INFO | Configuration snapshot saved.
+2026-07-26 18:21:11,072 | INFO | First validation frame recorded.
+2026-07-26 18:22:00,245 | INFO | Survey record saved: index=1, status=success.
+2026-07-26 18:22:12,517 | INFO | Validation session stop requested.
+2026-07-26 18:22:12,518 | INFO | Session summary generated.
+2026-07-26 18:22:12,518 | INFO | Validation session stopped.
