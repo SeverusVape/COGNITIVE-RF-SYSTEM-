@@ -705,6 +705,15 @@ def handle_tune_success(freq_hz):
     )
 
 
+def handle_confirmed_frequency_unchanged(freq_hz):
+    global tune_error_active
+
+    freq_input.setText(
+        f"{freq_hz / 1e6:.1f}"
+    )
+    tune_error_active = False
+
+
 def handle_tune_failure(
         freq_hz,
         message
@@ -1019,7 +1028,10 @@ survey_controller = SurveyController(
     get_survey_measurement,
     lambda: sdr_worker.get_center_frequency(),
     feature_store,
-    validation_controller.log_survey
+    validation_controller.log_survey,
+    confirmed_frequency_unchanged_callback=(
+        handle_confirmed_frequency_unchanged
+    )
 )
 
 # =========================================

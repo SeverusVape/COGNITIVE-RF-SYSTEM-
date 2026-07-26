@@ -54,6 +54,7 @@ class SurveyController:
             get_center_frequency_callback,
             feature_store,
             survey_completed_callback=None,
+            confirmed_frequency_unchanged_callback=None,
     ):
         self.survey_timer = survey_timer
         self.survey_timer.setSingleShot(
@@ -100,6 +101,9 @@ class SurveyController:
         self.feature_store = feature_store
         self.survey_completed_callback = (
             survey_completed_callback
+        )
+        self.confirmed_frequency_unchanged_callback = (
+            confirmed_frequency_unchanged_callback
         )
 
         self.top_frequencies_label = (
@@ -211,6 +215,14 @@ class SurveyController:
                     confirmed_frequency_mhz
                     - recommended_frequency
             ) < 0.1:
+                if (
+                        self.confirmed_frequency_unchanged_callback
+                        is not None
+                ):
+                    self.confirmed_frequency_unchanged_callback(
+                        confirmed_frequency_hz
+                    )
+
                 self._show_temporary_status(
                     SurveyStatusState.
                     ALREADY_ON_RECOMMENDED_CHANNEL,

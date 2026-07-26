@@ -30,6 +30,7 @@ class SurveyControllerStatusTests(unittest.TestCase):
         )
         self.controller.feature_store = Mock()
         self.controller.survey_completed_callback = None
+        self.controller.confirmed_frequency_unchanged_callback = Mock()
         self.controller.pending_auto_tune_frequency = None
         self.controller.survey_active = False
         self.controller.shutting_down = False
@@ -364,6 +365,10 @@ class SurveyControllerStatusTests(unittest.TestCase):
             self.controller.survey_label,
             SurveyStatusState.ALREADY_ON_RECOMMENDED_CHANNEL,
             current_frequency=88.0
+        )
+        (
+            self.controller.confirmed_frequency_unchanged_callback
+            .assert_called_once_with(88e6)
         )
         self.controller.tune_frequency_callback.assert_not_called()
 
