@@ -1,5 +1,6 @@
 from datetime import datetime, timedelta, timezone
 import json
+from pathlib import Path
 import tempfile
 import unittest
 
@@ -204,6 +205,52 @@ class HardwareValidationControllerTests(unittest.TestCase):
 
             self.assertFalse(
                 controller.stop()
+            )
+
+    def test_inactive_controller_ignores_frame_and_survey_records(self):
+        with tempfile.TemporaryDirectory() as temp_dir:
+            controller = self._controller(
+                temp_dir
+            )
+
+            frame_written = controller.log_frame(
+                **self._frame_arguments()
+            )
+            survey_written = controller.log_survey(
+                recommendation={
+                    "frequency": 90.0,
+                    "occupancy": 8.0
+                },
+                sorted_results=[
+                    (90.0, 8.0)
+                ],
+                points_scanned=1,
+                average_occupancy=8.0,
+                decision_mode="SMART"
+            )
+
+            self.assertFalse(
+                frame_written
+            )
+            self.assertFalse(
+                survey_written
+            )
+            self.assertEqual(
+                controller.frame_index,
+                0
+            )
+            self.assertEqual(
+                controller.survey_index,
+                0
+            )
+            self.assertIsNone(
+                controller.session_directory
+            )
+            self.assertEqual(
+                list(
+                    Path(temp_dir).iterdir()
+                ),
+                []
             )
 
     def test_logging_interval_controls_frame_evidence(self):
