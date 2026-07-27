@@ -2,6 +2,7 @@ from PyQt6.QtCore import Qt
 from PyQt6.QtWidgets import QLabel
 
 from UI.theme import (
+    ACCENT,
     STATUS_WARNING,
     TEXT_MUTED,
     TEXT_PRIMARY,
@@ -57,8 +58,8 @@ def build_survey_history_html(
     )
 
     return (
-        f"<div style='color:{TEXT_MUTED};"
-        "font-size:10px;font-weight:600;'>"
+        f"<div style='color:{ACCENT};"
+        "font-size:16px;font-weight:700;'>"
         "SURVEY HISTORY"
         "</div>"
         f"<div style='color:{TEXT_STRONG};"
@@ -79,8 +80,8 @@ def build_survey_history_html(
 
 def build_empty_survey_history_html():
     return (
-        f"<div style='color:{TEXT_MUTED};"
-        "font-size:10px;font-weight:600;'>"
+        f"<div style='color:{ACCENT};"
+        "font-size:16px;font-weight:700;'>"
         "SURVEY HISTORY"
         "</div>"
         f"<div style='color:{TEXT_STRONG};"

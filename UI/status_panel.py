@@ -3,6 +3,7 @@ from html import escape
 from PyQt6.QtWidgets import QTextEdit
 
 from UI.theme import (
+    ACCENT,
     ACCENT_LIGHT,
     STATUS_ERROR,
     STATUS_SUCCESS,
@@ -33,8 +34,8 @@ def build_status_message_html(
     )
 
     return (
-        f"<div style='color:{TEXT_MUTED};"
-        "font-size:10px;font-weight:600;'>"
+        f"<div style='color:{ACCENT};"
+        "font-size:16px;font-weight:700;'>"
         "SYSTEM STATUS"
         "</div>"
         f"<div style='color:{color};"
@@ -104,8 +105,8 @@ def update_status_panel(
     occupancy
 ):
     status_text = (
-        f"<div style='color:{TEXT_MUTED};"
-        "font-size:10px;font-weight:600;'>"
+        f"<div style='color:{ACCENT};"
+        "font-size:16px;font-weight:700;'>"
         "SYSTEM STATUS"
         "</div>"
         f"<div style='color:{STATUS_SUCCESS};"

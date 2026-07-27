@@ -30,6 +30,7 @@ ACCENT_PRESSED = "#0096C2"
 ACCENT_LIGHT = "#63E2FF"
 SECONDARY_ACCENT = "#00E6B8"
 RECOMMENDATION_ACCENT = "#7B5CFF"
+HEATMAP_RECOMMENDATION_ACCENT = "#FF4D6D"
 
 STATUS_SUCCESS = SECONDARY_ACCENT
 STATUS_WARNING = "#fbbf24"
@@ -83,7 +84,7 @@ QWidget#surveyControlPanel {{
 
 QLabel#surveyPanelTitle {{
     color: {ACCENT};
-    font-size: 18px;
+    font-size: 16px;
     font-weight: 700;
     border: none;
 }}
@@ -96,7 +97,7 @@ QLabel#surveyPanelSubtitle {{
 
 QLabel#surveySectionTitle {{
     color: {ACCENT};
-    font-size: 12px;
+    font-size: 16px;
     font-weight: 700;
     border: none;
 }}
