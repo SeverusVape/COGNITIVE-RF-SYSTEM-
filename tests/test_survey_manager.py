@@ -189,12 +189,27 @@ class SurveyManagerTests(unittest.TestCase):
         )
 
         self.assertIn(
-            "Confidence (score separation)",
+            "DECISION SEPARATION",
+            results_html
+        )
+
+        self.assertIn(
+            "Score Separation:",
+            results_html
+        )
+
+        self.assertIn(
+            "Score separation is not statistical certainty.",
             results_html
         )
 
         self.assertIn(
             "MODERATE",
+            results_html
+        )
+
+        self.assertIn(
+            "★ Recommended",
             results_html
         )
 
@@ -248,7 +263,7 @@ class SurveyManagerTests(unittest.TestCase):
             results_html
         )
 
-    def test_results_html_uses_three_column_card_layout(
+    def test_results_html_prioritizes_recommendation_summary(
             self
     ):
         results_html = build_results_html(
@@ -262,7 +277,10 @@ class SurveyManagerTests(unittest.TestCase):
                 "frequency": 100.0,
                 "occupancy": 10.0,
                 "score": 70.0,
-                "reason": [],
+                "reason": [
+                    "Highest overall score",
+                    "Balanced occupancy and signal strength"
+                ],
                 "score_details": {
                     "occupancy_score": 45.0,
                     "power_score": 15.0,
@@ -276,15 +294,31 @@ class SurveyManagerTests(unittest.TestCase):
         )
 
         self.assertIn(
-            'width="32%" valign="top"',
+            "Score:",
             results_html
         )
         self.assertIn(
-            'width="33%" valign="top"',
+            "Spectral-bin occupancy:",
             results_html
         )
         self.assertIn(
-            'width="35%" valign="top"',
+            'width="46%" valign="top"',
+            results_html
+        )
+        self.assertIn(
+            'width="54%" valign="top"',
+            results_html
+        )
+        self.assertIn(
+            "PRIMARY SCORE COMPONENTS",
+            results_html
+        )
+        self.assertIn("SIGNAL HISTORY FACTORS", results_html)
+        self.assertIn("WHY SELECTED", results_html)
+        self.assertIn("Highest SMART score", results_html)
+        self.assertIn("Relative Power", results_html)
+        self.assertIn(
+            "Measured Spectral-Bin Occupancy",
             results_html
         )
 
@@ -307,11 +341,15 @@ class SurveyManagerTests(unittest.TestCase):
         )
 
         self.assertIn(
-            'width="36%" valign="top"',
+            'width="58%" valign="top"',
             results_html
         )
         self.assertIn(
-            'width="64%" valign="top"',
+            'width="42%" valign="top"',
+            results_html
+        )
+        self.assertIn(
+            'width="100%" valign="top"',
             results_html
         )
 

@@ -64,7 +64,7 @@ class SurveyPopup(QWidget):
         )
 
         subtitle = QLabel(
-            "RF occupancy, recommendation, "
+            "Spectral-bin occupancy, recommendation, "
             "and decision-score summary"
         )
 
