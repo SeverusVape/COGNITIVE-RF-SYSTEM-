@@ -1,0 +1,25 @@
+{
+  "validation_id": "AV-PD-03",
+  "configuration_id": "CFG-S01",
+  "trial_count": 1800,
+  "separation_count": 12,
+  "relative_amplitude_count": 3,
+  "trials_per_condition": 50,
+  "sample_rate_hz": 2048000.0,
+  "fft_size": 8192,
+  "bin_spacing_hz": 250.0,
+  "configured_minimum_spacing_khz": 75.0,
+  "minimum_resolution_probability": 0.95,
+  "maximum_sublimit_resolution_probability": 0.05,
+  "equal_amplitude_minimum_probability_at_or_above_limit": 1.0,
+  "equal_amplitude_maximum_probability_below_limit": 0.0,
+  "equal_amplitude_maximum_p95_frequency_error_hz": 121.78258073469624,
+  "validated_boundary_khz_by_relative_amplitude": {
+    "0.0": 75.0,
+    "-6.0": 75.0,
+    "-12.0": 75.0
+  },
+  "result": "PASS",
+  "claim_scope": "Synthetic two-tone resolution through the unchanged FFT and raw peak detector",
+  "excluded_claims": "Modulated-signal resolution, hardware selectivity, temporal confirmation, and calibrated dynamic range"
+}

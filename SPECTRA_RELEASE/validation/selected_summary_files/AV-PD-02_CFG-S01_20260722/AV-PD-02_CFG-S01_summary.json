@@ -1,0 +1,15 @@
+{
+  "validation_id": "AV-PD-02",
+  "configuration_id": "CFG-S01",
+  "trial_count": 1000,
+  "trials_per_condition": 500,
+  "sample_rate_hz": 2048000.0,
+  "fft_size": 8192,
+  "bin_spacing_hz": 250.0,
+  "false_alarm_probability_limit": 0.05,
+  "mean_false_peak_limit": 0.1,
+  "peak_cap_frame_fraction_limit": 0.01,
+  "result": "FAIL",
+  "claim_scope": "Noise-only specificity of the existing Hann FFT and raw adaptive peak detector",
+  "excluded_claims": "Temporal confirmation/history suppression; hardware RF environment; detector redesign"
+}

@@ -1,0 +1,115 @@
+{
+  "validation_id": "AV-FFT-02",
+  "configuration_id": "CFG-S01",
+  "trial_count": 360,
+  "paired_tone_realizations": 180,
+  "frequency_locations": 3,
+  "fractional_offsets": 3,
+  "repetitions_per_condition": 20,
+  "sample_rate_hz": 2048000.0,
+  "fft_size": 8192,
+  "bin_spacing_hz": 250.0,
+  "protected_half_width_bins": 2,
+  "centered_peak_limit_db": 0.01,
+  "maximum_centered_peak_error_db": 0.0,
+  "minimum_required_off_bin_improvement_db": 10.0,
+  "minimum_observed_off_bin_improvement_db": 22.15473251343419,
+  "centered_peak_acceptance": "PASS",
+  "off_bin_leakage_acceptance": "PASS",
+  "result": "PASS",
+  "claim_scope": "Numerical rectangular-versus-Hann response for deterministic synthetic complex tones",
+  "excluded_claims": "RTL-SDR analog response; calibrated power; arbitrary modulated signals; universal sidelobe specification",
+  "leakage_definition": "Integrated spectral energy outside fixed +/-2 bins around the detected peak, relative to total spectral energy",
+  "conditions": [
+    {
+      "integer_bin_offset": -2048,
+      "fractional_bin_offset": 0.0,
+      "rectangular_peak_error_db": 0.0,
+      "hann_peak_error_db": 0.0,
+      "rectangular_leakage_db": -244.967734718401,
+      "hann_leakage_db": -93.23959237059648,
+      "hann_leakage_improvement_db": -151.72814234780452,
+      "off_bin_pass": true
+    },
+    {
+      "integer_bin_offset": -2048,
+      "fractional_bin_offset": 0.25,
+      "rectangular_peak_error_db": -0.9120975706571265,
+      "hann_peak_error_db": -0.3514369491818883,
+      "rectangular_leakage_db": -13.936702288905312,
+      "hann_leakage_db": -37.768196616834324,
+      "hann_leakage_improvement_db": 23.83149432792901,
+      "off_bin_pass": true
+    },
+    {
+      "integer_bin_offset": -2048,
+      "fractional_bin_offset": 0.5,
+      "rectangular_peak_error_db": -3.9223974873740723,
+      "hann_peak_error_db": -1.4232694017388625,
+      "rectangular_leakage_db": -10.801072330694149,
+      "hann_leakage_db": -32.955804844133866,
+      "hann_leakage_improvement_db": 22.15473251343972,
+      "off_bin_pass": true
+    },
+    {
+      "integer_bin_offset": 0,
+      "fractional_bin_offset": 0.0,
+      "rectangular_peak_error_db": 0.0,
+      "hann_peak_error_db": 0.0,
+      "rectangular_leakage_db": -279.13655096873947,
+      "hann_leakage_db": -93.23959237059654,
+      "hann_leakage_improvement_db": -185.89695859814293,
+      "off_bin_pass": true
+    },
+    {
+      "integer_bin_offset": 0,
+      "fractional_bin_offset": 0.25,
+      "rectangular_peak_error_db": -0.9120975706567691,
+      "hann_peak_error_db": -0.35143694918173196,
+      "rectangular_leakage_db": -13.936702288906286,
+      "hann_leakage_db": -37.768196616841095,
+      "hann_leakage_improvement_db": 23.83149432793481,
+      "off_bin_pass": true
+    },
+    {
+      "integer_bin_offset": 0,
+      "fractional_bin_offset": 0.5,
+      "rectangular_peak_error_db": -3.922397487377166,
+      "hann_peak_error_db": -1.4232694017399865,
+      "rectangular_leakage_db": -10.801072330694252,
+      "hann_leakage_db": -32.955804844128444,
+      "hann_leakage_improvement_db": 22.15473251343419,
+      "off_bin_pass": true
+    },
+    {
+      "integer_bin_offset": 2048,
+      "fractional_bin_offset": 0.0,
+      "rectangular_peak_error_db": 0.0,
+      "hann_peak_error_db": 0.0,
+      "rectangular_leakage_db": -245.09477845300276,
+      "hann_leakage_db": -93.23959237059637,
+      "hann_leakage_improvement_db": -151.8551860824064,
+      "off_bin_pass": true
+    },
+    {
+      "integer_bin_offset": 2048,
+      "fractional_bin_offset": 0.25,
+      "rectangular_peak_error_db": -0.9120975706559008,
+      "hann_peak_error_db": -0.351436949181398,
+      "rectangular_leakage_db": -13.936702288909368,
+      "hann_leakage_db": -37.76819661684638,
+      "hann_leakage_improvement_db": 23.831494327937015,
+      "off_bin_pass": true
+    },
+    {
+      "integer_bin_offset": 2048,
+      "fractional_bin_offset": 0.5,
+      "rectangular_peak_error_db": -3.922397487375315,
+      "hann_peak_error_db": -1.4232694017392233,
+      "rectangular_leakage_db": -10.801072330694037,
+      "hann_leakage_db": -32.955804844133816,
+      "hann_leakage_improvement_db": 22.15473251343978,
+      "off_bin_pass": true
+    }
+  ]
+}

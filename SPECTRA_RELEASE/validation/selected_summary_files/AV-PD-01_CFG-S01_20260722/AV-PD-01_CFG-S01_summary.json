@@ -1,0 +1,21 @@
+{
+  "validation_id": "AV-PD-01",
+  "configuration_id": "CFG-S01",
+  "trial_count": 900,
+  "snr_level_count": 9,
+  "trials_per_snr": 100,
+  "sample_rate_hz": 2048000.0,
+  "fft_size": 8192,
+  "bin_spacing_hz": 250.0,
+  "low_snr_db": -40.0,
+  "high_snr_db": -22.0,
+  "observed_detection_rise": 1.0,
+  "minimum_detection_rise": 0.8,
+  "observed_high_snr_detection_probability": 1.0,
+  "minimum_high_snr_detection_probability": 0.95,
+  "maximum_median_absolute_frequency_error_hz": 87.69290043477667,
+  "frequency_error_limit_hz": 250.0,
+  "result": "PASS",
+  "claim_scope": "Synthetic single-tone detection probability through the existing FFT and peak detector",
+  "excluded_claims": "Noise-only false alarms (AV-PD-02); hardware sensitivity; modulated-signal detection"
+}
