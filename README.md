@@ -709,7 +709,7 @@ FFT, signal waterfall, survey controls, receiver status, and survey history.
 Peak labels represent detected spectral candidates rather than identified
 transmitters.
 
-![SPECTRA main interface with a connected RTL-SDR, live FFT, waterfall, survey controls, and receiver status](docs/screenshots/start.png)
+![SPECTRA main interface with a connected RTL-SDR, live FFT, waterfall, survey controls, and receiver status](docs/screenshots/survey_complete.png)
 
 ### SMART survey analysis report
 
