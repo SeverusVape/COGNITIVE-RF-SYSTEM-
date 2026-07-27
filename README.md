@@ -699,3 +699,23 @@ Use the receiver in accordance with local laws and regulations. This project is
 intended for receive-only spectrum observation, RF characterization, and
 engineering education. Do not use it to interfere with radio services or
 disclose protected communications.
+
+## Application examples
+
+### Main SPECTRA interface
+
+The primary operator view combines receiver tuning, the live relative-power
+FFT, signal waterfall, survey controls, receiver status, and survey history.
+Peak labels represent detected spectral candidates rather than identified
+transmitters.
+
+![SPECTRA main interface with a connected RTL-SDR, live FFT, waterfall, survey controls, and receiver status](docs/screenshots/start.png)
+
+### SMART survey analysis report
+
+After a survey, the detailed report presents the recommended frequency,
+runner-up, SMART score separation, score components, and the engineering
+rationale for the selection. Supporting diagnostics remain observational, and
+score separation is not statistical confidence.
+
+![SPECTRA SMART survey report showing the recommendation, decision comparison, score separation, and score breakdown](docs/screenshots/smart_report_top.png)
