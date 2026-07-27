@@ -4,3 +4,5 @@ __pycache__/
 *.pyc
 .DS_Store
 /output
+/VALIDATION/real_rf/datasets/
+/VALIDATION/real_rf/reports/

@@ -1,6 +1,5 @@
 import sys
 from collections import deque
-from time import perf_counter
 
 import numpy as np
 
@@ -20,7 +19,6 @@ from PyQt6.QtCore import (
 import pyqtgraph as pg
 
 from SURVEY.survey_controller import SurveyController
-import SURVEY.survey_manager as survey
 from SDR.sdr_worker import SDRWorker
 from SDR.fft_processing import compute_windowed_fft
 from SDR.detection import detect_peaks
@@ -78,10 +76,7 @@ from UI.survey_panel import (
 from UI.survey_history_panel import (
     create_survey_history_panel
 )
-from UI.tuning_panel import (
-    create_tuning_panel,
-    create_validation_controls
-)
+from UI.tuning_panel import create_tuning_panel
 from UI.graph_style import (
     create_graph_canvas
 )
@@ -93,9 +88,6 @@ from UI.theme import (
     RIGHT_INFO_PANEL_MARGINS,
     RIGHT_INFO_PANEL_SPACING,
     RIGHT_INFO_PANEL_STYLESHEET,
-    STATUS_ERROR,
-    STATUS_SUCCESS,
-    STATUS_WARNING,
     SURVEY_CONTROL_PANEL_MARGINS,
     SURVEY_CONTROL_PANEL_SPACING,
     SURVEY_CONTROL_PANEL_STYLESHEET,
@@ -113,11 +105,6 @@ from UTILS.frequency_axis import (
 from UTILS.measurement_aggregation import (
     aggregate_measurements
 )
-from VALIDATION.hardware.validation_controller import (
-    HardwareValidationController,
-    HardwareValidationSettings
-)
-
 # GLOBALS ----->
 feature_store = FeatureStore()
 
@@ -236,21 +223,12 @@ frequency_display = QLabel(
     "100.0 MHz"
 )
 
-(
-    validation_start_button,
-    validation_stop_button,
-    validation_status_label
-) = create_validation_controls()
-
 tuning_panel = create_tuning_panel(
     frequency_display,
     freq_label,
     freq_input,
     tune_button,
-    auto_tune_button,
-    validation_start_button,
-    validation_stop_button,
-    validation_status_label
+    auto_tune_button
 )
 
 (
@@ -762,113 +740,6 @@ def get_survey_measurement():
     )
 
 
-def update_validation_status(
-        state,
-        message,
-        output_directory
-):
-    if state == "recording":
-        validation_start_button.setEnabled(
-            False
-        )
-        validation_stop_button.setEnabled(
-            True
-        )
-        color = STATUS_SUCCESS
-    elif state == "saved":
-        validation_start_button.setEnabled(
-            True
-        )
-        validation_stop_button.setEnabled(
-            False
-        )
-        color = STATUS_WARNING
-    elif state == "error":
-        validation_start_button.setEnabled(
-            True
-        )
-        validation_stop_button.setEnabled(
-            False
-        )
-        color = STATUS_ERROR
-    else:
-        validation_start_button.setEnabled(
-            True
-        )
-        validation_stop_button.setEnabled(
-            False
-        )
-        color = TEXT_STRONG
-
-    validation_status_label.setText(
-        str(message)
-    )
-    validation_status_label.setStyleSheet(
-        f"color: {color};"
-    )
-
-
-validation_settings = HardwareValidationSettings(
-    configuration_id=(
-        HARDWARE_VALIDATION_CONFIGURATION_ID
-    ),
-    session_name=HARDWARE_VALIDATION_SESSION_NAME,
-    test_band=HARDWARE_VALIDATION_TEST_BAND,
-    operator_notes=HARDWARE_VALIDATION_OPERATOR_NOTES,
-    antenna_description=(
-        HARDWARE_VALIDATION_ANTENNA_DESCRIPTION
-    ),
-    location_description=(
-        HARDWARE_VALIDATION_LOCATION_DESCRIPTION
-    ),
-    expected_signal_description=(
-        HARDWARE_VALIDATION_EXPECTED_SIGNAL_DESCRIPTION
-    ),
-    sample_rate_hz=SAMPLE_RATE,
-    fft_size=NUM_SAMPLES,
-    gain=GAIN,
-    detector_configuration={
-        "minimum_peak_distance_khz": 75.0,
-        "threshold_margin_db": 10.0,
-        "noise_floor_window_khz": 250.0,
-        "noise_floor_percentile": 30.0
-    },
-    confirmation_configuration={
-        "required_hits": PEAK_CONFIRMATION_REQUIRED_HITS,
-        "window_frames": PEAK_CONFIRMATION_WINDOW_FRAMES,
-        "tolerance_khz": PEAK_CONFIRMATION_TOLERANCE_KHZ
-    },
-    logging_interval_ms=(
-        HARDWARE_VALIDATION_LOG_INTERVAL_MS
-    ),
-    survey_defaults={
-        "settling_delay_ms": SURVEY_SETTLING_DELAY_MS,
-        "minimum_measurement_frames": (
-            SURVEY_MIN_MEASUREMENT_FRAMES
-        ),
-        "measurement_buffer_size": (
-            SURVEY_MEASUREMENT_BUFFER_SIZE
-        )
-    },
-    detector_name="adaptive local-threshold detector",
-    update_interval_ms=100
-)
-
-validation_controller = HardwareValidationController(
-    settings=validation_settings,
-    center_frequency_provider=(
-        lambda: sdr_worker.get_center_frequency()
-    ),
-    survey_frequencies_provider=(
-        lambda: survey.survey_frequencies
-    ),
-    decision_mode_provider=(
-        lambda: decision_mode_combo.currentText()
-    ),
-    status_callback=update_validation_status
-)
-
-
 # ==================================================
 # REAL-TIME SAMPLE PROCESSING
 # ==================================================
@@ -908,17 +779,10 @@ def process_samples(samples):
         smoothed_fft
     )
 
-    detection_start_time = perf_counter()
-
     raw_peaks, threshold = detect_peaks(
         power_db,
         freqs_mhz
     )
-
-    detector_runtime_ms = (
-        perf_counter()
-        - detection_start_time
-    ) * 1000
 
     peaks = peak_confirmer.update(
         raw_peaks
@@ -941,22 +805,6 @@ def process_samples(samples):
     displayed_threshold = float(
         np.median(
             threshold
-        )
-    )
-
-    validation_controller.log_frame(
-        freqs_mhz=freqs_mhz,
-        power_db=power_db,
-        threshold_db=displayed_threshold,
-        occupancy_percent=occupancy_percent,
-        raw_peaks=raw_peaks,
-        confirmed_peaks=peaks,
-        detector_runtime_ms=detector_runtime_ms,
-        smart_recommendation_mhz=survey.best_frequency,
-        application_mode=(
-            "survey"
-            if survey_controller.survey_active
-            else "monitoring"
         )
     )
 
@@ -1028,7 +876,6 @@ survey_controller = SurveyController(
     get_survey_measurement,
     lambda: sdr_worker.get_center_frequency(),
     feature_store,
-    validation_controller.log_survey,
     confirmed_frequency_unchanged_callback=(
         handle_confirmed_frequency_unchanged
     )
@@ -1069,13 +916,8 @@ sdr_worker.tune_failed.connect(
 
 sdr_worker.start()
 
-if HARDWARE_VALIDATION_ENABLED:
-    validation_controller.start()
-
-
 def begin_shutdown():
     survey_controller.begin_shutdown()
-    validation_controller.shutdown()
     sdr_worker.requestInterruption()
 
 
@@ -1101,14 +943,6 @@ clear_survey_button.clicked.connect(
 
 auto_tune_button.clicked.connect(
     survey_controller.auto_tune_best
-)
-
-validation_start_button.clicked.connect(
-    validation_controller.start
-)
-
-validation_stop_button.clicked.connect(
-    validation_controller.stop
 )
 
 start_survey_button.clicked.connect(
