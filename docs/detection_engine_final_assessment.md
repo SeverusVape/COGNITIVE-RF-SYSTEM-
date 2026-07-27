@@ -163,6 +163,22 @@ low-SNR sweeps, complete FFT-edge sweeps, OS-CFAR parameter exploration, and
 temporal-confirmation studies as future investigations. None is required to
 complete or reinterpret Phase 4.
 
+## Release-Status Addendum
+
+After the frozen Phase 4 synthetic comparison, nine antenna-connected REAL-RF
+datasets were captured and replayed twice through shared FFT preprocessing and
+both unchanged detector engines. The campaign demonstrated deterministic replay
+and comparable capped top-three peak-selection behavior under the recorded
+conditions. OS-CFAR required approximately 30–32 times greater mean detector
+runtime.
+
+This additional evidence is consistent with the original recommendation:
+retain the Adaptive Detector as the production detector and preserve OS-CFAR as
+an independent research and validation baseline. The REAL-RF captures contain
+no controlled ground truth, so they do not establish probability of detection,
+false-alarm probability, calibrated accuracy, or universal detector
+superiority. Controlled ground-truth RF characterization remains future work.
+
 Any future detector candidate should be evaluated under a newly frozen
 protocol and must demonstrate a measurable operational benefit before
 production integration is reconsidered.

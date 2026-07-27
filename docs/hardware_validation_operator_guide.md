@@ -1,5 +1,11 @@
 # SPECTRA Hardware Validation Operator Guide
 
+> **Historical document.** The described GUI validation workflow has been
+> retired. Current validation uses the standalone REAL-RF capture/replay
+> workflow documented in
+> [`real_rf_detector_evaluation.md`](real_rf_detector_evaluation.md). This
+> guide is retained only as a record of the earlier validation procedure.
+
 ## Before the Session
 
 1. Connect the RTL-SDR Blog V3 and dipole antenna.

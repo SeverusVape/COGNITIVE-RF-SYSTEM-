@@ -1,5 +1,11 @@
 # Hardware Validation Safety and Performance Verification
 
+> **Historical document.** The described GUI validation workflow has been
+> retired. Current validation uses the standalone REAL-RF capture/replay
+> workflow documented in
+> [`real_rf_detector_evaluation.md`](real_rf_detector_evaluation.md). The
+> original safety and performance conclusions are preserved unchanged.
+
 ## Scope
 
 This Stage 13 review verifies that the temporary SPECTRA hardware-validation

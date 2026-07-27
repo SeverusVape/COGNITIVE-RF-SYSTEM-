@@ -179,3 +179,10 @@ Future work should remain in the validation layer and preserve the production de
 The REAL-RF validation framework successfully demonstrates repeatable detector comparison using identical recorded IQ data. Across nine datasets and two replay repetitions, both detector engines produced deterministic results from shared FFT inputs. The campaign quantified a substantial runtime difference—OS-CFAR required approximately 30–32 times the Adaptive detector execution time—and measured the frequency agreement of their returned top-three peaks across several received-signal environments.
 
 The results constitute reproducible engineering evidence for detector behavior under the recorded conditions. They do not establish detection accuracy, probability of detection, false-alarm rate, or detector superiority because the captures lack controlled ground truth and both detector outputs are top-N limited. The framework nevertheless provides a sound foundation for future controlled detector evaluation, particularly if raw candidate counts, cap saturation, matched-peak differences, temporal persistence, controlled sources, and controlled noise measurements are added at the validation layer.
+
+For final SPECTRA production, the Adaptive Detector is retained because the
+recorded campaign showed comparable capped top-three peak-selection behavior
+while OS-CFAR required approximately 30–32 times greater mean detector runtime.
+OS-CFAR remains an independent research and validation baseline. This
+production decision does not convert the uncontrolled REAL-RF observations
+into an accuracy, false-alarm, or detector-superiority claim.

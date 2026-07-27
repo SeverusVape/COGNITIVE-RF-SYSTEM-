@@ -1,5 +1,12 @@
 # SPECTRA Hardware Validation Framework
 
+> **Historical document.** The described GUI validation workflow has been
+> retired. Current validation uses the standalone REAL-RF capture/replay
+> workflow documented in
+> [`real_rf_detector_evaluation.md`](real_rf_detector_evaluation.md). This
+> document is preserved as engineering history; its original technical
+> conclusions and recorded results have not been changed.
+
 ## Purpose
 
 The hardware validation framework is a temporary engineering subsystem used to

@@ -10,6 +10,29 @@ No measurement result should be entered until the configuration record for the
 session is complete. Application algorithms, decision weights, and processing
 settings remain frozen during the validation campaign.
 
+## Current release status
+
+The validation package now contains completed engineering evidence in addition
+to its original planning records:
+
+- deterministic synthetic DSP validation;
+- adaptive-detector characterization;
+- temporal confirmation, peak-spacing, bandwidth, and occupancy studies;
+- frozen Adaptive-versus-OS-CFAR comparison;
+- nine antenna-connected REAL-RF complex-IQ datasets;
+- immutable detector replay and frequency-agreement comparison; and
+- detector runtime comparison.
+
+The Adaptive Detector is the production detector. OS-CFAR remains an
+independent research and validation baseline. The REAL-RF campaign supports
+repeatability, capped top-three frequency-agreement, and runtime observations;
+it does not establish detection accuracy or false-alarm probability without
+controlled ground truth.
+
+Rows and templates marked as planned are retained as historical planning
+records or future controlled-characterization proposals. Their presence does
+not mean those experiments were completed by the REAL-RF campaign.
+
 ## Package contents
 
 | File | Purpose |
@@ -77,8 +100,15 @@ HV_FREQ_ACC_CFG-H01_20260722_error_vs_frequency.png
 
 ## Evidence status
 
-At creation, all files in this package are planning artifacts. The templates do
-not contain measurements and do not imply that an experiment has passed.
+At creation, the matrix, procedures, configuration records, inventories, and
+templates were planning artifacts. They remain part of the historical
+engineering record. Completion status is recorded explicitly in the validation
+matrix and result directories; blank templates do not contain measurements and
+do not imply that an experiment has passed.
+
+The completed REAL-RF campaign is documented in
+[`docs/REAL_RF_VALIDATION_CAMPAIGN_REPORT.md`](../docs/REAL_RF_VALIDATION_CAMPAIGN_REPORT.md).
+Controlled ground-truth and calibrated RF characterization remain future work.
 
 ## Hardware frame field semantics
 

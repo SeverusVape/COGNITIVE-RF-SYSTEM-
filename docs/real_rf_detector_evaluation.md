@@ -11,6 +11,14 @@ The production application continues to use the Adaptive Detector.
 OS-CFAR remains standalone. This validation layer does not select a production
 detector.
 
+At the project level, the completed synthetic and REAL-RF reviews retain the
+Adaptive Detector as SPECTRA's production detector. The REAL-RF campaign found
+comparable capped top-three peak-selection behavior under the recorded
+conditions while OS-CFAR required approximately 30–32 times greater mean
+detector execution time than the Adaptive Detector. OS-CFAR remains an
+independent research and validation baseline. This is an engineering production
+decision, not a claim of detector accuracy or universal superiority.
+
 ## Architecture
 
 ```text
