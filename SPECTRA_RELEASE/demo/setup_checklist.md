@@ -1,37 +1,76 @@
-# Demonstration Setup Checklist
+# SPECTRA Demonstration Setup Checklist
 
-## Before Arrival
+## Release Baseline
 
-- [ ] Use verified source commit `b52f77e` or the final approved release tag.
-- [ ] Activate the frozen CPython 3.10.11 environment.
-- [ ] Confirm `pip check` reports no broken requirements.
-- [ ] Confirm all 283 automated tests pass.
-- [ ] Copy the release package, presentation, and screenshots to backup media.
+- [ ] Use the final approved release tag or verified source commit.
+- [ ] Confirm `SPECTRA_RELEASE/RELEASE_METADATA.md` matches the selected
+  revision.
+- [ ] Keep the presentation, release package, and backup screenshots on a
+  second storage device.
 
 ## Hardware
 
-- [ ] Connect the RTL-SDR Blog V3 directly to a reliable USB port.
-- [ ] Attach and position the dipole antenna.
-- [ ] Allow 10–15 minutes of receiver warm-up when measurement stability is
-  discussed.
-- [ ] Close SDR++, GQRX, GNU Radio, `rtl_test`, and other RTL-SDR users.
-- [ ] Confirm the selected demo frequencies are active at the presentation
-  location.
+- [ ] RTL-SDR Blog V3 connected to a reliable USB port.
+- [ ] Dipole antenna and coaxial cable firmly connected.
+- [ ] Antenna positioned at the rehearsed location and orientation.
+- [ ] Laptop power supply connected.
+- [ ] USB connection verified.
+- [ ] Receiver allowed to warm up for 10–15 minutes if measurement stability
+  will be discussed.
+
+## Software
+
+- [ ] Repository checked out at the approved release revision.
+- [ ] CPython 3.10.11 virtual environment activated.
+- [ ] `python -m pip check` reports no broken requirements.
+- [ ] All 283 automated tests pass.
+- [ ] SDR++, GQRX, GNU Radio, `rtl_test`, and other RTL-SDR users are closed.
+- [ ] No terminal command still owns the receiver.
+
+## Presentation Display
+
+- [ ] Display cable or wireless presentation link tested.
+- [ ] Resolution and scaling match the rehearsed setup.
+- [ ] SPECTRA panels and plot labels are readable from the audience position.
+- [ ] Notifications, email previews, and messaging alerts disabled.
+- [ ] Desktop and terminal contain no private information.
+- [ ] Mouse pointer size and visibility are appropriate.
 
 ## Application
 
-- [ ] Launch with `python main.py`.
-- [ ] Confirm `RECEIVER CONNECTED`.
-- [ ] Confirm FFT and waterfall updates.
-- [ ] Confirm peak markers and status updates.
-- [ ] Rehearse the selected survey range.
-- [ ] Confirm detailed results and Auto-Tune.
-- [ ] Reset the application to the desired opening state.
+- [ ] Launch succeeds with `python main.py`.
+- [ ] `RECEIVER CONNECTED` displayed.
+- [ ] FFT updates continuously.
+- [ ] Waterfall updates continuously.
+- [ ] Peak-candidate markers appear on an active frequency.
+- [ ] Receiver status values update.
+- [ ] Manual tuning confirmed.
+- [ ] Rehearsed survey range completes.
+- [ ] Detailed SMART report opens without clipping.
+- [ ] Auto-Tune produces `ON RECOMMENDED CHANNEL`.
+- [ ] Clean shutdown produces `SDR CLOSED`.
 
-## Presentation
+## RF Rehearsal
 
-- [ ] Disable notifications.
-- [ ] Connect power and presentation display.
-- [ ] Verify resolution and scaling.
-- [ ] Open backup screenshots and validation reports.
-- [ ] Keep the failure-recovery checklist accessible.
+- [ ] Primary active frequency confirmed at the presentation location.
+- [ ] Backup frequency confirmed.
+- [ ] 88–92 MHz survey behavior rehearsed.
+- [ ] Expected environmental variability understood.
+- [ ] No script promises a specific recommendation result.
+
+## Backup Evidence
+
+- [ ] All six final screenshots available.
+- [ ] REAL-RF campaign report open or bookmarked.
+- [ ] Requirements traceability matrix available.
+- [ ] Validation evidence index available.
+- [ ] Release-candidate verification report available.
+- [ ] Failure-recovery checklist immediately accessible.
+
+## Final Five-Minute Check
+
+- [ ] Receiver connected.
+- [ ] Antenna stable.
+- [ ] SPECTRA at intended opening screen.
+- [ ] Presentation timer ready.
+- [ ] Backup screenshots one click away.
