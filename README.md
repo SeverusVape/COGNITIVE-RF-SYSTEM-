@@ -271,8 +271,12 @@ python -m pip install --upgrade pip
 Install the Python dependencies:
 
 ```bash
-python -m pip install numpy scipy PyQt6 pyqtgraph pyrtlsdr
+python -m pip install -r requirements.txt
 ```
+
+The pinned manifest reproduces the verified release package versions. See
+[`docs/ENVIRONMENT_CONFIGURATION.md`](docs/ENVIRONMENT_CONFIGURATION.md) for
+the complete platform, system-library, installation, and verification record.
 
 The pyrtlsdr project also provides an optional installation that bundles its
 RTL-SDR library dependency on supported platforms:
