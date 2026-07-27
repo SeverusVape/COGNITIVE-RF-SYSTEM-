@@ -1,7 +1,7 @@
 # RF Validation Evidence Package
 
-This directory defines the validation plan for the COGNITIVE-RF-SYSTEM
-application baseline at commit `73f06b9` and validation-planning baseline at
+This directory defines the validation plan for the SPECTRA application
+baseline at commit `73f06b9` and validation-planning baseline at
 commit `4cf57b6`. It separates deterministic algorithm validation
 from RTL-SDR hardware/system validation and defines the records required for
 reproducible final-report evidence.
@@ -29,9 +29,11 @@ repeatability, capped top-three frequency-agreement, and runtime observations;
 it does not establish detection accuracy or false-alarm probability without
 controlled ground truth.
 
-Rows and templates marked as planned are retained as historical planning
-records or future controlled-characterization proposals. Their presence does
-not mean those experiments were completed by the REAL-RF campaign.
+Rows marked as planned remain historical planning records or future
+controlled-characterization proposals. Their presence does not mean those
+experiments were completed by the REAL-RF campaign. Header-only workspace
+templates were moved to the private engineering archive during public-release
+cleanup.
 
 ## Package contents
 
@@ -45,7 +47,8 @@ not mean those experiments were completed by the REAL-RF campaign.
 | `reference_signal_inventory.csv` | Candidate synthetic, controlled, and live RF references |
 | `resource_plan.md` | Experiment dependencies, fallbacks, gates, and execution order |
 | `report_outputs.md` | Required plots, tables, captions, and engineering conclusions |
-| `templates/*.csv` | Header-only measurement templates for each experiment family |
+| `results/` | Curated summaries, acceptance results, and key engineering plots |
+| `scripts/` | Reproducible Python experiment runners |
 
 ## Validation domains
 
@@ -101,10 +104,10 @@ HV_FREQ_ACC_CFG-H01_20260722_error_vs_frequency.png
 ## Evidence status
 
 At creation, the matrix, procedures, configuration records, inventories, and
-templates were planning artifacts. They remain part of the historical
-engineering record. Completion status is recorded explicitly in the validation
-matrix and result directories; blank templates do not contain measurements and
-do not imply that an experiment has passed.
+templates were planning artifacts. Completion status is recorded explicitly in
+the validation matrix and result directories. Blank templates and
+workbook-generation artifacts are preserved in the private engineering archive,
+not presented as public measurement evidence.
 
 The completed REAL-RF campaign is documented in
 [`docs/REAL_RF_VALIDATION_CAMPAIGN_REPORT.md`](../docs/REAL_RF_VALIDATION_CAMPAIGN_REPORT.md).

@@ -142,7 +142,7 @@ python -m unittest discover -s tests -v
 Expected release result:
 
 ```text
-Ran 279 tests
+Ran 283 tests
 OK
 ```
 

@@ -6,3 +6,4 @@ __pycache__/
 /output
 /VALIDATION/real_rf/datasets/
 /VALIDATION/real_rf/reports/
+/signal_log.txt

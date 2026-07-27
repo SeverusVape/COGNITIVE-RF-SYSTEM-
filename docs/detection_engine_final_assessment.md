@@ -45,17 +45,18 @@ retuning either implementation.
 
 ## Evidence Produced
 
-The Phase 4 package contains:
+The public Phase 4 package contains:
 
-- paired raw trial records;
 - detector/scenario summary statistics;
 - Wilson 95% intervals for applicable rate metrics;
 - predeclared decision-gate results;
 - frozen protocol metadata;
 - detection, false-alarm, and runtime figures;
-- an auditable multi-sheet workbook;
-- workbook visual-QA previews; and
 - engineering interpretation.
+
+Paired raw trial records, the multi-sheet workbook, and workbook visual-QA
+previews are preserved in the private engineering archive. The public Python
+runner can reproduce those generated artifacts from the frozen protocol.
 
 Supporting unit tests cover the production adaptive detector, independent
 OS-CFAR implementation, shared evaluation framework, and comparison
@@ -128,14 +129,11 @@ frozen comparison.
 
 ## Repository Evidence Assessment
 
-Raw CSV data, protocol metadata, scripts, summary documents, figures, and the
-workbook are primary reproducibility evidence.
-
-Tracked `.inspect.ndjson` files are workbook-generation inspection traces.
-They are useful QA/debug records but are not required to reproduce detector
-measurements. The recommended cleanup is to move them into a designated
-workbook-QA archive in a separate reviewed repository-maintenance change.
-They were intentionally not moved or deleted during this assessment.
+Protocol metadata, reproducible scripts, summary documents, and key figures are
+the public reproducibility evidence. Raw CSV data, workbooks, previews, and
+`.inspect.ndjson` workbook-generation traces are preserved in the private
+engineering archive. They are supporting audit material rather than required
+public evidence.
 
 ## Lessons Learned
 

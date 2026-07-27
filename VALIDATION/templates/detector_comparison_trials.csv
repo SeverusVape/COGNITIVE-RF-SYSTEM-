@@ -1,1 +1,0 @@
-validation_id,configuration_id,timestamp,detector,scenario,trial_index,random_seed,sample_rate_hz,fft_size,bin_spacing_hz,expected_count,detected_count,true_positive_count,false_positive_count,false_negative_count,frame_has_false_alarm,frequency_errors_hz,runtime_ms,finite_threshold_median_db

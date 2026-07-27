@@ -1,9 +1,0 @@
-{
-  "validation_id": "DE-CMP-01",
-  "configuration_id": "CFG-C01",
-  "shared_spectrum_count": 800,
-  "detector_evaluation_count": 1600,
-  "passed_gate_count": 5,
-  "gate_count": 6,
-  "all_synthetic_gates_passed": false
-}

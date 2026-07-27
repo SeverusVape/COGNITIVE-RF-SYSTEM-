@@ -18,7 +18,7 @@ reviewers. Validation claims are intentionally conservative:
 
 | Claim | Evidence | Location | Result | Limitation |
 | --- | --- | --- | --- | --- |
-| A bin-centered complex tone is placed at the expected shifted FFT frequency. | AV-FFT-01 trials, summary, workbook, and frequency-error plot; FFT unit tests | [`VALIDATION/results/AV-FFT-01_CFG-S01_20260721/`](../VALIDATION/results/AV-FFT-01_CFG-S01_20260721/); `tests/test_fft_processing.py`; `tests/test_frequency_and_occupancy.py` | PASS | Synthetic bin-centered tones do not measure RTL-SDR oscillator error. |
+| A bin-centered complex tone is placed at the expected shifted FFT frequency. | AV-FFT-01 summary and frequency-error plot; reproducible runner; FFT unit tests | [`VALIDATION/results/AV-FFT-01_CFG-S01_20260721/`](../VALIDATION/results/AV-FFT-01_CFG-S01_20260721/); `VALIDATION/scripts/run_av_fft_01.py`; `tests/test_fft_processing.py`; `tests/test_frequency_and_occupancy.py` | PASS | Synthetic bin-centered tones do not measure RTL-SDR oscillator error. |
 | Hann processing preserves tested bin-centered relative amplitude and reduces tested off-bin leakage. | AV-FFT-02 window comparison and raw trials | [`VALIDATION/results/AV-FFT-02_CFG-S01_20260721/`](../VALIDATION/results/AV-FFT-02_CFG-S01_20260721/); `tests/test_fft_processing.py` | PASS | Relative numerical amplitude only; no calibrated analog amplitude claim. |
 | Frequency axes and image edges are centered and evenly spaced. | Direct frequency-axis and occupancy unit tests | `tests/test_frequency_and_occupancy.py`; `UTILS/frequency_axis.py` | PASS | Does not characterize physical tuner-frequency accuracy. |
 | The local percentile estimator follows the tested flat, curved, and stepped baselines without narrow-peak domination. | AV-NF-01 raw trials, summary, plot, and local-floor unit tests | [`VALIDATION/results/AV-NF-01_CFG-S01_20260722/`](../VALIDATION/results/AV-NF-01_CFG-S01_20260722/); `tests/test_local_noise_floor.py` | PASS | Synthetic baselines cannot predict every real receiver artifact or clutter environment. |
@@ -52,9 +52,9 @@ reviewers. Validation claims are intentionally conservative:
 | Survey measurements follow confirmed tune and settling rather than a blocking fixed wait. | Event-order, stale-confirmation, failure, cancellation, and completion tests; live surveys | `tests/test_survey_controller.py`; `SURVEY/survey_controller.py` | PASS and operationally verified | Settling adequacy is configuration- and receiver-dependent. |
 | Auto-Tune and recommendation status remain consistent across success, failure, clear, and manual-tune actions. | Status-state and timer-cancellation tests; manual hardware testing | `tests/test_survey_controller.py`; `tests/test_ui_status_html.py` | PASS | Hardware disconnection may still require operator recovery. |
 
-The retired GUI validation logger is documented in the four historical
-hardware-validation documents. Those files preserve engineering history but
-are not the current operator workflow.
+The retired GUI validation session data and its historical documents are held
+in the private engineering archive. Current REAL-RF validation uses the
+standalone capture/replay workflow.
 
 ## 5. REAL-RF Validation
 
@@ -71,8 +71,8 @@ are not the current operator workflow.
 
 | Claim | Evidence | Location | Result | Limitation |
 | --- | --- | --- | --- | --- |
-| Current deterministic software behavior passes the complete automated suite. | 279 tests across 28 test modules | `tests/`; [environment freeze report](ENVIRONMENT_FREEZE_REPORT.md) | `Ran 279 tests` — `OK` | Automated tests do not validate USB hardware, antenna conditions, propagation, or calibrated RF performance. |
-| The pinned Python environment is internally consistent. | Exact dependency audit, `pip check`, CLI smoke checks | `requirements.txt`; [environment configuration](ENVIRONMENT_CONFIGURATION.md); environment freeze report | PASS | Package hashes and non-macOS platform qualification remain outside the current freeze. |
+| Current deterministic software behavior passes the complete automated suite. | 283 tests | `tests/`; [release-candidate verification](RELEASE_CANDIDATE_VERIFICATION_REPORT.md) | `Ran 283 tests` — `OK` | Automated tests do not validate USB hardware, antenna conditions, propagation, or calibrated RF performance. |
+| The pinned Python environment is internally consistent. | Exact dependency audit, `pip check`, CLI smoke checks | `requirements.txt`; [environment configuration](ENVIRONMENT_CONFIGURATION.md); [release-candidate verification](RELEASE_CANDIDATE_VERIFICATION_REPORT.md) | PASS | Package hashes and non-macOS platform qualification remain outside the current freeze. |
 
 ## Evidence-Document Review
 
@@ -84,28 +84,13 @@ are not the current operator workflow.
 - `VALIDATION/validation_matrix.csv`
 - `VALIDATION/results/*/README.md` and primary summaries
 - `docs/ENVIRONMENT_CONFIGURATION.md`
-- `docs/ENVIRONMENT_FREEZE_REPORT.md`
-
-### Historical documents
-
-- `docs/detection_engine_evolution_phase1.md` through `phase4.md`
-- `docs/hardware_validation_framework.md`
-- `docs/hardware_validation_operator_guide.md`
-- `docs/hardware_validation_safety_performance.md`
-- `docs/hardware_validation_framework_final_report.md`
-
-The detector-evolution documents preserve decision history. The hardware
-validation documents describe the retired GUI workflow and are explicitly
-marked historical.
+- `docs/RELEASE_CANDIDATE_VERIFICATION_REPORT.md`
 
 ### Duplicate and supporting artifacts
 
-- CSV, JSON, workbook, and PNG outputs within one experiment are complementary
-  formats, not contradictory results.
-- `*.inspect.ndjson` files are workbook-generation QA traces and are not
-  primary measurement evidence.
-- Header-only files under `VALIDATION/templates/` are procedures/templates,
-  not completed evidence.
+- Public JSON/CSV summaries and PNG plots preserve the reviewer-facing result.
+- Raw trial exports, workbooks, previews, inspection traces, and header-only
+  templates are preserved in the private engineering archive.
 - Per-dataset REAL-RF reports intentionally repeat the same output schema for
   nine distinct captures.
 
@@ -113,10 +98,8 @@ marked historical.
 
 - A final tagged-commit test log has not yet been packaged as a standalone
   release artifact.
-- Final UI/demo screenshots and a backup demonstration recording remain to be
-  selected.
+- Final UI screenshots are available in [`docs/screenshots/`](screenshots/).
 - External IQ archives need a dataset manifest, storage location, and
   cryptographic checksums.
 - A final report/paper and presentation should cite this index rather than
   linking directly to every raw artifact.
-
