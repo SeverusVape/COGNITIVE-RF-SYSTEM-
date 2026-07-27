@@ -1,4 +1,10 @@
-from rtlsdr import RtlSdr
+from SDR.rtlsdr_library import (
+    librtlsdr_import_environment
+)
+
+
+with librtlsdr_import_environment():
+    from rtlsdr import RtlSdr
 
 
 class SDRManager:
